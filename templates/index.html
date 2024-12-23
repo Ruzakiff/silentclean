@@ -21,7 +21,108 @@
       .img-fluid:hover {
         transform: scale(1.02);
       }
+
+      @keyframes slideWords {
+        0% { content: "Tesla"; transform: translateY(-100%); opacity: 0; }
+        15% { content: "Tesla"; transform: translateY(0); opacity: 1; }
+        20% { content: "Tesla"; transform: translateY(100%); opacity: 0; }
+        
+        25% { content: "Toyota"; transform: translateY(-100%); opacity: 0; }
+        35% { content: "Toyota"; transform: translateY(0); opacity: 1; }
+        40% { content: "Toyota"; transform: translateY(100%); opacity: 0; }
+        
+        45% { content: "BMW"; transform: translateY(-100%); opacity: 0; }
+        55% { content: "BMW"; transform: translateY(0); opacity: 1; }
+        60% { content: "BMW"; transform: translateY(100%); opacity: 0; }
+        
+        65% { content: "Ride"; transform: translateY(-100%); opacity: 0; }
+        75% { content: "Ride"; transform: translateY(-20%); opacity: 1; }
+        85% { content: "Ride"; transform: translateY(10%); opacity: 1; }
+        90% { content: "Ride"; transform: translateY(-5%); opacity: 1; }
+        95% { content: "Ride"; transform: translateY(2%); opacity: 1; }
+        100% { content: "Ride"; transform: translateY(0); opacity: 1; }
+      }
+
+      .rotating-word::before {
+        content: "Ride";
+        animation: slideWords 3.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+        opacity: 0;
+      }
+
+      .rotating-word {
+        position: relative;
+        display: inline-block;
+        min-width: 120px; /* Prevents layout shift */
+        text-align: left;
+        overflow: hidden;
+      }
+
+      .word-slot {
+        height: 1.5em;
+        position: relative;
+        display: inline-block;
+        min-width: 120px;
+        text-align: left;
+        overflow: hidden;
+        margin-left: 15px;
+        transform: translateY(0.2em);
+      }
+      
+      .words-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        transition: transform 0.5s ease;
+      }
+      
+      .word {
+        display: block;
+        height: 100%;
+        line-height: 1.7;    /* Default for vertical/narrow screens */
+        white-space: nowrap;
+        position: absolute;
+        left: 0;
+        width: auto;
+        min-width: 100%;
+        overflow: visible;
+      }
+
+      /* Wide screen adjustment */
+      @media (min-width: 992px) {
+        .word {
+          line-height: 1.65;    /* Slightly reduced for wide screens */
+        }
+        .word-slot {
+          transform: translateY(0.3em);  /* Adjusted for wide screens */
+        }
+      }
+
+      /* Ensure container is wide enough */
+      .d-inline-flex {
+        min-width: fit-content;
+      }
+
+      /* Responsive adjustments */
+      @media (max-width: 768px) {
+        .word-slot {
+          min-width: 100px;
+          margin-left: 10px;
+          transform: translateY(0.25em);
+        }
+      }
+
+      @media (max-width: 576px) {
+        .word-slot {
+          min-width: 80px;
+          margin-left: 8px;
+          transform: translateY(0.3em);
+        }
+      }
     </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <link rel="icon" href="data:,">
   </head>
   <body>
     <!-- Hero Section -->
@@ -41,8 +142,18 @@
                 <div class="col-md-6">
                     <div class="d-flex flex-column gap-4">
                         <h1 class="display-3 fw-light">
-                            Your Vehicle,<br>
-                            <span class="fw-normal">Always Spotless</span>
+                            Your Ride,<br>
+                            <div class="d-inline-flex align-items-baseline">
+                                Always <div class="word-slot">
+                                    <div class="words-container">
+                                        <span class="word">Clean</span>
+                                        <span class="word">Fresh</span>
+                                        <span class="word">Perfect</span>
+                                        <span class="word">Spotless</span>
+                                        <span class="word">Effortless</span>
+                                    </div>
+                                </div>
+                            </div>
                         </h1>
                         <p class="lead text-secondary fw-light">
                             On-demand Vehicle cleaning at home or while you charge.
@@ -68,6 +179,79 @@
 
     <!-- Bootstrap JavaScript Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const wordSlot = document.querySelector('.word-slot');
+            const container = wordSlot.querySelector('.words-container');
+            const words = container.querySelectorAll('.word');
+            let height = wordSlot.offsetHeight;
+            const wordCount = words.length;
+            let current = 0;
+            let maxWidth = 0;
+            let animationInterval;
+
+            function updateDimensions() {
+                // Recalculate height
+                height = wordSlot.offsetHeight;
+                
+                // Recalculate max width
+                maxWidth = 0;
+                words.forEach((word, index) => {
+                    maxWidth = Math.max(maxWidth, word.offsetWidth);
+                    word.style.top = `${index * height}px`;
+                });
+                
+                // Update container width
+                wordSlot.style.width = `${maxWidth}px`;
+            }
+
+            // Initial setup
+            updateDimensions();
+
+            // Handle window resize
+            let resizeTimeout;
+            window.addEventListener('resize', () => {
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(updateDimensions, 250);
+            });
+
+            // Handle font loading
+            document.fonts.ready.then(updateDimensions);
+
+            function rotate() {
+                current++;
+                container.style.transform = `translateY(-${current * height}px)`;
+                
+                if (current === wordCount) {
+                    setTimeout(() => {
+                        container.style.transition = 'none';
+                        current = 0;
+                        container.style.transform = 'translateY(0)';
+                        setTimeout(() => {
+                            container.style.transition = 'transform 0.5s ease';
+                        }, 50);
+                    }, 500);
+                }
+            }
+
+            // Start animation
+            setTimeout(() => {
+                animationInterval = setInterval(rotate, 2000);
+            }, 1000);
+
+            // Cleanup on page visibility change
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden) {
+                    clearInterval(animationInterval);
+                } else {
+                    current = 0;
+                    container.style.transform = 'translateY(0)';
+                    animationInterval = setInterval(rotate, 2000);
+                }
+            });
+        });
+    </script>
   </body>
 </html>
+
 

@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, send_from_directory
 from datetime import datetime
 import os
 
@@ -76,6 +76,11 @@ def contact():
 def about():
     return render_template('about.html')
 
+# @app.route('/favicon.ico')
+# def favicon():
+#     return send_from_directory(os.path.join(app.root_path, 'static'),
+#                              'favicon.ico', mimetype='image/vnd.microsoft.icon')
+
 # Error handlers
 @app.errorhandler(404)
 def page_not_found(e):
@@ -102,5 +107,5 @@ if __name__ == '__main__':
     # Ensure the static/images directory exists
     os.makedirs('static/images', exist_ok=True)
     
-    # Run the app
-    app.run(debug=True)
+    # Run the app with host='0.0.0.0' to make it publicly accessible
+    app.run(host='0.0.0.0', port=8080, debug=False)
