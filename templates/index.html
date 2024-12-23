@@ -92,7 +92,7 @@
       /* Wide screen adjustment */
       @media (min-width: 992px) {
         .word {
-          line-height: 1.65;    /* Slightly reduced for wide screens */
+          line-height: 1.7;    /* Slightly reduced for wide screens */
         }
         .word-slot {
           transform: translateY(0.3em);  /* Adjusted for wide screens */
@@ -120,8 +120,38 @@
           transform: translateY(0.3em);
         }
       }
+
+      .card {
+        transition: transform 0.3s ease;
+      }
+      
+      .card:hover {
+        transform: translateY(-5px);
+      }
+
+      .rounded-circle {
+        width: 80px;
+        height: 80px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      /* Optional: Add connecting lines between cards on desktop */
+      @media (min-width: 768px) {
+        .col-md-4:not(:last-child) .card::after {
+          content: '';
+          position: absolute;
+          top: 30%;
+          right: -15%;
+          width: 30%;
+          height: 2px;
+          background: var(--bs-primary);
+          opacity: 0.1;
+        }
+      }
     </style>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="icon" href="data:,">
   </head>
   <body>
@@ -156,13 +186,13 @@
                             </div>
                         </h1>
                         <p class="lead text-secondary fw-light">
-                            On-demand Vehicle cleaning at home or while you charge.
+                            We clean your car while you live your life—quietly, seamlessly, and without interruptions.
                             <span class="d-block mt-2 text-secondary-emphasis">Convenience. Quality. Effortless.</span>
                         </p>
                         <div class="d-flex flex-column flex-sm-row gap-3">
                             <a href="/booking" 
                                class="btn btn-light btn-lg px-4">
-                                Book Now
+                                Get Started
                             </a>
                             <a href="#how-it-works" 
                                class="btn btn-outline-light btn-lg px-4">
@@ -171,6 +201,135 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Lifestyle Value Proposition Section -->
+    <section class="py-5 bg-light">
+        <div class="container">
+            <h2 class="display-4 text-center mb-5">Never Think About Car Washes Again.</h2>
+            
+            <div class="row g-4">
+                <!-- Invisible Convenience -->
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 bg-transparent">
+                        <div class="card-body text-center">
+                            <div class="mb-4">
+                                <i class="fa-solid fa-wand-magic-sparkles display-4"></i>
+                            </div>
+                            <h3 class="h4 mb-3">Invisible Convenience</h3>
+                            <p class="text-secondary">Your car is cleaned where it's parked, whether at home, work, or charging.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Premium Results -->
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 bg-transparent">
+                        <div class="card-body text-center">
+                            <div class="mb-4">
+                                <i class="fa-solid fa-shield-halved display-4"></i>
+                            </div>
+                            <h3 class="h4 mb-3">Premium Results</h3>
+                            <p class="text-secondary">Specialized care for EVs, tailored for touchscreens, vegan leather, and high-end exteriors.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Eco-Friendly -->
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 bg-transparent">
+                        <div class="card-body text-center">
+                            <div class="mb-4">
+                                <i class="fa-solid fa-seedling display-4"></i>
+                            </div>
+                            <h3 class="h4 mb-3">Eco-Friendly</h3>
+                            <p class="text-secondary">Biodegradable materials and water-saving techniques to align with your values.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Image Gallery -->
+            <div class="row g-4 mt-5">
+                <div class="col-md-6">
+                    <img src="/static/images/tesla-interior-clean.jpg" alt="Clean Tesla Interior" class="img-fluid rounded shadow-sm">
+                </div>
+                <div class="col-md-6">
+                    <img src="/static/images/tesla-exterior-clean.jpg" alt="Clean Tesla Exterior" class="img-fluid rounded shadow-sm">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section id="how-it-works" class="py-5">
+        <div class="container">
+            <h2 class="display-4 text-center mb-5">Effortless Cleanliness, Delivered.</h2>
+            
+            <div class="row g-4 justify-content-center">
+                <!-- Step 1 -->
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body text-center p-4">
+                            <div class="mb-4">
+                                <div class="rounded-circle bg-primary bg-opacity-10 d-inline-flex p-3">
+                                    <i class="fa-solid fa-calendar-check display-6 text-primary"></i>
+                                </div>
+                            </div>
+                            <h3 class="h4 mb-3">Book Online</h3>
+                            <p class="text-secondary mb-0">Schedule in under 60 seconds. Just tell us where your car is parked.</p>
+                        </div>
+                        <div class="card-footer border-0 bg-primary bg-opacity-10 py-3">
+                            <div class="text-primary text-center fw-bold">Step 1</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body text-center p-4">
+                            <div class="mb-4">
+                                <div class="rounded-circle bg-primary bg-opacity-10 d-inline-flex p-3">
+                                    <i class="fa-solid fa-spray-can-sparkles display-6 text-primary"></i>
+                                </div>
+                            </div>
+                            <h3 class="h4 mb-3">We Handle the Rest</h3>
+                            <p class="text-secondary mb-0">Our team arrives and cleans your car—at home, work, or charging—without interruptions.</p>
+                        </div>
+                        <div class="card-footer border-0 bg-primary bg-opacity-10 py-3">
+                            <div class="text-primary text-center fw-bold">Step 2</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body text-center p-4">
+                            <div class="mb-4">
+                                <div class="rounded-circle bg-primary bg-opacity-10 d-inline-flex p-3">
+                                    <i class="fa-solid fa-car display-6 text-primary"></i>
+                                </div>
+                            </div>
+                            <h3 class="h4 mb-3">Enjoy the Results</h3>
+                            <p class="text-secondary mb-0">Your car is spotless and ready whenever you are.</p>
+                        </div>
+                        <div class="card-footer border-0 bg-primary bg-opacity-10 py-3">
+                            <div class="text-primary text-center fw-bold">Step 3</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CTA Button -->
+            <div class="text-center mt-5">
+                <a href="/booking" class="btn btn-primary btn-lg px-5 py-3">
+                    Book Your First Clean Today
+                    <i class="fa-solid fa-arrow-right ms-2"></i>
+                </a>
             </div>
         </div>
     </section>
@@ -188,21 +347,22 @@
             const wordCount = words.length;
             let current = 0;
             let maxWidth = 0;
-            let animationInterval;
 
             function updateDimensions() {
-                // Recalculate height
                 height = wordSlot.offsetHeight;
-                
-                // Recalculate max width
                 maxWidth = 0;
                 words.forEach((word, index) => {
                     maxWidth = Math.max(maxWidth, word.offsetWidth);
                     word.style.top = `${index * height}px`;
                 });
-                
-                // Update container width
                 wordSlot.style.width = `${maxWidth}px`;
+            }
+
+            function rotate() {
+                if (current < wordCount - 1) {  // Stop before the last word
+                    current++;
+                    container.style.transform = `translateY(-${current * height}px)`;
+                }
             }
 
             // Initial setup
@@ -218,40 +378,17 @@
             // Handle font loading
             document.fonts.ready.then(updateDimensions);
 
-            function rotate() {
-                current++;
-                container.style.transform = `translateY(-${current * height}px)`;
-                
-                if (current === wordCount) {
-                    setTimeout(() => {
-                        container.style.transition = 'none';
-                        current = 0;
-                        container.style.transform = 'translateY(0)';
-                        setTimeout(() => {
-                            container.style.transition = 'transform 0.5s ease';
-                        }, 50);
-                    }, 500);
+            // Start animation with intervals
+            let rotationInterval = setInterval(() => {
+                rotate();
+                if (current >= wordCount - 1) {  // Clear interval after reaching last word
+                    clearInterval(rotationInterval);
                 }
-            }
-
-            // Start animation
-            setTimeout(() => {
-                animationInterval = setInterval(rotate, 2000);
-            }, 1000);
-
-            // Cleanup on page visibility change
-            document.addEventListener('visibilitychange', () => {
-                if (document.hidden) {
-                    clearInterval(animationInterval);
-                } else {
-                    current = 0;
-                    container.style.transform = 'translateY(0)';
-                    animationInterval = setInterval(rotate, 2000);
-                }
-            });
+            }, 800);
         });
     </script>
   </body>
 </html>
+
 
 

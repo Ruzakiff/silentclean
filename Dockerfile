@@ -9,7 +9,7 @@ COPY . .
 RUN pip install --no-cache-dir -r requirements.txt
 #Copv the rest of the application code into the
 # Expose port 5000
-EXPOSE 5000
+EXPOSE 8080
 # Set the environment variable for Flask
 
 CMD ["python3","backend.py"]
