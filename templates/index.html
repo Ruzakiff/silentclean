@@ -58,14 +58,13 @@
       }
 
       .word-slot {
-        height: 1.5em;
+        height: 1.4em;
         position: relative;
         display: inline-block;
         min-width: 120px;
         text-align: left;
         overflow: hidden;
         margin-left: 15px;
-        transform: translateY(0.2em);
       }
       
       .words-container {
@@ -80,45 +79,15 @@
       .word {
         display: block;
         height: 100%;
-        line-height: 1.7;    /* Default for vertical/narrow screens */
         white-space: nowrap;
         position: absolute;
         left: 0;
         width: auto;
         min-width: 100%;
         overflow: visible;
-      }
-
-      /* Wide screen adjustment */
-      @media (min-width: 992px) {
-        .word {
-          line-height: 1.7;    /* Slightly reduced for wide screens */
-        }
-        .word-slot {
-          transform: translateY(0.3em);  /* Adjusted for wide screens */
-        }
-      }
-
-      /* Ensure container is wide enough */
-      .d-inline-flex {
-        min-width: fit-content;
-      }
-
-      /* Responsive adjustments */
-      @media (max-width: 768px) {
-        .word-slot {
-          min-width: 100px;
-          margin-left: 10px;
-          transform: translateY(0.25em);
-        }
-      }
-
-      @media (max-width: 576px) {
-        .word-slot {
-          min-width: 80px;
-          margin-left: 8px;
-          transform: translateY(0.3em);
-        }
+        line-height: 1;
+        top: 0;
+        transform: translateY(35%);
       }
 
       .card {
@@ -353,15 +322,15 @@
                 maxWidth = 0;
                 words.forEach((word, index) => {
                     maxWidth = Math.max(maxWidth, word.offsetWidth);
-                    word.style.top = `${index * height}px`;
+                    word.style.top = `${index * height * 1.2}px`;
                 });
                 wordSlot.style.width = `${maxWidth}px`;
             }
 
             function rotate() {
-                if (current < wordCount - 1) {  // Stop before the last word
+                if (current < wordCount - 1) {
                     current++;
-                    container.style.transform = `translateY(-${current * height}px)`;
+                    container.style.transform = `translateY(-${current * height * 1.2}px)`;
                 }
             }
 
