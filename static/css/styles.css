@@ -115,7 +115,7 @@
   
   /* Hero Section Styles */
   .hero-section {
-    background: linear-gradient(135deg, #0F1736 0%, #1F1F1F 100%);
+    background: linear-gradient(135deg, #1C1E26 0%, #1F1F1F 100%);
     position: relative;
     overflow: hidden;
     min-height: 90vh;
@@ -169,9 +169,9 @@
     bottom: 0;
     background: linear-gradient(
         90deg,
-        rgba(15, 23, 54, 0.95) 0%,
-        rgba(15, 23, 54, 0.8) 40%,
-        rgba(15, 23, 54, 0) 100%
+        rgba(28, 30, 38, 0.95) 0%,
+        rgba(28, 30, 38, 0.8) 40%,
+        rgba(28, 30, 38, 0) 100%
     );
   }
   
@@ -195,7 +195,7 @@
   
   .hero-content .lead {
     margin-bottom: 25px;
-    color: #E0E0E0 !important;
+    color: #F4F4F4 !important;
   }
   
   /* CTA Button Styles */
@@ -210,14 +210,14 @@
   }
   
   .btn-light {
-    background: rgba(255, 255, 255, 0.95);
+    background: rgba(244, 244, 244, 0.95);
     border: 1px solid rgba(255, 255, 255, 0.2);
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   }
   
   .btn-light:hover {
     background: #5ABFBF;
-    color: white;
+    color: #F4F4F4;
     border-color: #5ABFBF;
     box-shadow: 0 6px 25px rgba(90, 191, 191, 0.25);
     transform: translateY(-2px);
@@ -243,12 +243,12 @@
   
   /* Text Styles */
   .text-subtle {
-    color: #9CA3AF;  /* Lighter gray color */
+    color: #6B7280;
     font-style: italic;
     display: block;
-    margin-top: 20px;  /* Increased spacing */
+    margin-top: 20px;
     margin-bottom: 35px;
-    font-size: 0.95em;  /* Slightly smaller text */
-    line-height: 1.6;  /* Better line height */
-    opacity: 0.85;  /* Subtle transparency */
+    font-size: 0.95em;
+    line-height: 1.6;
+    opacity: 0.85;
   }
