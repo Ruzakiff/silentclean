@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Your Detail | Tesla Detail</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --midnight-blue: #1C1E26;
+            --platinum-white: #F4F4F4;
+            --teal-green: #5ABFBF;
+            --gold: #E4C580;
+            --slate-gray: #6B7280;
+            --seafoam: #DFF5F3;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        body {
+            background-color: var(--platinum-white);
+            color: var(--midnight-blue);
+        }
+
+        .booking-container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .booking-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .booking-header h1 {
+            font-size: 2.5rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .booking-header p {
+            color: var(--slate-gray);
+            font-size: 1.1rem;
+        }
+
+        .booking-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 40px;
+        }
+
+        .service-options {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: 0 4px 12px rgba(28, 30, 38, 0.08);
+        }
+
+        .service-card {
+            border: 2px solid var(--seafoam);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .service-card:hover {
+            border-color: var(--teal-green);
+        }
+
+        .service-card.selected {
+            border-color: var(--teal-green);
+            background: var(--seafoam);
+        }
+
+        .service-card h3 {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .service-price {
+            color: var(--teal-green);
+            font-size: 1.25rem;
+        }
+
+        .service-features {
+            list-style: none;
+            margin-top: 16px;
+        }
+
+        .service-features li {
+            color: var(--slate-gray);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+        }
+
+        .service-features li i {
+            color: var(--teal-green);
+            margin-right: 8px;
+        }
+
+        .booking-summary {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            position: sticky;
+            top: 40px;
+            box-shadow: 0 4px 12px rgba(28, 30, 38, 0.08);
+        }
+
+        .summary-section {
+            margin-bottom: 24px;
+        }
+
+        .summary-section h3 {
+            color: var(--slate-gray);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 12px;
+        }
+
+        .date-picker, .time-picker {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--seafoam);
+            border-radius: 8px;
+            font-size: 1rem;
+            margin-bottom: 16px;
+            background: white;
+            color: var(--midnight-blue);
+        }
+
+        .book-button {
+            width: 100%;
+            padding: 16px;
+            background: var(--teal-green);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .book-button:hover {
+            background: #4BA8A8;
+        }
+
+        .total-price {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 2px solid var(--seafoam);
+        }
+
+        @media (max-width: 768px) {
+            .booking-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .booking-summary {
+                position: static;
+            }
+        }
+
+        .time-slots {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .time-slot {
+            padding: 12px 8px;
+            background: var(--platinum-white);
+            border: 2px solid var(--seafoam);
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.9rem;
+        }
+
+        .time-slot:hover {
+            border-color: var(--teal-green);
+            background: var(--seafoam);
+        }
+
+        .time-slot.selected {
+            background: var(--teal-green);
+            color: white;
+            border-color: var(--teal-green);
+        }
+
+        .time-slot.unavailable {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: var(--slate-gray);
+        }
+
+        .time-slots-loading {
+            text-align: center;
+            color: var(--slate-gray);
+            padding: 20px;
+        }
+
+        .no-slots-message {
+            text-align: center;
+            color: var(--slate-gray);
+            padding: 20px;
+            background: var(--platinum-white);
+            border-radius: 8px;
+            border: 2px solid var(--seafoam);
+        }
+    </style>
+</head>
+<body>
+    <div class="booking-container">
+        <div class="booking-header">
+            <h1>Book Your Detail</h1>
+            <p>Select your service and preferred time</p>
+        </div>
+
+        <div class="booking-grid">
+            <div class="service-options">
+                <div class="service-card selected">
+                    <h3>
+                        Full Detail
+                        <span class="service-price">$199</span>
+                    </h3>
+                    <p>Complete interior and exterior detailing service</p>
+                    <ul class="service-features">
+                        <li><i class="fas fa-check"></i> Exterior hand wash and wax</li>
+                        <li><i class="fas fa-check"></i> Interior deep clean</li>
+                        <li><i class="fas fa-check"></i> Glass cleaning and protection</li>
+                        <li><i class="fas fa-check"></i> Wheel and tire detail</li>
+                    </ul>
+                </div>
+
+                <div class="service-card">
+                    <h3>
+                        Interior Detail
+                        <span class="service-price">$149</span>
+                    </h3>
+                    <p>Comprehensive interior cleaning and sanitization</p>
+                    <ul class="service-features">
+                        <li><i class="fas fa-check"></i> Vacuum and steam clean</li>
+                        <li><i class="fas fa-check"></i> Leather conditioning</li>
+                        <li><i class="fas fa-check"></i> Dashboard and console detail</li>
+                        <li><i class="fas fa-check"></i> Air vent cleaning</li>
+                    </ul>
+                </div>
+
+                <div class="service-card">
+                    <h3>
+                        Exterior Detail
+                        <span class="service-price">$129</span>
+                    </h3>
+                    <p>Professional exterior cleaning and protection</p>
+                    <ul class="service-features">
+                        <li><i class="fas fa-check"></i> Paint correction</li>
+                        <li><i class="fas fa-check"></i> Ceramic coating</li>
+                        <li><i class="fas fa-check"></i> Wheel cleaning</li>
+                        <li><i class="fas fa-check"></i> Window treatment</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="booking-summary">
+                <div class="summary-section">
+                    <h3>Select Date</h3>
+                    <input type="date" class="date-picker">
+                </div>
+
+                <div class="summary-section">
+                    <h3>Select Time</h3>
+                    <div class="time-slots" id="timeSlots">
+                        <div class="time-slots-loading">
+                            <i class="fas fa-circle-notch fa-spin"></i>
+                            Loading available times...
+                        </div>
+                    </div>
+                </div>
+
+                <div class="summary-section">
+                    <h3>Vehicle Information</h3>
+                    <select class="time-picker">
+                        <option>Tesla Model 3</option>
+                        <option>Tesla Model Y</option>
+                        <option>Tesla Model S</option>
+                        <option>Tesla Model X</option>
+                    </select>
+                </div>
+
+                <div class="total-price">
+                    <span>Total</span>
+                    <span>$199</span>
+                </div>
+
+                <button class="book-button">Book Now</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class BookingSystem {
+            constructor() {
+                this.googleCalendarId = 'your_calendar_id';
+                this.servicesDuration = {
+                    'Full Detail': 180,
+                    'Interior Detail': 120,
+                    'Exterior Detail': 60
+                };
+                this.businessHours = {
+                    start: 9,
+                    end: 17
+                };
+                this.bufferTime = 30;
+            }
+
+            async getAvailableSlots(date, serviceType) {
+                try {
+                    const serviceName = serviceType.split('$')[0].trim();
+                    console.log('Service Name:', serviceName);
+                    console.log('Duration:', this.servicesDuration[serviceName]);
+
+                    const existingBookings = await this.fetchGoogleCalendarEvents(date);
+                    const slots = this.calculateAvailableSlots(
+                        date,
+                        this.servicesDuration[serviceName],
+                        existingBookings
+                    );
+                    
+                    console.log('Available Slots:', slots);
+                    return slots;
+                } catch (error) {
+                    console.error('Error fetching available slots:', error);
+                    return [];
+                }
+            }
+
+            calculateAvailableSlots(date, duration, existingBookings) {
+                if (!duration) {
+                    console.error('Invalid duration for service');
+                    return [];
+                }
+
+                const slots = [];
+                const startTime = this.businessHours.start * 60;
+                const endTime = this.businessHours.end * 60;
+
+                // Create slots every 30 minutes
+                for (let time = startTime; time <= endTime - duration; time += 30) {
+                    if (this.isSlotAvailable(time, duration, existingBookings)) {
+                        slots.push({
+                            time: this.formatTimeSlot(time),
+                            duration: duration
+                        });
+                    }
+                }
+
+                return slots;
+            }
+
+            isSlotAvailable(startTime, duration, existingBookings) {
+                const endTime = startTime + duration;
+
+                return !existingBookings.some(booking => {
+                    const bookingStart = this.timeToMinutes(booking.start);
+                    const bookingEnd = this.timeToMinutes(booking.end);
+                    return (startTime < bookingEnd && endTime > bookingStart);
+                });
+            }
+
+            formatTimeSlot(minutes) {
+                const hour = Math.floor(minutes / 60);
+                const minute = minutes % 60;
+                const period = hour >= 12 ? 'PM' : 'AM';
+                const formattedHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
+                return `${formattedHour}:${minute.toString().padStart(2, '0')} ${period}`;
+            }
+
+            timeToMinutes(time) {
+                const [hours, minutes] = time.split(':');
+                return parseInt(hours) * 60 + parseInt(minutes);
+            }
+
+            async fetchGoogleCalendarEvents(date) {
+                // Mock implementation - replace with actual Google Calendar API call
+                return new Promise((resolve) => {
+                    setTimeout(() => {
+                        resolve([
+                            { start: '10:00', end: '11:30' },
+                            { start: '14:00', end: '15:30' }
+                        ]);
+                    }, 1000);
+                });
+            }
+        }
+
+        // Initialize booking system
+        const bookingSystem = new BookingSystem();
+
+        // Update time slots when date or service changes
+        async function updateTimeSlots() {
+            const dateInput = document.querySelector('.date-picker').value;
+            const selectedServiceElement = document.querySelector('.service-card.selected h3');
+            
+            console.log('Selected Date:', dateInput);
+            console.log('Selected Service Element:', selectedServiceElement);
+            
+            if (!selectedServiceElement) {
+                console.error('No service selected');
+                return;
+            }
+
+            const selectedService = selectedServiceElement.textContent;
+            console.log('Selected Service Text:', selectedService);
+
+            const timeSlotsContainer = document.getElementById('timeSlots');
+            timeSlotsContainer.innerHTML = '<div class="time-slots-loading"><i class="fas fa-circle-notch fa-spin"></i> Loading available times...</div>';
+
+            try {
+                const availableSlots = await bookingSystem.getAvailableSlots(dateInput, selectedService);
+                console.log('Returned Slots:', availableSlots);
+
+                if (!availableSlots || availableSlots.length === 0) {
+                    timeSlotsContainer.innerHTML = `
+                        <div class="no-slots-message">
+                            <i class="fas fa-calendar-times"></i>
+                            <p>No available times on this date. Please try another day.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                timeSlotsContainer.innerHTML = availableSlots.map(slot => `
+                    <div class="time-slot" data-time="${slot.time}" data-duration="${slot.duration}">
+                        ${slot.time}
+                        <div class="duration">${slot.duration / 60}h</div>
+                    </div>
+                `).join('');
+
+                // Add click handlers for time slots
+                document.querySelectorAll('.time-slot').forEach(slot => {
+                    slot.addEventListener('click', () => {
+                        document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('selected'));
+                        slot.classList.add('selected');
+                    });
+                });
+            } catch (error) {
+                console.error('Error:', error);
+                timeSlotsContainer.innerHTML = `
+                    <div class="no-slots-message error">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <p>Error loading time slots. Please try again.</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Add event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Service card selection
+            document.querySelectorAll('.service-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    document.querySelectorAll('.service-card').forEach(c => c.classList.remove('selected'));
+                    card.classList.add('selected');
+                    
+                    const price = card.querySelector('.service-price').textContent;
+                    document.querySelector('.total-price span:last-child').textContent = price;
+                    
+                    updateTimeSlots();
+                });
+            });
+
+            // Date picker change
+            document.querySelector('.date-picker').addEventListener('change', updateTimeSlots);
+
+            // Set minimum date to today
+            const datePicker = document.querySelector('.date-picker');
+            const today = new Date().toISOString().split('T')[0];
+            datePicker.min = today;
+            datePicker.value = today;
+
+            // Initial time slots load
+            updateTimeSlots();
+        });
+    </script>
+</body>
+</html>

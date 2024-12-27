@@ -45,7 +45,8 @@
                             </h1>
                             
                             <p class="lead">
-                                Your spotless car, ready when you are. We handle the cleaning quietly, seamlessly, and effortlessly.
+                                No disruptions. No effort. Just a spotless car, wherever you are.
+                                <!-- Your spotless car, ready when you are. We handle the cleaning quietly, seamlessly, and effortlessly. -->
                                 <span class="text-subtle">One less thing to think about, and one more way to enjoy your day.</span>
                             </p>
                             
@@ -118,6 +119,108 @@
                     <img src="/static/images/tesla-exterior-clean.jpg" alt="Clean Tesla against blurred background" class="img-fluid rounded shadow-sm w-100" style="object-fit: cover; height: 400px;">
                 </div>
             </div>
+        </div>
+    </section>
+
+    <!-- Lifestyle Testimonials Section -->
+    <section class="py-5 bg-white">
+        <div class="container">
+            <h2 class="display-4 text-center mb-5">A Life Without Car Washes.</h2>
+            
+            <!-- Testimonials -->
+            <div class="row g-4 mb-5">
+                <!-- Testimonial 1 -->
+                <div class="col-lg-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body p-4">
+                            <div class="mb-3">
+                                <i class="fa-solid fa-quote-left text-primary opacity-25 display-3"></i>
+                            </div>
+                            <p class="lead mb-4">It's like magic—my car is always perfect, and I never even think about it.</p>
+                            <div class="d-flex align-items-center">
+                                <div class="flex-shrink-0">
+                                    <div class="rounded-circle bg-primary bg-opacity-10 p-3">
+                                        <i class="fa-solid fa-user text-primary"></i>
+                                    </div>
+                                </div>
+                                <div class="flex-grow-1 ms-3">
+                                    <h6 class="mb-1">Sarah M.</h6>
+                                    <p class="small text-muted mb-0">Model 3 Owner</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Testimonial 2 -->
+                <div class="col-lg-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body p-4">
+                            <div class="mb-3">
+                                <i class="fa-solid fa-quote-left text-primary opacity-25 display-3"></i>
+                            </div>
+                            <p class="lead mb-4">I love knowing my Tesla looks incredible without lifting a finger.</p>
+                            <div class="d-flex align-items-center">
+                                <div class="flex-shrink-0">
+                                    <div class="rounded-circle bg-primary bg-opacity-10 p-3">
+                                        <i class="fa-solid fa-user text-primary"></i>
+                                    </div>
+                                </div>
+                                <div class="flex-grow-1 ms-3">
+                                    <h6 class="mb-1">James R.</h6>
+                                    <p class="small text-muted mb-0">Model Y Owner</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Testimonial 3 -->
+                <div class="col-lg-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body p-4">
+                            <div class="mb-3">
+                                <i class="fa-solid fa-quote-left text-primary opacity-25 display-3"></i>
+                            </div>
+                            <p class="lead mb-4">I don't know how they do it, but they've freed up my weekends.</p>
+                            <div class="d-flex align-items-center">
+                                <div class="flex-shrink-0">
+                                    <div class="rounded-circle bg-primary bg-opacity-10 p-3">
+                                        <i class="fa-solid fa-user text-primary"></i>
+                                    </div>
+                                </div>
+                                <div class="flex-grow-1 ms-3">
+                                    <h6 class="mb-1">Michael T.</h6>
+                                    <p class="small text-muted mb-0">Model X Owner</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Before/After Slider -->
+            <div id="sliderContainer"></div>
+
+            <!-- Initialize the slider -->
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Draggable.min.js"></script>
+            <script src="/static/js/before-after-slider.js"></script>
+
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    const container = document.getElementById('sliderContainer');
+                    const slider = new BeforeAfterSlider(container, {
+                        images: [
+                            {
+                                before: '/static/images/tesla-dirty.jpg',
+                                after: '/static/images/tesla-cleaning.jpg'
+                            }
+                        ]
+                    });
+                });
+            </script>
         </div>
     </section>
 
@@ -245,8 +348,13 @@
             }, 800);
         });
     </script>
+
+    <!-- Add this to your scripts section -->
+    <script src="/static/js/before-after-slider.js"></script>
+
   </body>
 </html>
+
 
 
 
