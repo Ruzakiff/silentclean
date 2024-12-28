@@ -1,0 +1,230 @@
+<!-- Pricing Section -->
+<section id="pricing" class="pricing-section py-5 bg-white">
+    <div class="container">
+        <h2 class="display-4 text-center mb-5">Effortless Luxury at a Price That Works for You.</h2>
+        
+        <!-- Pricing Cards -->
+        <div class="row g-4 justify-content-center">
+            <!-- Pay-As-You-Go -->
+            <div class="col-lg-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <div class="text-center mb-4">
+                            <div class="rounded-circle bg-primary bg-opacity-10 d-inline-flex p-3 mb-3">
+                                <i class="fa-solid fa-calendar display-6 text-primary"></i>
+                            </div>
+                            <h3 class="h4">Pay-As-You-Go</h3>
+                            <p class="text-muted">For occasional cleanings</p>
+                        </div>
+                        <ul class="list-unstyled mb-4">
+                            <li class="mb-3 d-flex align-items-center">
+                                <i class="fa-solid fa-check text-primary me-3"></i>
+                                <span>Book whenever you need</span>
+                            </li>
+                            <li class="mb-3 d-flex align-items-center">
+                                <i class="fa-solid fa-check text-primary me-3"></i>
+                                <span>No commitment required</span>
+                            </li>
+                            <li class="mb-3 d-flex align-items-center">
+                                <i class="fa-solid fa-check text-primary me-3"></i>
+                                <span>Premium or basic service</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Subscription Plans -->
+            <div class="col-lg-4">
+                <div class="card h-100 border-0 shadow position-relative">
+                    <!-- Popular Badge -->
+                    <div class="position-absolute top-0 start-50 translate-middle">
+                        <span class="badge bg-primary px-3 py-2 rounded-pill">Most Popular</span>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="text-center mb-4">
+                            <div class="rounded-circle bg-primary bg-opacity-10 d-inline-flex p-3 mb-3">
+                                <i class="fa-solid fa-repeat display-6 text-primary"></i>
+                            </div>
+                            <h3 class="h4">Subscription Plans</h3>
+                            <p class="text-muted">Never think about car washes again with regular, scheduled cleaning</p>
+                        </div>
+                        <ul class="list-unstyled mb-4">
+                            <li class="mb-3 d-flex align-items-center">
+                                <i class="fa-solid fa-check text-primary me-3"></i>
+                                <span>Choose any frequency that works for you</span>
+                            </li>
+                            <li class="mb-3 d-flex align-items-center">
+                                <i class="fa-solid fa-check text-primary me-3"></i>
+                                <span>Priority scheduling</span>
+                            </li>
+                            <li class="mb-3 d-flex align-items-center">
+                                <i class="fa-solid fa-check text-primary me-3"></i>
+                                <span>Up to 20% savings</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fleet Services -->
+            <div class="col-lg-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <div class="text-center mb-4">
+                            <div class="rounded-circle bg-primary bg-opacity-10 d-inline-flex p-3 mb-3">
+                                <i class="fa-solid fa-building display-6 text-primary"></i>
+                            </div>
+                            <h3 class="h4">Fleet Services</h3>
+                            <p class="text-muted">For EV fleets and businesses</p>
+                        </div>
+                        <ul class="list-unstyled mb-4">
+                            <li class="mb-3 d-flex align-items-center">
+                                <i class="fa-solid fa-check text-primary me-3"></i>
+                                <span>Custom fleet solutions</span>
+                            </li>
+                            <li class="mb-3 d-flex align-items-center">
+                                <i class="fa-solid fa-check text-primary me-3"></i>
+                                <span>Volume pricing available</span>
+                            </li>
+                            <li class="mb-3 d-flex align-items-center">
+                                <i class="fa-solid fa-check text-primary me-3"></i>
+                                <span>Dedicated account manager</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Calculator Section -->
+        <div class="calculator-section mt-5 pt-4">
+            <h3 class="h2 text-center mb-4">Calculate Your Price</h3>
+            
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body p-4">
+                            <form id="price-calculator" class="needs-validation" novalidate>
+                                <!-- Vehicle Type -->
+                                <div class="mb-4">
+                                    <label class="form-label">Vehicle Type</label>
+                                    <select class="form-select" required name="vehicleType">
+                                        <option value="">Select your vehicle...</option>
+                                        <option value="sedan">Tesla Model 3/Y</option>
+                                        <option value="suv">Tesla Model X/S</option>
+                                        <option value="other_ev">Other EV</option>
+                                        <option value="other">Other Vehicle</option>
+                                    </select>
+                                </div>
+
+                                <!-- Service Frequency -->
+                                <div class="mb-4">
+                                    <label class="form-label">Cleaning Frequency</label>
+                                    <select class="form-select" required name="frequency">
+                                        <option value="">Select frequency...</option>
+                                        <option value="once">One-time Service</option>
+                                        <option value="monthly">Monthly</option>
+                                        <option value="biweekly">Bi-weekly</option>
+                                        <option value="weekly">Weekly</option>
+                                    </select>
+                                </div>
+
+                                <!-- Service Type -->
+                                <div class="mb-4">
+                                    <label class="form-label">Service Type</label>
+                                    <div class="row g-3">
+                                        <div class="col-sm-6">
+                                            <div class="form-check card p-3">
+                                                <input class="form-check-input" type="radio" name="serviceType" value="basic" required>
+                                                <label class="form-check-label">
+                                                    <strong>Essential Clean</strong>
+                                                    <small class="d-block text-muted">Interior & exterior basics</small>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="form-check card p-3">
+                                                <input class="form-check-input" type="radio" name="serviceType" value="premium" required>
+                                                <label class="form-check-label">
+                                                    <strong>Premium Detail</strong>
+                                                    <small class="d-block text-muted">Deep clean & protection</small>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Calculate Button -->
+                                <div class="text-center">
+                                    <button type="submit" class="btn btn-primary btn-lg px-5">
+                                        Calculate Price
+                                        <i class="fa-solid fa-arrow-right ms-2"></i>
+                                    </button>
+                                </div>
+                            </form>
+
+                            <!-- Price Result -->
+                            <div id="price-result" class="mt-4 text-center" style="display: none;">
+                                <h4 class="mb-3">Your Estimated Price</h4>
+                                <div class="display-4 text-primary mb-3">$<span id="calculated-price">0</span></div>
+                                <p class="text-muted mb-4">This is an estimate. Final price may vary based on vehicle condition.</p>
+                                <a href="/booking" class="btn btn-primary btn-lg px-5">
+                                    Book Now
+                                    <i class="fa-solid fa-arrow-right ms-2"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Calculator JavaScript -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const calculator = document.getElementById('price-calculator');
+    const result = document.getElementById('price-result');
+    const priceSpan = document.getElementById('calculated-price');
+
+    calculator.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Get form values
+        const vehicleType = calculator.vehicleType.value;
+        const frequency = calculator.frequency.value;
+        const serviceType = calculator.serviceType.value;
+
+        // Basic price calculation logic (customize these values)
+        let basePrice = {
+            'sedan': 80,
+            'suv': 100,
+            'other_ev': 90,
+            'other': 85
+        }[vehicleType] || 0;
+
+        // Frequency multiplier
+        let multiplier = {
+            'once': 1,
+            'monthly': 0.9,
+            'biweekly': 0.85,
+            'weekly': 0.8
+        }[frequency] || 1;
+
+        // Service type multiplier
+        let serviceMultiplier = serviceType === 'premium' ? 1.5 : 1;
+
+        // Calculate final price
+        let finalPrice = Math.round(basePrice * multiplier * serviceMultiplier);
+
+        // Display result
+        priceSpan.textContent = finalPrice;
+        result.style.display = 'block';
+
+        // Smooth scroll to result
+        result.scrollIntoView({ behavior: 'smooth' });
+    });
+});
+</script>

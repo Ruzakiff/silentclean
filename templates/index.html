@@ -13,7 +13,7 @@
   </head>
   <body>
     <!-- Hero Section -->
-    <section class="hero-section text-white">
+    <section id="hero" class="hero-section text-white">
         <!-- Background image -->
         <div class="hero-image-wrapper">
             <img 
@@ -113,17 +113,193 @@
                 </div>
             </div>
 
-            <!-- Image Gallery -->
+            <!-- Before/After Slider -->
             <div class="row g-4 mt-5">
                 <div class="col-12">
-                    <img src="/static/images/tesla-exterior-clean.jpg" alt="Clean Tesla against blurred background" class="img-fluid rounded shadow-sm w-100" style="object-fit: cover; height: 400px;">
+                    <div id="sliderContainer"></div>
                 </div>
+            </div>
+
+            <!-- New CTA Button -->
+            <div class="text-center mt-5">
+                <a href="#services" class="btn btn-primary btn-lg px-5 py-3">
+                    Learn More About Our Services
+                    <i class="fa-solid fa-arrow-right ms-2"></i>
+                </a>
+            </div>
+
+            <!-- Initialize the slider -->
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Draggable.min.js"></script>
+            <script src="/static/js/before-after-slider.js"></script>
+
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    const container = document.getElementById('sliderContainer');
+                    const slider = new BeforeAfterSlider(container, {
+                        images: [
+                            {
+                                before: '/static/images/tesla-dirty.jpg',
+                                after: '/static/images/tesla-cleaning.jpg'
+                            }
+                        ]
+                    });
+                });
+            </script>
+        </div>
+    </section>
+
+    <!-- Services/Tailored Cleaning Section -->
+    <section id="services" class="services-section py-5 bg-white">
+        <div class="container">
+            <h2 class="display-4 text-center mb-5">Tailored Cleaning for Every Ride.</h2>
+            
+            <div class="row g-4">
+                <!-- General Services Card -->
+                <div class="col-lg-6">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-center mb-4">
+                                <div class="rounded-circle bg-primary bg-opacity-10 p-3 me-3">
+                                    <i class="fa-solid fa-car-side display-6 text-primary"></i>
+                                </div>
+                                <h3 class="h4 mb-0">For All Cars</h3>
+                            </div>
+                            <p class="lead mb-4">Deep cleaning for interiors and exteriors, with meticulous attention to detail.</p>
+                            <ul class="list-unstyled">
+                                <li class="mb-3 d-flex align-items-center">
+                                    <i class="fa-solid fa-check text-primary me-3"></i>
+                                    <span>Professional interior detailing</span>
+                                </li>
+                                <li class="mb-3 d-flex align-items-center">
+                                    <i class="fa-solid fa-check text-primary me-3"></i>
+                                    <span>Exterior hand wash and wax</span>
+                                </li>
+                                <li class="mb-3 d-flex align-items-center">
+                                    <i class="fa-solid fa-check text-primary me-3"></i>
+                                    <span>Wheel and tire care</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- EV-Specific Services Card -->
+                <div class="col-lg-6">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-center mb-4">
+                                <div class="rounded-circle bg-primary bg-opacity-10 p-3 me-3">
+                                    <i class="fa-solid fa-bolt display-6 text-primary"></i>
+                                </div>
+                                <h3 class="h4 mb-0">For EVs</h3>
+                            </div>
+                            <p class="lead mb-4">Specialized care for electric vehicles with EV-safe products and techniques.</p>
+                            <ul class="list-unstyled">
+                                <li class="mb-3 d-flex align-items-center">
+                                    <i class="fa-solid fa-check text-primary me-3"></i>
+                                    <span>Vegan leather-safe cleaning</span>
+                                </li>
+                                <li class="mb-3 d-flex align-items-center">
+                                    <i class="fa-solid fa-check text-primary me-3"></i>
+                                    <span>Streak-free touchscreens</span>
+                                </li>
+                                <li class="mb-3 d-flex align-items-center">
+                                    <i class="fa-solid fa-check text-primary me-3"></i>
+                                    <span>Battery-safe exterior care</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CTA Button -->
+            <div class="text-center mt-5">
+                <a href="#pricing" class="btn btn-primary btn-lg px-5 py-3">
+                    Get Started Today
+                    <i class="fa-solid fa-arrow-right ms-2"></i>
+                </a>
             </div>
         </div>
     </section>
 
-    <!-- Lifestyle Testimonials Section -->
-    <section class="py-5 bg-white">
+    <!-- How It Works Section -->
+    <section id="how-it-works" class="py-5 bg-light">
+        <div class="container">
+            <h2 class="display-4 text-center mb-5">Here's How It Happens (Without You Noticing).</h2>
+            
+            <div class="row g-4 justify-content-center">
+                <!-- Step 1 -->
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body text-center p-4">
+                            <div class="mb-4">
+                                <div class="rounded-circle bg-primary bg-opacity-10 d-inline-flex p-3">
+                                    <i class="fa-solid fa-calendar-check display-6 text-primary"></i>
+                                </div>
+                            </div>
+                            <h3 class="h4 mb-3">You Book</h3>
+                            <p class="text-secondary mb-0">Schedule online or via app in under a minute.</p>
+                        </div>
+                        <div class="card-footer border-0 bg-primary bg-opacity-10 py-3">
+                            <div class="text-primary text-center fw-bold">Step 1</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body text-center p-4">
+                            <div class="mb-4">
+                                <div class="rounded-circle bg-primary bg-opacity-10 d-inline-flex p-3">
+                                    <i class="fa-solid fa-spray-can-sparkles display-6 text-primary"></i>
+                                </div>
+                            </div>
+                            <h3 class="h4 mb-3">We Clean</h3>
+                            <p class="text-secondary mb-0">We find your car and clean it thoroughly while it's parked.</p>
+                        </div>
+                        <div class="card-footer border-0 bg-primary bg-opacity-10 py-3">
+                            <div class="text-primary text-center fw-bold">Step 2</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body text-center p-4">
+                            <div class="mb-4">
+                                <div class="rounded-circle bg-primary bg-opacity-10 d-inline-flex p-3">
+                                    <i class="fa-solid fa-car display-6 text-primary"></i>
+                                </div>
+                            </div>
+                            <h3 class="h4 mb-3">You Enjoy</h3>
+                            <p class="text-secondary mb-0">Your spotless car is ready whenever you need it—no interruptions.</p>
+                        </div>
+                        <div class="card-footer border-0 bg-primary bg-opacity-10 py-3">
+                            <div class="text-primary text-center fw-bold">Step 3</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CTA Button -->
+            <div class="text-center mt-5">
+                <a href="/booking" class="btn btn-primary btn-lg px-5 py-3">
+                    Book Now and Let the Magic Begin
+                    <i class="fa-solid fa-arrow-right ms-2"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    {% include 'pricing.html' %}
+
+    <!-- Testimonials Section -->
+    <section id="testimonials" class="py-5 bg-white">
         <div class="container">
             <h2 class="display-4 text-center mb-5">A Life Without Car Washes.</h2>
             
@@ -224,78 +400,10 @@
         </div>
     </section>
 
-    <!-- How It Works Section -->
-    <section id="how-it-works" class="py-5">
-        <div class="container">
-            <h2 class="display-4 text-center mb-5">Effortless Cleanliness, Delivered.</h2>
-            
-            <div class="row g-4 justify-content-center">
-                <!-- Step 1 -->
-                <div class="col-md-4">
-                    <div class="card h-100 border-0 shadow-sm">
-                        <div class="card-body text-center p-4">
-                            <div class="mb-4">
-                                <div class="rounded-circle bg-primary bg-opacity-10 d-inline-flex p-3">
-                                    <i class="fa-solid fa-calendar-check display-6 text-primary"></i>
-                                </div>
-                            </div>
-                            <h3 class="h4 mb-3">Book Online</h3>
-                            <p class="text-secondary mb-0">Schedule in under 60 seconds. Just tell us where your car is parked.</p>
-                        </div>
-                        <div class="card-footer border-0 bg-primary bg-opacity-10 py-3">
-                            <div class="text-primary text-center fw-bold">Step 1</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Step 2 -->
-                <div class="col-md-4">
-                    <div class="card h-100 border-0 shadow-sm">
-                        <div class="card-body text-center p-4">
-                            <div class="mb-4">
-                                <div class="rounded-circle bg-primary bg-opacity-10 d-inline-flex p-3">
-                                    <i class="fa-solid fa-spray-can-sparkles display-6 text-primary"></i>
-                                </div>
-                            </div>
-                            <h3 class="h4 mb-3">We Handle the Rest</h3>
-                            <p class="text-secondary mb-0">Our team arrives and cleans your car—at home, work, or charging—without interruptions.</p>
-                        </div>
-                        <div class="card-footer border-0 bg-primary bg-opacity-10 py-3">
-                            <div class="text-primary text-center fw-bold">Step 2</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Step 3 -->
-                <div class="col-md-4">
-                    <div class="card h-100 border-0 shadow-sm">
-                        <div class="card-body text-center p-4">
-                            <div class="mb-4">
-                                <div class="rounded-circle bg-primary bg-opacity-10 d-inline-flex p-3">
-                                    <i class="fa-solid fa-car display-6 text-primary"></i>
-                                </div>
-                            </div>
-                            <h3 class="h4 mb-3">Enjoy the Results</h3>
-                            <p class="text-secondary mb-0">Your car is spotless and ready whenever you are.</p>
-                        </div>
-                        <div class="card-footer border-0 bg-primary bg-opacity-10 py-3">
-                            <div class="text-primary text-center fw-bold">Step 3</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- CTA Button -->
-            <div class="text-center mt-5">
-                <a href="/booking" class="btn btn-primary btn-lg px-5 py-3">
-                    Book Your First Clean Today
-                    <i class="fa-solid fa-arrow-right ms-2"></i>
-                </a>
-            </div>
-        </div>
-    </section>
-
     <!-- Additional sections would go here -->
+
+    <!-- Include Footer -->
+    {% include 'footer.html' %}
 
     <!-- Bootstrap JavaScript Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
