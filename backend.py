@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, send_from_directory
+from flask import Flask, render_template, request, redirect, url_for, flash, send_from_directory, jsonify
 from datetime import datetime
 import os
 
@@ -10,6 +10,10 @@ app.secret_key = 'your-secret-key-here'  # Required for flash messages
 @app.route('/')
 def index():
     return render_template('index.html')
+
+@app.route('/health')
+def health():
+    return jsonify({"status": "healthy"})
 
 @app.route('/booking', methods=['GET', 'POST'])
 def booking():
