@@ -228,6 +228,79 @@
             border-radius: 8px;
             border: 2px solid var(--seafoam);
         }
+
+        .selected-addons {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .selected-addons li {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            color: var(--slate-gray);
+        }
+
+        .selected-addons li i {
+            color: var(--teal-green);
+            margin-right: 8px;
+        }
+
+        .subscription-info {
+            display: flex;
+            align-items: center;
+            color: var(--slate-gray);
+        }
+
+        .subscription-info i {
+            color: var(--teal-green);
+            margin-right: 8px;
+        }
+
+        .addon-item {
+            padding: 12px;
+            border: 2px solid var(--seafoam);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .addon-item:hover {
+            border-color: var(--teal-green);
+            background: var(--seafoam);
+        }
+
+        .addon-item input:checked + span {
+            color: var(--teal-green);
+            font-weight: 600;
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--seafoam);
+            border-radius: 8px;
+            font-size: 1rem;
+            margin-bottom: 16px;
+            background: white;
+            color: var(--midnight-blue);
+        }
+
+        .service-card {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .service-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15);
+        }
+
+        .service-card.selected {
+            border-color: var(--teal-green);
+            background: var(--seafoam);
+            transform: translateY(-2px);
+        }
     </style>
 </head>
 <body>
@@ -239,45 +312,31 @@
 
         <div class="booking-grid">
             <div class="service-options">
-                <div class="service-card selected">
+                <div class="service-card">
                     <h3>
-                        Full Detail
-                        <span class="service-price">$199</span>
+                        Essential Clean
+                        <span class="service-price">$50</span>
                     </h3>
-                    <p>Complete interior and exterior detailing service</p>
+                    <p>Perfect for quick, regular maintenance</p>
                     <ul class="service-features">
-                        <li><i class="fas fa-check"></i> Exterior hand wash and wax</li>
-                        <li><i class="fas fa-check"></i> Interior deep clean</li>
-                        <li><i class="fas fa-check"></i> Glass cleaning and protection</li>
-                        <li><i class="fas fa-check"></i> Wheel and tire detail</li>
+                        <li><i class="fas fa-check"></i> Exterior wash</li>
+                        <li><i class="fas fa-check"></i> Basic interior clean</li>
+                        <li><i class="fas fa-check"></i> Windows and mirrors</li>
+                        <li><i class="fas fa-check"></i> Tire shine</li>
                     </ul>
                 </div>
 
                 <div class="service-card">
                     <h3>
-                        Interior Detail
-                        <span class="service-price">$149</span>
+                        Premium Detail
+                        <span class="service-price">$100</span>
                     </h3>
-                    <p>Comprehensive interior cleaning and sanitization</p>
+                    <p>Thorough care for a spotless finish</p>
                     <ul class="service-features">
-                        <li><i class="fas fa-check"></i> Vacuum and steam clean</li>
+                        <li><i class="fas fa-check"></i> Deep interior cleaning</li>
+                        <li><i class="fas fa-check"></i> Paint protection</li>
+                        <li><i class="fas fa-check"></i> Premium wax</li>
                         <li><i class="fas fa-check"></i> Leather conditioning</li>
-                        <li><i class="fas fa-check"></i> Dashboard and console detail</li>
-                        <li><i class="fas fa-check"></i> Air vent cleaning</li>
-                    </ul>
-                </div>
-
-                <div class="service-card">
-                    <h3>
-                        Exterior Detail
-                        <span class="service-price">$129</span>
-                    </h3>
-                    <p>Professional exterior cleaning and protection</p>
-                    <ul class="service-features">
-                        <li><i class="fas fa-check"></i> Paint correction</li>
-                        <li><i class="fas fa-check"></i> Ceramic coating</li>
-                        <li><i class="fas fa-check"></i> Wheel cleaning</li>
-                        <li><i class="fas fa-check"></i> Window treatment</li>
                     </ul>
                 </div>
             </div>
@@ -305,6 +364,33 @@
                         <option>Tesla Model Y</option>
                         <option>Tesla Model S</option>
                         <option>Tesla Model X</option>
+                    </select>
+                </div>
+
+                <div class="summary-section">
+                    <h3>Add-ons</h3>
+                    <div class="add-ons-list">
+                        <div class="addon-item">
+                            <label class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <input type="checkbox" class="form-check-input" name="addons" value="pet_hair">
+                                    <span>Pet Hair Removal</span>
+                                    <small class="d-block text-muted">Ideal for pet lovers</small>
+                                </div>
+                                <span class="text-primary">+$25</span>
+                            </label>
+                        </div>
+                        <!-- Add more add-ons matching the pricing calculator -->
+                    </div>
+                </div>
+
+                <div class="summary-section">
+                    <h3>Service Frequency</h3>
+                    <select class="form-select" name="frequency">
+                        <option value="once">One-time Service</option>
+                        <option value="monthly">Monthly (10% off)</option>
+                        <option value="biweekly">Bi-weekly (15% off)</option>
+                        <option value="weekly">Weekly (20% off)</option>
                     </select>
                 </div>
 
@@ -497,17 +583,155 @@
             }
         }
 
+        // Update the price calculation logic
+        function updateTotalPrice() {
+            let totalPrice = 0;
+            
+            // Get selected service price
+            const selectedCard = document.querySelector('.service-card.selected');
+            if (selectedCard) {
+                totalPrice += parseFloat(selectedCard.querySelector('.service-price').textContent.replace('$', ''));
+            }
+
+            // Add selected add-ons
+            document.querySelectorAll('input[name="addons"]:checked').forEach(addon => {
+                const priceText = addon.closest('.addon-item').querySelector('.text-primary').textContent;
+                totalPrice += parseFloat(priceText.replace('+$', ''));
+            });
+
+            // Apply frequency discount
+            const frequency = document.querySelector('select[name="frequency"]').value;
+            const discounts = {
+                once: 1,
+                monthly: 0.9,
+                biweekly: 0.85,
+                weekly: 0.8
+            };
+            totalPrice *= discounts[frequency] || 1;
+
+            // Update display with animation
+            const totalPriceElement = document.querySelector('.total-price span:last-child');
+            totalPriceElement.textContent = `$${Math.round(totalPrice)}`;
+            totalPriceElement.classList.add('price-update');
+            setTimeout(() => totalPriceElement.classList.remove('price-update'), 300);
+        }
+
         // Add event listeners
         document.addEventListener('DOMContentLoaded', function() {
+            // Load saved booking data
+            const savedBookingData = JSON.parse(sessionStorage.getItem('bookingData') || '{}');
+            
+            if (Object.keys(savedBookingData).length > 0) {
+                // Auto-select the correct service card
+                const serviceCards = document.querySelectorAll('.service-card');
+                serviceCards.forEach(card => {
+                    // Get the service type from the card title (Essential Clean or Premium Detail)
+                    const cardTitle = card.querySelector('h3').textContent.split('$')[0].trim().toLowerCase();
+                    const savedService = savedBookingData.serviceType.toLowerCase();
+                    
+                    console.log('Card Title:', cardTitle);
+                    console.log('Saved Service:', savedService);
+                    
+                    // Match 'basic' with 'Essential Clean' and 'premium' with 'Premium Detail'
+                    const shouldSelect = 
+                        (savedService === 'basic' && cardTitle === 'essential clean') ||
+                        (savedService === 'premium' && cardTitle === 'premium detail');
+                    
+                    if (shouldSelect) {
+                        // Remove selection from all cards first
+                        serviceCards.forEach(c => c.classList.remove('selected'));
+                        // Select this card
+                        card.classList.add('selected');
+                        
+                        // Trigger price update
+                        updateTotalPrice();
+                        // Trigger time slots update
+                        updateTimeSlots();
+                    }
+                });
+
+                // Pre-select add-ons
+                if (savedBookingData.addons?.length > 0) {
+                    savedBookingData.addons.forEach(addon => {
+                        const addonCheckbox = document.querySelector(`input[name="addons"][value="${addon}"]`);
+                        if (addonCheckbox) {
+                            addonCheckbox.checked = true;
+                        }
+                    });
+                }
+
+                // Set frequency selection
+                if (savedBookingData.frequency) {
+                    const frequencySelect = document.querySelector('select[name="frequency"]');
+                    if (frequencySelect) {
+                        frequencySelect.value = savedBookingData.frequency;
+                    }
+                }
+
+                // Update the total price
+                const totalPriceElement = document.querySelector('.total-price span:last-child');
+                totalPriceElement.textContent = `$${savedBookingData.totalPrice}`;
+
+                // Add visual confirmation of transferred selections
+                const bookingHeader = document.querySelector('.booking-header');
+                const confirmationMessage = document.createElement('div');
+                confirmationMessage.className = 'alert alert-success mb-4 fade show';
+                confirmationMessage.innerHTML = `
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-check-circle me-2"></i>
+                        <div>
+                            <strong>Your selections have been transferred!</strong>
+                            <p class="mb-0 small">We've pre-filled your choices from the calculator.</p>
+                        </div>
+                    </div>
+                `;
+                bookingHeader.insertAdjacentElement('afterend', confirmationMessage);
+
+                // Fade out confirmation message after 5 seconds
+                setTimeout(() => {
+                    confirmationMessage.classList.remove('show');
+                    setTimeout(() => confirmationMessage.remove(), 150);
+                }, 5000);
+            }
+
+            // Add CSS for the confirmation message
+            const style = document.createElement('style');
+            style.textContent = `
+                .alert {
+                    padding: 1rem;
+                    border-radius: 8px;
+                    background: var(--seafoam);
+                    border: 2px solid var(--teal-green);
+                    transition: opacity 0.15s ease-in-out;
+                }
+
+                .alert.fade {
+                    opacity: 1;
+                }
+
+                .alert.fade.show {
+                    opacity: 1;
+                }
+
+                .alert.fade:not(.show) {
+                    opacity: 0;
+                }
+
+                .alert i {
+                    color: var(--teal-green);
+                    font-size: 1.25rem;
+                }
+            `;
+            document.head.appendChild(style);
+
             // Service card selection
             document.querySelectorAll('.service-card').forEach(card => {
                 card.addEventListener('click', () => {
                     document.querySelectorAll('.service-card').forEach(c => c.classList.remove('selected'));
                     card.classList.add('selected');
                     
-                    const price = card.querySelector('.service-price').textContent;
-                    document.querySelector('.total-price span:last-child').textContent = price;
-                    
+                    // Instead of directly setting the price, call updateTotalPrice
+                    updateTotalPrice();
                     updateTimeSlots();
                 });
             });
@@ -531,7 +755,22 @@
 
             // Initial time slots load
             updateTimeSlots();
+
+            // Add event listeners for all price-affecting changes
+            document.querySelectorAll('.service-card, input[name="addons"], select[name="frequency"]')
+                .forEach(element => {
+                    if (element.matches('.service-card')) {
+                        // Service cards are handled by click event above
+                    } else {
+                        element.addEventListener('change', updateTotalPrice);
+                    }
+                });
+
+            // Update initial price
+            updateTotalPrice();
         });
     </script>
 </body>
 </html>
+
+

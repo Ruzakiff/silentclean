@@ -99,80 +99,103 @@
 
         <!-- Calculator Section -->
         <div class="calculator-section mt-5 pt-4">
-            <h3 class="h2 text-center mb-4">Calculate Your Price</h3>
+            <div class="text-center mb-5">
+                <h3 class="h2 mb-3">Calculate Effortless Luxury for Your Ride</h3>
+                <p class="text-muted">Your spotless car is just a few clicks away. Choose what you need, and we'll handle the rest.</p>
+            </div>
             
             <div class="row justify-content-center">
                 <div class="col-lg-8">
                     <div class="card border-0 shadow-sm">
                         <div class="card-body p-4">
                             <form id="price-calculator" class="needs-validation" novalidate>
-                                <!-- Vehicle Type -->
-                                <div class="mb-4">
-                                    <label class="form-label">Vehicle Type</label>
-                                    <select class="form-select" required name="vehicleType">
-                                        <option value="">Select your vehicle...</option>
-                                        <option value="sedan">Tesla Model 3/Y</option>
-                                        <option value="suv">Tesla Model X/S</option>
-                                        <option value="other_ev">Other EV</option>
-                                        <option value="other">Other Vehicle</option>
-                                    </select>
-                                </div>
-
-                                <!-- Service Frequency -->
-                                <div class="mb-4">
-                                    <label class="form-label">Cleaning Frequency</label>
-                                    <select class="form-select" required name="frequency">
-                                        <option value="">Select frequency...</option>
-                                        <option value="once">One-time Service</option>
-                                        <option value="monthly">Monthly</option>
-                                        <option value="biweekly">Bi-weekly</option>
-                                        <option value="weekly">Weekly</option>
-                                    </select>
-                                </div>
-
                                 <!-- Service Type -->
                                 <div class="mb-4">
-                                    <label class="form-label">Service Type</label>
+                                    <label class="form-label h5">Step 1: Choose Your Service</label>
                                     <div class="row g-3">
                                         <div class="col-sm-6">
-                                            <div class="form-check card p-3">
+                                            <div class="form-check card p-3 service-card h-100">
                                                 <input class="form-check-input" type="radio" name="serviceType" value="basic" required>
                                                 <label class="form-check-label">
-                                                    <strong>Essential Clean</strong>
-                                                    <small class="d-block text-muted">Interior & exterior basics</small>
+                                                    <i class="fa-solid fa-car-side mb-3 display-6 text-primary"></i>
+                                                    <strong class="d-block h5">Essential Clean</strong>
+                                                    <small class="d-block text-muted mb-2">Perfect for quick, regular maintenance</small>
+                                                    <span class="badge bg-primary">From $50</span>
                                                 </label>
                                             </div>
                                         </div>
                                         <div class="col-sm-6">
-                                            <div class="form-check card p-3">
+                                            <div class="form-check card p-3 service-card h-100">
                                                 <input class="form-check-input" type="radio" name="serviceType" value="premium" required>
                                                 <label class="form-check-label">
-                                                    <strong>Premium Detail</strong>
-                                                    <small class="d-block text-muted">Deep clean & protection</small>
+                                                    <i class="fa-solid fa-car mb-3 display-6 text-primary"></i>
+                                                    <strong class="d-block h5">Premium Detail</strong>
+                                                    <small class="d-block text-muted mb-2">Thorough care for a spotless finish</small>
+                                                    <span class="badge bg-primary">From $100</span>
                                                 </label>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
 
-                                <!-- Calculate Button -->
-                                <div class="text-center">
-                                    <button type="submit" class="btn btn-primary btn-lg px-5">
-                                        Calculate Price
-                                        <i class="fa-solid fa-arrow-right ms-2"></i>
-                                    </button>
+                                <!-- Add-ons -->
+                                <div class="mb-4">
+                                    <label class="form-label h5">Step 2: Select Add-ons</label>
+                                    <div class="add-ons-list">
+                                        <!-- Add individual add-ons here -->
+                                        <div class="card mb-2 p-3">
+                                            <div class="form-check d-flex justify-content-between align-items-center">
+                                                <div>
+                                                    <input class="form-check-input" type="checkbox" name="addons" value="pet_hair">
+                                                    <label class="form-check-label">
+                                                        <strong>Pet Hair Removal</strong>
+                                                        <small class="d-block text-muted">Ideal for pet lovers</small>
+                                                    </label>
+                                                </div>
+                                                <span class="text-primary">+$25</span>
+                                            </div>
+                                        </div>
+                                        <!-- More add-ons... -->
+                                    </div>
                                 </div>
+
+                                <!-- ... rest of the form ... -->
                             </form>
 
-                            <!-- Price Result -->
-                            <div id="price-result" class="mt-4 text-center" style="display: none;">
-                                <h4 class="mb-3">Your Estimated Price</h4>
-                                <div class="display-4 text-primary mb-3">$<span id="calculated-price">0</span></div>
-                                <p class="text-muted mb-4">This is an estimate. Final price may vary based on vehicle condition.</p>
-                                <a href="/booking" class="btn btn-primary btn-lg px-5">
-                                    Book Now
-                                    <i class="fa-solid fa-arrow-right ms-2"></i>
-                                </a>
+                            <!-- Sticky Price Summary -->
+                            <div class="position-sticky bottom-0 bg-white p-4 border-top" id="price-summary">
+                                <!-- Price Display -->
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <div>
+                                        <h5 class="mb-0">Total:</h5>
+                                        <small class="text-muted">Includes all selections</small>
+                                    </div>
+                                    <div class="text-end">
+                                        <div class="h3 mb-0 text-primary">$<span id="calculated-price">0</span></div>
+                                        <small class="text-muted">Starting price</small>
+                                    </div>
+                                </div>
+
+                                <!-- Booking CTA -->
+                                <div class="text-center">
+                                    <p class="text-muted mb-3">Effortless car care is just one step away. Click below to confirm your clean!</p>
+                                    <button type="submit" class="btn btn-primary btn-lg w-100 mb-2" form="price-calculator">
+                                        Ready to Book? Continue to Scheduling
+                                        <i class="fas fa-arrow-right ms-2"></i>
+                                    </button>
+                                    <small class="text-muted">No payment required until service completion</small>
+                                </div>
+                            </div>
+
+                            <!-- Add success message that appears after calculation -->
+                            <div id="calculation-success" class="calculation-success" style="display: none;">
+                                <div class="text-center py-4">
+                                    <div class="mb-3">
+                                        <i class="fas fa-check-circle text-success display-4"></i>
+                                    </div>
+                                    <h4>Perfect Choice!</h4>
+                                    <p class="text-muted">Your customized detail package is ready.</p>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -188,43 +211,185 @@ document.addEventListener('DOMContentLoaded', function() {
     const calculator = document.getElementById('price-calculator');
     const result = document.getElementById('price-result');
     const priceSpan = document.getElementById('calculated-price');
+    const addonsCheckboxes = calculator.querySelectorAll('input[name="addons"]');
 
+    // Define pricing constants
+    const PRICES = {
+        services: {
+            basic: 50,
+            premium: 100
+        },
+        addons: {
+            pet_hair: 25,
+            deep_stain: 30,
+            odor_removal: 40,
+            heavy_dirt: 20
+        },
+        frequency: {
+            once: 1,
+            monthly: 0.9,
+            biweekly: 0.85,
+            weekly: 0.8
+        }
+    };
+
+    // Function to calculate and update price
+    function updatePrice() {
+        let totalPrice = 0;
+        
+        // Get selected service price
+        const selectedService = calculator.querySelector('input[name="serviceType"]:checked');
+        if (selectedService) {
+            totalPrice += PRICES.services[selectedService.value];
+        }
+
+        // Add selected add-ons
+        addonsCheckboxes.forEach(addon => {
+            if (addon.checked && PRICES.addons[addon.value]) {
+                totalPrice += PRICES.addons[addon.value];
+            }
+        });
+
+        // Apply frequency discount if selected
+        const frequencySelect = calculator.querySelector('select[name="frequency"]');
+        if (frequencySelect && frequencySelect.value) {
+            totalPrice *= PRICES.frequency[frequencySelect.value];
+        }
+
+        // Round to nearest whole number
+        totalPrice = Math.round(totalPrice);
+
+        // Update display
+        priceSpan.textContent = totalPrice;
+
+        // Animate price change
+        priceSpan.classList.add('price-update');
+        setTimeout(() => priceSpan.classList.remove('price-update'), 300);
+    }
+
+    // Add event listeners for real-time updates
+    calculator.querySelectorAll('input[type="radio"], input[type="checkbox"], select')
+        .forEach(input => {
+            input.addEventListener('change', updatePrice);
+        });
+
+    // Handle form submission
     calculator.addEventListener('submit', function(e) {
         e.preventDefault();
         
-        // Get form values
-        const vehicleType = calculator.vehicleType.value;
-        const frequency = calculator.frequency.value;
-        const serviceType = calculator.serviceType.value;
+        // Validate required fields
+        if (!calculator.checkValidity()) {
+            e.stopPropagation();
+            calculator.classList.add('was-validated');
+            return;
+        }
+        
+        // Show success message
+        const successMessage = document.getElementById('calculation-success');
+        successMessage.style.display = 'block';
+        
+        // Collect selected options
+        const bookingData = {
+            serviceType: calculator.querySelector('input[name="serviceType"]:checked').value,
+            addons: Array.from(addonsCheckboxes)
+                .filter(checkbox => checkbox.checked)
+                .map(checkbox => checkbox.value),
+            frequency: calculator.querySelector('select[name="frequency"]')?.value,
+            totalPrice: parseFloat(priceSpan.textContent)
+        };
 
-        // Basic price calculation logic (customize these values)
-        let basePrice = {
-            'sedan': 80,
-            'suv': 100,
-            'other_ev': 90,
-            'other': 85
-        }[vehicleType] || 0;
+        // Store booking data in sessionStorage
+        sessionStorage.setItem('bookingData', JSON.stringify(bookingData));
 
-        // Frequency multiplier
-        let multiplier = {
-            'once': 1,
-            'monthly': 0.9,
-            'biweekly': 0.85,
-            'weekly': 0.8
-        }[frequency] || 1;
+        // Smooth scroll to success message
+        successMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
-        // Service type multiplier
-        let serviceMultiplier = serviceType === 'premium' ? 1.5 : 1;
-
-        // Calculate final price
-        let finalPrice = Math.round(basePrice * multiplier * serviceMultiplier);
-
-        // Display result
-        priceSpan.textContent = finalPrice;
-        result.style.display = 'block';
-
-        // Smooth scroll to result
-        result.scrollIntoView({ behavior: 'smooth' });
+        // Redirect to booking page after a short delay
+        setTimeout(() => {
+            window.location.href = '/booking';
+        }, 1500);
     });
+
+    // Add validation feedback
+    calculator.querySelectorAll('input[required], select[required]').forEach(input => {
+        input.addEventListener('change', function() {
+            if (this.checkValidity()) {
+                this.classList.remove('is-invalid');
+                this.classList.add('is-valid');
+            } else {
+                this.classList.remove('is-valid');
+                this.classList.add('is-invalid');
+            }
+        });
+    });
+
+    // Add some CSS for animations
+    const style = document.createElement('style');
+    style.textContent = `
+        .price-update {
+            animation: pulse 0.3s ease-in-out;
+        }
+
+        .calculation-complete {
+            animation: slideIn 0.5s ease-out;
+        }
+
+        .service-card {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .service-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 .5rem 1rem rgba(0,0,0,.15);
+        }
+
+        .form-check-input:checked + .form-check-label .service-card {
+            border-color: var(--bs-primary);
+            background-color: var(--bs-primary-bg-subtle);
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .calculation-success {
+            animation: fadeInUp 0.5s ease-out;
+        }
+
+        #price-summary {
+            border-top: 2px solid var(--bs-primary-bg-subtle);
+            box-shadow: 0 -4px 12px rgba(0,0,0,0.05);
+        }
+
+        .btn-primary {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(var(--bs-primary-rgb), 0.2);
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    `;
+    document.head.appendChild(style);
 });
 </script>
+
+
