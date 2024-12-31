@@ -486,3 +486,225 @@ html {
     transform: scaleX(1);
     transform-origin: bottom left;
 }
+
+/* Add after existing styles */
+
+/* Booking Page Styles */
+.booking-container {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+.booking-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.booking-header h1 {
+    font-size: 2.5rem;
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+
+.booking-header p {
+    color: var(--slate-gray);
+    font-size: 1.1rem;
+}
+
+.booking-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 40px;
+}
+
+.service-options {
+    background: white;
+    border-radius: 16px;
+    padding: 32px;
+    box-shadow: 0 4px 12px rgba(28, 30, 38, 0.08);
+}
+
+/* Service Cards */
+.service-card {
+    border: 2px solid var(--light-seafoam);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 20px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.service-card:hover {
+    border-color: var(--teal-green);
+    transform: translateY(-2px);
+    box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15);
+}
+
+.service-card.selected {
+    border-color: var(--teal-green);
+    background: var(--light-seafoam);
+    transform: translateY(-2px);
+}
+
+.service-price {
+    color: var(--teal-green);
+    font-size: 1.25rem;
+}
+
+.service-features {
+    list-style: none;
+    margin-top: 16px;
+}
+
+.service-features li {
+    color: var(--slate-gray);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+}
+
+/* Booking Summary */
+.booking-summary {
+    background: white;
+    border-radius: 16px;
+    padding: 32px;
+    position: sticky;
+    top: 40px;
+    box-shadow: 0 4px 12px rgba(28, 30, 38, 0.08);
+}
+
+.summary-section {
+    margin-bottom: 24px;
+}
+
+.summary-section h3 {
+    color: var(--slate-gray);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 12px;
+}
+
+/* Form Elements */
+.date-picker, 
+.time-picker,
+.form-select {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid var(--light-seafoam);
+    border-radius: 8px;
+    font-size: 1rem;
+    margin-bottom: 16px;
+    background: white;
+    color: var(--deep-midnight);
+}
+
+/* Time Slots */
+.time-slots {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.time-slot {
+    padding: 12px 8px;
+    background: var(--soft-platinum);
+    border: 2px solid var(--light-seafoam);
+    border-radius: 8px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.9rem;
+}
+
+.time-slot:hover {
+    border-color: var(--teal-green);
+    background: var(--light-seafoam);
+}
+
+.time-slot.selected {
+    background: var(--teal-green);
+    color: white;
+    border-color: var(--teal-green);
+}
+
+.time-slot.unavailable {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: var(--slate-gray);
+}
+
+/* Add-ons */
+.addon-item {
+    padding: 12px;
+    border: 2px solid var(--light-seafoam);
+    border-radius: 8px;
+    margin-bottom: 8px;
+    transition: all 0.2s ease;
+}
+
+.addon-item:hover {
+    border-color: var(--teal-green);
+    background: var(--light-seafoam);
+}
+
+.addon-item input:checked + span {
+    color: var(--teal-green);
+    font-weight: 600;
+}
+
+/* Total Price */
+.total-price {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 2px solid var(--light-seafoam);
+}
+
+/* Book Button */
+.book-button {
+    width: 100%;
+    padding: 16px;
+    background: var(--teal-green);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.book-button:hover {
+    background: #4BA8A8;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(90, 191, 191, 0.2);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .booking-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .booking-summary {
+        position: static;
+    }
+}
+
+/* Animation Classes */
+.price-update {
+    animation: priceUpdate 0.3s ease;
+}
+
+@keyframes priceUpdate {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
