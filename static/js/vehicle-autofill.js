@@ -55,20 +55,19 @@ class VehicleAutofill {
     }
 
     async fetchModelsForMake(make) {
+        console.log('Fetching models for make:', make);
         try {
             const encodedMake = encodeURIComponent(make);
             const modelsResponse = await fetch(`https://vpic.nhtsa.dot.gov/api/vehicles/getmodelsformake/${encodedMake}?format=json`);
             const modelsData = await modelsResponse.json();
-            this.modelsByMake[make] = modelsData.Results.map(model => model.Model_Name);
+            console.log('Received models data:', modelsData);
             
-            // Update cache
-            const cachedData = JSON.parse(localStorage.getItem('vehicleData') || '{}');
-            cachedData.modelsByMake = this.modelsByMake;
-            localStorage.setItem('vehicleData', JSON.stringify(cachedData));
+            this.modelsByMake[make] = modelsData.Results.map(model => model.Model_Name);
+            console.log('Stored models:', this.modelsByMake[make]);
             
             return this.modelsByMake[make];
         } catch (error) {
-            console.error('Error fetching models for make:', error);
+            console.error('Error fetching models:', error);
             return [];
         }
     }
@@ -81,6 +80,16 @@ class VehicleAutofill {
         if (!value) {
             suggestionSpan.textContent = '';
             return;
+        }
+
+        // If we have a confirmed make, fetch its models
+        const confirmedMake = this.makes.find(make => 
+            make.toLowerCase() === value.toLowerCase()
+        );
+        
+        if (confirmedMake && !this.modelsByMake[confirmedMake]) {
+            console.log('Fetching models for confirmed make:', confirmedMake);
+            await this.fetchModelsForMake(confirmedMake);
         }
 
         // Get suggestions and update datalist
@@ -98,20 +107,15 @@ class VehicleAutofill {
                 let suggestionText = '';
                 let currentPosition = 0;
                 
-                // For each word the user has typed
                 words.forEach((word, index) => {
                     if (index < suggestionWords.length) {
-                        // Use the user's case for what they've typed
                         suggestionText += value.slice(currentPosition, currentPosition + word.length);
-                        // Add the rest of the suggested word in lowercase
                         suggestionText += suggestionWords[index].slice(word.length).toLowerCase();
-                        // Add space if not the last word
                         if (index < suggestionWords.length - 1) suggestionText += ' ';
                     }
-                    currentPosition += word.length + 1; // +1 for the space
+                    currentPosition += word.length + 1;
                 });
                 
-                // Add any remaining suggestion words in lowercase
                 if (words.length < suggestionWords.length) {
                     suggestionText += suggestionWords.slice(words.length).join(' ').toLowerCase();
                 }
@@ -129,30 +133,36 @@ class VehicleAutofill {
         const suggestions = new Set();
         const lowercaseValue = value.toLowerCase();
 
-        // If input is empty or very short, show recent inputs and popular makes
-        if (value.length < 2) {
-            this.recentInputs.forEach(recent => suggestions.add(recent));
-            this.makes.slice(0, 10).forEach(make => suggestions.add(make));
-            return Array.from(suggestions).slice(0, 10);
-        }
+        console.log('Input value:', value);
 
-        // If input includes a space, try to match specific models
+        // If input includes a space, assume make is confirmed
         if (value.includes(' ')) {
             const [makeInput, ...modelParts] = value.split(' ');
             const modelInput = modelParts.join(' ').toLowerCase();
             
-            this.makes.forEach(make => {
-                if (make.toLowerCase().startsWith(makeInput.toLowerCase())) {
-                    const models = this.modelsByMake[make] || [];
-                    models.forEach(model => {
-                        if (model.toLowerCase().includes(modelInput)) {
-                            suggestions.add(`${make} ${model}`);
-                        }
-                    });
-                }
-            });
+            console.log('Make input:', makeInput);
+            console.log('Model input:', modelInput);
+            
+            // Find the confirmed make
+            const confirmedMake = this.makes.find(make => 
+                make.toLowerCase() === makeInput.toLowerCase()
+            );
+            
+            console.log('Confirmed make:', confirmedMake);
+            
+            if (confirmedMake) {
+                // Show all models for this make
+                const models = this.modelsByMake[confirmedMake] || [];
+                console.log('Models for', confirmedMake, ':', models);
+                
+                models.forEach(model => {
+                    if (!modelInput || model.toLowerCase().includes(modelInput)) {
+                        suggestions.add(`${confirmedMake} ${model}`);
+                    }
+                });
+            }
         } else {
-            // Add matching makes
+            // Just typing make - show matching makes
             this.makes.forEach(make => {
                 if (make.toLowerCase().includes(lowercaseValue)) {
                     suggestions.add(make);
@@ -160,14 +170,9 @@ class VehicleAutofill {
             });
         }
 
-        // Add recent inputs that match
-        this.recentInputs.forEach(recent => {
-            if (recent.toLowerCase().includes(lowercaseValue)) {
-                suggestions.add(recent);
-            }
-        });
-
-        return Array.from(suggestions).slice(0, 10);
+        const finalSuggestions = Array.from(suggestions).slice(0, 10);
+        console.log('Final suggestions:', finalSuggestions);
+        return finalSuggestions;
     }
 
     init() {
