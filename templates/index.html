@@ -13,7 +13,27 @@
   </head>
   <body>
     <!-- Hero Section -->
-    <section id="hero" class="hero-section text-white">
+    <section id="hero" class="hero-section text-white position-relative">
+        <!-- New Year Promotional Banner -->
+        <div class="promo-banner position-absolute w-100 text-center py-3">
+            <div class="container">
+                <div class="d-flex justify-content-center align-items-center flex-wrap gap-3">
+                    <div class="sparkle-icons">
+                        <i class="fas fa-star text-warning sparkle-1"></i>
+                        <i class="fas fa-star text-warning sparkle-2"></i>
+                        <i class="fas fa-star text-warning sparkle-3"></i>
+                    </div>
+                    <span class="fw-bold">New Year Promo: Start 2025 Spotless!</span>
+                    <span class="badge bg-primary mx-2">$50 Basic</span>
+                    <span class="badge bg-primary mx-2">$100 Premium</span>
+                    <div class="countdown-timer ms-3">
+                        <span class="text-warning">Ends in: </span>
+                        <span id="countdown" class="fw-bold text-warning"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Background image -->
         <div class="hero-image-wrapper">
             <img 
@@ -24,7 +44,7 @@
         </div>
         
         <!-- Content container -->
-        <div class="hero-content-container">
+        <div class="hero-content-container" style="margin-top: 60px;">
             <div class="container">
                 <div class="row">
                     <div class="col-lg-6 col-md-8">
@@ -53,11 +73,12 @@
                             <div class="cta-buttons">
                                 <a href="/booking" 
                                    class="btn btn-light btn-lg">
-                                    Book Now
+                                    Book Now—Promo Ends Jan 31
+                                    <span class="badge bg-primary ms-2">From $50</span>
                                 </a>
-                                <a href="#how-it-works" 
+                                <a href="#services" 
                                    class="btn btn-outline-light btn-lg">
-                                   See How It Works
+                                   Learn More About Our Services
                                 </a>
                             </div>
                         </div>
@@ -241,7 +262,10 @@
                                 </div>
                             </div>
                             <h3 class="h4 mb-3">You Book</h3>
-                            <p class="text-secondary mb-0">Schedule online or via app in under a minute.</p>
+                            <p class="text-secondary mb-0">
+                                Schedule online or via app in under a minute.
+                                <span class="badge bg-primary">$50 Basic or $100 Premium for ALL vehicles!</span>
+                            </p>
                         </div>
                         <div class="card-footer border-0 bg-primary bg-opacity-10 py-3">
                             <div class="text-primary text-center fw-bold">Step 1</div>
@@ -460,6 +484,124 @@
 
     <!-- Add this to your scripts section -->
     <script src="/static/js/before-after-slider.js"></script>
+
+    <!-- Add this script for countdown timer and banner animation -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Banner animation
+        const banner = document.querySelector('.promo-banner');
+        
+        function fadeInOut() {
+            banner.style.transition = 'opacity 1s';
+            banner.style.opacity = '0.8';
+            
+            setTimeout(() => {
+                banner.style.opacity = '1';
+            }, 2000);
+        }
+        
+        setInterval(fadeInOut, 4000);
+
+        // Countdown timer
+        const endDate = new Date('2025-01-31T23:59:59').getTime();
+        
+        function updateCountdown() {
+            const now = new Date().getTime();
+            const distance = endDate - now;
+            
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            
+            document.getElementById('countdown').innerHTML = 
+                `${days}d ${hours}h`;
+            
+            if (distance < 0) {
+                clearInterval(countdownInterval);
+                document.getElementById('countdown').innerHTML = "EXPIRED";
+            }
+        }
+        
+        updateCountdown();
+        const countdownInterval = setInterval(updateCountdown, 1000 * 60 * 60); // Update every hour
+    });
+    </script>
+
+    <!-- Add sparkle animation CSS -->
+    <style>
+    @keyframes sparkle-1 {
+        0% { opacity: 0; transform: scale(0) rotate(0deg); }
+        50% { opacity: 1; transform: scale(1) rotate(180deg); }
+        100% { opacity: 0; transform: scale(0) rotate(360deg); }
+    }
+
+    @keyframes sparkle-2 {
+        0% { opacity: 0; transform: scale(0) rotate(0deg); }
+        50% { opacity: 1; transform: scale(1.2) rotate(-180deg); }
+        100% { opacity: 0; transform: scale(0) rotate(-360deg); }
+    }
+
+    @keyframes sparkle-3 {
+        0% { opacity: 0; transform: scale(0) rotate(0deg); }
+        60% { opacity: 1; transform: scale(0.8) rotate(90deg); }
+        100% { opacity: 0; transform: scale(0) rotate(180deg); }
+    }
+
+    .sparkle-icons {
+        position: relative;
+        display: inline-block;
+        width: 24px;
+        height: 24px;
+    }
+
+    .sparkle-1, .sparkle-2, .sparkle-3 {
+        position: absolute;
+        font-size: 12px;
+    }
+
+    .sparkle-1 {
+        animation: sparkle-1 2s infinite;
+        left: 0;
+        top: 0;
+    }
+
+    .sparkle-2 {
+        animation: sparkle-2 2.5s infinite;
+        left: 8px;
+        top: 4px;
+    }
+
+    .sparkle-3 {
+        animation: sparkle-3 1.8s infinite;
+        left: 4px;
+        top: 8px;
+    }
+
+    .promo-banner {
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+        background: linear-gradient(
+            to right,
+            rgba(0,0,0,0.9),
+            rgba(0,0,0,0.8),
+            rgba(0,0,0,0.9)
+        );
+        box-shadow: 0 2px 15px rgba(0,0,0,0.2);
+    }
+
+    .countdown-timer {
+        background: rgba(255,255,255,0.1);
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+    }
+
+    /* Ensure hero section handles positioning context */
+    .hero-section {
+        position: relative;
+        overflow: hidden;
+    }
+    </style>
 
   </body>
 </html>
