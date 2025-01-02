@@ -180,6 +180,8 @@
                 
                 // Get current date and time
                 this.now = new Date();
+                this.activeHold = null;  // Track current hold timer
+                this.holdTimeout = null;  // Track countdown interval
             }
 
             async getAvailableSlots(date, serviceType) {
@@ -279,6 +281,99 @@
                     }, 1000);
                 });
             }
+
+            // Add new method to handle slot holding
+            async holdTimeSlot(date, time, serviceType) {
+                try {
+                    const response = await fetch('/api/hold-slot', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ date, time, service_type: serviceType })
+                    });
+                    const data = await response.json();
+                    
+                    if (data.status === 'success') {
+                        this.startHoldCountdown();
+                        return true;
+                    } else {
+                        throw new Error(data.message);
+                    }
+                } catch (error) {
+                    console.error('Error holding slot:', error);
+                    return false;
+                }
+            }
+
+            startHoldCountdown() {
+                // Clear any existing countdown
+                if (this.holdTimeout) {
+                    clearInterval(this.holdTimeout);
+                }
+
+                // Set expiration time (5 minutes from now)
+                this.activeHold = new Date(Date.now() + 5 * 60 * 1000);
+
+                // Create or update the countdown element
+                let countdownEl = document.getElementById('holdCountdown');
+                if (!countdownEl) {
+                    countdownEl = document.createElement('div');
+                    countdownEl.id = 'holdCountdown';
+                    countdownEl.className = 'hold-countdown';
+                    document.querySelector('.booking-summary').insertBefore(
+                        countdownEl,
+                        document.querySelector('.summary-section')
+                    );
+                }
+
+                // Update countdown every second
+                this.holdTimeout = setInterval(() => {
+                    const now = new Date();
+                    const timeLeft = Math.max(0, this.activeHold - now);
+                    
+                    if (timeLeft === 0) {
+                        clearInterval(this.holdTimeout);
+                        this.handleHoldExpired();
+                        return;
+                    }
+
+                    const minutes = Math.floor(timeLeft / 60000);
+                    const seconds = Math.floor((timeLeft % 60000) / 1000);
+                    
+                    countdownEl.innerHTML = `
+                        <div class="hold-message">
+                            <i class="fas fa-clock"></i>
+                            Time slot held for ${minutes}:${seconds.toString().padStart(2, '0')}
+                        </div>
+                    `;
+                }, 1000);
+            }
+
+            handleHoldExpired() {
+                // Clear the selected time slot
+                document.querySelectorAll('.time-slot').forEach(slot => 
+                    slot.classList.remove('selected')
+                );
+
+                // Show expired message
+                const countdownEl = document.getElementById('holdCountdown');
+                if (countdownEl) {
+                    countdownEl.innerHTML = `
+                        <div class="hold-expired">
+                            <i class="fas fa-exclamation-circle"></i>
+                            Session expired. Please select a new time slot.
+                        </div>
+                    `;
+                    
+                    // Remove expired message after 5 seconds
+                    setTimeout(() => countdownEl.remove(), 5000);
+                }
+
+                // Disable the book button
+                const bookButton = document.querySelector('.book-button');
+                if (bookButton) {
+                    bookButton.disabled = true;
+                }
+            }
         }
 
         // Initialize booking system
@@ -289,25 +384,30 @@
             const dateInput = document.querySelector('.date-picker').value;
             const selectedServiceElement = document.querySelector('.service-card.selected h3');
             
-            console.log('Selected Date:', dateInput);
-            console.log('Selected Service Element:', selectedServiceElement);
+            if (!dateInput) {
+                console.error('No date selected');
+                return;
+            }
             
             if (!selectedServiceElement) {
                 console.error('No service selected');
                 return;
             }
 
-            const selectedService = selectedServiceElement.textContent;
-            console.log('Selected Service Text:', selectedService);
+            // Extract just the service name without the price
+            const serviceName = selectedServiceElement.childNodes[0].textContent.trim();
+            console.log('Selected Service:', serviceName);
 
             const timeSlotsContainer = document.getElementById('timeSlots');
             timeSlotsContainer.innerHTML = '<div class="time-slots-loading"><i class="fas fa-circle-notch fa-spin"></i> Loading available times...</div>';
 
             try {
-                const availableSlots = await bookingSystem.getAvailableSlots(dateInput, selectedService);
-                console.log('Returned Slots:', availableSlots);
+                const response = await fetch(`/api/available-slots?date=${dateInput}&service=${encodeURIComponent(serviceName)}`);
+                const data = await response.json();
+                
+                console.log('API Response:', data);
 
-                if (!availableSlots || availableSlots.length === 0) {
+                if (!data.slots || data.slots.length === 0) {
                     timeSlotsContainer.innerHTML = `
                         <div class="no-slots-message">
                             <i class="fas fa-calendar-times"></i>
@@ -317,18 +417,51 @@
                     return;
                 }
 
-                timeSlotsContainer.innerHTML = availableSlots.map(slot => `
-                    <div class="time-slot" data-time="${slot.time}" data-duration="${slot.duration}">
-                        ${slot.time}
-                        <div class="duration">${slot.duration / 60}h</div>
+                timeSlotsContainer.innerHTML = data.slots.map(slot => `
+                    <div class="time-slot" data-time="${slot.start}">
+                        ${slot.start}
+                        <div class="duration">${slot.end}</div>
                     </div>
                 `).join('');
 
                 // Add click handlers for time slots
                 document.querySelectorAll('.time-slot').forEach(slot => {
-                    slot.addEventListener('click', () => {
-                        document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('selected'));
-                        slot.classList.add('selected');
+                    slot.addEventListener('click', async () => {
+                        const date = document.querySelector('.date-picker').value;
+                        const time = slot.dataset.time;
+                        const selectedService = document.querySelector('.service-card.selected h3')
+                            .textContent.split('$')[0].trim();
+
+                        // Try to hold the slot
+                        const success = await bookingSystem.holdTimeSlot(date, time, selectedService);
+                        
+                        if (success) {
+                            // Visual selection
+                            document.querySelectorAll('.time-slot').forEach(s => 
+                                s.classList.remove('selected')
+                            );
+                            slot.classList.add('selected');
+                            
+                            // Enable the book button
+                            const bookButton = document.querySelector('.book-button');
+                            if (bookButton) {
+                                bookButton.disabled = false;
+                            }
+                        } else {
+                            // Show error message
+                            const timeSlotsContainer = document.getElementById('timeSlots');
+                            const errorMsg = document.createElement('div');
+                            errorMsg.className = 'time-slot-error';
+                            errorMsg.innerHTML = `
+                                <i class="fas fa-exclamation-circle"></i>
+                                This time slot is no longer available
+                            `;
+                            timeSlotsContainer.insertBefore(errorMsg, slot.nextSibling);
+                            setTimeout(() => errorMsg.remove(), 3000);
+                            
+                            // Refresh available slots
+                            updateTimeSlots();
+                        }
                     });
                 });
             } catch (error) {
@@ -588,8 +721,50 @@
     z-index: 2;
 }
 
+        .hold-countdown {
+            margin: 1rem 0;
+            padding: 0.75rem;
+            background: var(--seafoam);
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .hold-message {
+            color: var(--teal-green);
+            font-weight: 500;
+        }
+
+        .hold-message i {
+            margin-right: 0.5rem;
+        }
+
+        .hold-expired {
+            color: var(--error-red);
+            font-weight: 500;
+        }
+
+        .time-slot-error {
+            color: var(--error-red);
+            padding: 0.5rem;
+            margin: 0.5rem 0;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        .book-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* Define variables if not already present */
+        :root {
+            --error-red: #dc3545;
+            --seafoam: #e6f3f3;
+            --teal-green: #008080;
+        }
     </style>
 </body>
 </html>
+
 
 

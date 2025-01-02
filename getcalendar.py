@@ -38,6 +38,51 @@ class CalendarService:
             'end': 17    # 5 PM
         }
 
+        # Add a dictionary to track pending bookings
+        # Format: {'2024-03-20 14:00': {'expires': datetime, 'duration': timedelta}}
+        self.pending_bookings = {}
+        
+    def _clean_expired_pending(self):
+        """Remove expired pending bookings"""
+        now = datetime.now(self.timezone)
+        expired = [
+            time_slot for time_slot, data in self.pending_bookings.items()
+            if data['expires'] < now
+        ]
+        for time_slot in expired:
+            del self.pending_bookings[time_slot]
+
+    def hold_slot(self, date_str, time_str, service_type):
+        """Place a temporary hold on a time slot"""
+        try:
+            self._clean_expired_pending()
+            
+            # Create the datetime key
+            slot_key = f"{date_str} {time_str}"
+            
+            # Check if slot is already pending
+            if slot_key in self.pending_bookings:
+                return {
+                    'status': 'error',
+                    'message': 'This slot is currently being booked by another customer'
+                }
+
+            # Add pending booking (expires in 5 minutes)
+            self.pending_bookings[slot_key] = {
+                'expires': datetime.now(self.timezone) + timedelta(minutes=5),
+                'duration': timedelta(minutes=120 if service_type == 'Premium Detail' else 60)
+            }
+            
+            return {
+                'status': 'success',
+                'message': 'Slot held for 5 minutes',
+                'expires_in': '5 minutes'
+            }
+            
+        except Exception as e:
+            print(f"✗ Error holding slot: {str(e)}")
+            raise
+
     def get_available_slots(self, date_str, service_duration):
         try:
             print(f"\nFetching slots for {date_str}, duration: {service_duration} minutes")
@@ -60,7 +105,8 @@ class CalendarService:
                 microsecond=0
             )
 
-            print(f"Querying calendar from {time_min.strftime('%Y-%m-%d %H:%M %Z')} to {time_max.strftime('%Y-%m-%d %H:%M %Z')}")
+            print(f"Business hours: {time_min.strftime('%H:%M')} - {time_max.strftime('%H:%M')}")
+            print(f"Service duration: {service_duration} minutes")
 
             # Get existing events with detailed debugging
             try:
@@ -180,6 +226,11 @@ class CalendarService:
     def create_booking(self, booking_data):
         """Create a new calendar event for a booking"""
         try:
+            # Check if slot was held and is still valid
+            slot_key = f"{booking_data['date']} {booking_data['time']}"
+            if slot_key not in self.pending_bookings:
+                raise Exception("Booking session expired. Please try again.")
+
             print(f"\nCreating booking:")
             print(f"Date: {booking_data['date']}")
             print(f"Time: {booking_data['time']}")
@@ -255,6 +306,9 @@ Special Instructions: {booking_data.get('notes', 'None')}
                 ).execute()
                 print(f"✓ Event created successfully: {event.get('htmlLink')}")
                 
+                # If successful, remove from pending
+                del self.pending_bookings[slot_key]
+                
                 return {
                     'status': 'success',
                     'event_id': event['id'],
@@ -273,6 +327,21 @@ Special Instructions: {booking_data.get('notes', 'None')}
 def init_calendar_routes(app):
     calendar_service = CalendarService()
     
+    @app.route('/api/hold-slot', methods=['POST'])
+    def hold_slot():
+        from flask import request
+        
+        try:
+            data = request.json
+            result = calendar_service.hold_slot(
+                data['date'],
+                data['time'],
+                data['service_type']
+            )
+            return jsonify(result)
+        except Exception as e:
+            return jsonify({'error': str(e)}), 400
+
     @app.route('/api/available-slots', methods=['GET'])
     def get_available_slots():
         from flask import request

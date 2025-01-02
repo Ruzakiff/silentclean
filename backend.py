@@ -1,10 +1,14 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, send_from_directory, jsonify
 from datetime import datetime
 import os
+from getcalendar import init_calendar_routes
 
 # Initialize Flask app
 app = Flask(__name__, static_folder='static')
 app.secret_key = 'your-secret-key-here'  # Required for flash messages
+
+# Initialize calendar routes
+init_calendar_routes(app)
 
 # Routes
 @app.route('/')
@@ -18,19 +22,8 @@ def health():
 @app.route('/booking', methods=['GET', 'POST'])
 def booking():
     if request.method == 'POST':
-        # Handle booking form submission
-        name = request.form.get('name')
-        email = request.form.get('email')
-        date = request.form.get('date')
-        time = request.form.get('time')
-        service_type = request.form.get('service_type')
-        
-        # Here you would typically:
-        # 1. Validate the data
-        # 2. Save to database
-        # 3. Send confirmation email
-        
-        flash('Booking received! We will contact you shortly.', 'success')
+        # The actual booking creation is now handled by /api/create-booking
+        # This route should only handle the initial page load and form display
         return redirect(url_for('booking_confirmation'))
         
     return render_template('booking.html')
