@@ -130,45 +130,31 @@ class CalendarService:
 
     def _calculate_available_slots(self, events, date, duration_minutes, destination_address=None, travel_calculator=None):
         """Calculate available slots considering travel times from/to adjacent bookings"""
+        def round_up_to_10(dt):
+            """Round up datetime to nearest 10 minutes"""
+            minutes = dt.minute
+            rounded = ((minutes + 9) // 10) * 10
+            if rounded == 60:
+                return dt.replace(minute=0) + timedelta(hours=1)
+            return dt.replace(minute=rounded)
+
+        def format_time_12hr(dt):
+            """Format datetime to 12-hour time with AM/PM"""
+            return dt.strftime('%I:%M %p').lstrip('0')  # lstrip('0') removes leading zero
+
         slots = []
         duration = timedelta(minutes=duration_minutes)
-        BUFFER_MINUTES = 15  # Standard buffer between bookings
+        BUFFER_MINUTES = 15
         
-        print(f"\n{'='*50}")
-        print(f"SLOT CALCULATION DEBUG - {date.strftime('%Y-%m-%d')}")
-        print(f"{'='*50}")
-        print(f"Service Duration: {duration_minutes} minutes")
-        print(f"Destination: {destination_address}")
-        
+        # Start and end times for the business day
         current_time = date.replace(hour=self.business_hours['start'], minute=0)
         day_end = date.replace(hour=self.business_hours['end'], minute=0)
 
         # If it's today, start from current time
         now = datetime.now(self.timezone)
         if date.date() == now.date():
-            current_time = max(current_time, now.replace(minute=0))
+            current_time = round_up_to_10(max(current_time, now))
             print(f"Today's date - adjusted start time: {current_time.strftime('%H:%M')}")
-
-        # Sort and log existing bookings
-        events.sort(key=lambda x: x['start'].get('dateTime'))
-        if events:
-            print("\nEXISTING BOOKINGS:")
-            for event in events:
-                start = datetime.fromisoformat(event['start'].get('dateTime')).astimezone(self.timezone)
-                end = datetime.fromisoformat(event['end'].get('dateTime')).astimezone(self.timezone)
-                location = event.get('location', 'No location')
-                print(f"• {start.strftime('%H:%M')} - {end.strftime('%H:%M')} @ {location}")
-
-        # Cache travel times for efficiency
-        travel_cache = {}
-        
-        def get_cached_travel_time(origin, dest, departure_time):
-            cache_key = f"{origin}|{dest}|{departure_time.strftime('%H:%M')}"
-            if cache_key not in travel_cache and travel_calculator:
-                times = travel_calculator.get_travel_times(origin, dest, departure_time)
-                if times:
-                    travel_cache[cache_key] = times[str(origin)][str(dest)]['minutes']
-            return travel_cache.get(cache_key)
 
         while current_time + duration <= day_end:
             slot_start = current_time
@@ -215,7 +201,6 @@ class CalendarService:
                 print(f"• Previous ends: {prev_end.strftime('%H:%M')} @ {prev_location or 'No location'}")
                 
                 if prev_location and destination_address and travel_calculator:
-                    # Calculate actual travel time if we have locations
                     travel_times = travel_calculator.get_travel_times(
                         prev_location,
                         destination_address,
@@ -223,13 +208,11 @@ class CalendarService:
                     )
                     if travel_times:
                         travel_minutes = travel_times[str(prev_location)][str(destination_address)]['minutes']
-                        earliest_possible = prev_end + timedelta(minutes=travel_minutes + BUFFER_MINUTES)
+                        earliest_possible = round_up_to_10(prev_end + timedelta(minutes=travel_minutes + BUFFER_MINUTES))
                         print(f"• Travel time: {travel_minutes} mins (+{BUFFER_MINUTES} min buffer)")
                         print(f"• Earliest possible: {earliest_possible.strftime('%H:%M')}")
                 else:
-                    # Just use buffer time if no location
-                    travel_minutes = BUFFER_MINUTES
-                    earliest_possible = prev_end + timedelta(minutes=BUFFER_MINUTES)
+                    earliest_possible = round_up_to_10(prev_end + timedelta(minutes=BUFFER_MINUTES))
                     print(f"• No location - using {BUFFER_MINUTES} min buffer")
                     print(f"• Earliest possible: {earliest_possible.strftime('%H:%M')}")
                 
@@ -247,7 +230,6 @@ class CalendarService:
                 print(f"• Next starts: {next_start.strftime('%H:%M')} @ {next_location or 'No location'}")
                 
                 if next_location and destination_address and travel_calculator:
-                    # Calculate actual travel time if we have locations
                     travel_times = travel_calculator.get_travel_times(
                         destination_address,
                         next_location,
@@ -268,7 +250,6 @@ class CalendarService:
                             current_time = next_start
                             can_schedule = False
                 else:
-                    # Just use buffer time if no location
                     buffer_end = slot_end + timedelta(minutes=BUFFER_MINUTES)
                     print(f"• No location - using {BUFFER_MINUTES} min buffer")
                     print(f"• Must have {BUFFER_MINUTES} min gap")
@@ -281,11 +262,11 @@ class CalendarService:
             if can_schedule:
                 print("\n✅ SLOT APPROVED")
                 slots.append({
-                    'start': slot_start.strftime('%H:%M'),
-                    'end': slot_end.strftime('%H:%M')
+                    'start': format_time_12hr(slot_start),
+                    'end': format_time_12hr(slot_end)
                 })
             
-            current_time += timedelta(minutes=30)
+            current_time += timedelta(minutes=10)
 
         print(f"\n{'='*50}")
         print(f"Found {len(slots)} available slots")
