@@ -410,6 +410,44 @@ def init_calendar_routes(app):
             print(f"✗ {error_msg}")
             return jsonify({'error': error_msg}), 500
 
+    @app.route('/api/release-hold', methods=['POST'])
+    def release_hold():
+        from flask import request
+        
+        try:
+            data = request.get_json()
+            if not data or 'date' not in data or 'time' not in data:
+                print(f"✗ Invalid release hold request data: {data}")
+                return jsonify({
+                    'status': 'error',
+                    'message': 'Missing date or time in request'
+                }), 400
+
+            slot_key = f"{data['date']} {data['time']}"
+            print(f"Attempting to release hold for slot: {slot_key}")
+            
+            # Remove the hold if it exists
+            if slot_key in calendar_service.pending_bookings:
+                del calendar_service.pending_bookings[slot_key]
+                print(f"✓ Released hold for slot: {slot_key}")
+                return jsonify({
+                    'status': 'success',
+                    'message': 'Hold released successfully'
+                })
+            
+            print(f"ℹ No hold found for slot: {slot_key}")
+            return jsonify({
+                'status': 'success',
+                'message': 'No hold found to release'
+            })
+            
+        except Exception as e:
+            print(f"✗ Error releasing hold: {str(e)}")
+            return jsonify({
+                'status': 'error',
+                'message': str(e)
+            }), 400
+
 if __name__ == "__main__":
     from flask import Flask
     import json

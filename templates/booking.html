@@ -48,17 +48,15 @@
 
             <div class="booking-summary">
                 <div class="summary-section">
-                    <h3>Select Date</h3>
-                    <input type="date" class="date-picker">
-                </div>
-
-                <div class="summary-section">
-                    <h3>Select Time</h3>
-                    <div class="time-slots" id="timeSlots">
-                        <div class="time-slots-loading">
-                            <i class="fas fa-circle-notch fa-spin"></i>
-                            Loading available times...
-                        </div>
+                    <h3>Service Location</h3>
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="Street Address" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="Apartment/Unit (optional)">
+                    </div>
+                    <div class="form-group">
+                        <textarea class="form-control" placeholder="Parking Instructions & Details" rows="2"></textarea>
                     </div>
                 </div>
 
@@ -82,6 +80,19 @@
                                class="form-control" 
                                placeholder="License Plate" 
                                required>
+                    </div>
+                </div>
+
+                <div class="summary-section">
+                    <h3>Contact Information</h3>
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="Full Name" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="email" class="form-control" placeholder="Email Address" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="tel" class="form-control" placeholder="Phone Number" required>
                     </div>
                 </div>
 
@@ -113,45 +124,20 @@
                 </div>
 
                 <div class="summary-section">
-                    <h3>Contact Information</h3>
-                    <div class="form-group">
-                        <input type="text" class="form-control" placeholder="Full Name" required>
-                    </div>
-                    <div class="form-group">
-                        <input type="email" class="form-control" placeholder="Email Address" required>
-                    </div>
-                    <div class="form-group">
-                        <input type="tel" class="form-control" placeholder="Phone Number" required>
-                    </div>
+                    <h3>Select Date</h3>
+                    <input type="date" class="date-picker">
                 </div>
 
                 <div class="summary-section">
-                    <h3>Service Location</h3>
-                    <div class="form-group">
-                        <input type="text" class="form-control" placeholder="Street Address" required>
-                    </div>
-                    <div class="form-group">
-                        <input type="text" class="form-control" placeholder="Apartment/Unit (optional)">
-                    </div>
-                    <div class="form-group">
-                        <textarea class="form-control" placeholder="Parking Instructions & Details" rows="2"></textarea>
+                    <h3>Select Time</h3>
+                    <div class="time-slots" id="timeSlots">
+                        <div class="time-slots-loading">
+                            <i class="fas fa-circle-notch fa-spin"></i>
+                            Loading available times...
+                        </div>
                     </div>
                 </div>
 
-                <div class="summary-section">
-                    <h3>Payment Information</h3>
-                    <div class="form-group">
-                        <input type="text" class="form-control" placeholder="Card Number" required>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group col-6">
-                            <input type="text" class="form-control" placeholder="MM/YY" required>
-                        </div>
-                        <div class="form-group col-6">
-                            <input type="text" class="form-control" placeholder="CVV" required>
-                        </div>
-                    </div>
-                </div>
 
                 <div class="total-price">
                     <span>Total</span>
@@ -182,6 +168,7 @@
                 this.now = new Date();
                 this.activeHold = null;  // Track current hold timer
                 this.holdTimeout = null;  // Track countdown interval
+                this.DEBUG = true; // Enable debug logging
             }
 
             async getAvailableSlots(date, serviceType) {
@@ -282,8 +269,73 @@
                 });
             }
 
-            // Add new method to handle slot holding
+            async releaseHold(date, time) {
+                this.debug('releaseHold called with:', { date, time });
+                
+                if (!date || !time) {
+                    this.debug('Invalid release request - missing data');
+                    return false;
+                }
+
+                try {
+                    this.debug('Sending release request');
+                    const response = await fetch('/api/release-hold', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            date: date,
+                            time: time
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    this.debug('Release response:', data);
+                    
+                    if (data.status === 'success') {
+                        this.debug('Successfully released hold');
+                        return true;
+                    } else {
+                        this.debug('Failed to release hold:', data.message);
+                        return false;
+                    }
+                } catch (error) {
+                    this.debug('Error releasing hold:', error);
+                    return false;
+                }
+            }
+
+            initializeTimeSlotHandlers() {
+                document.getElementById('timeSlots').addEventListener('click', async (e) => {
+                    const timeSlot = e.target.closest('.time-slot');
+                    if (!timeSlot) return;
+
+                    const date = document.querySelector('.date-picker').value;
+                    const time = timeSlot.dataset.time;
+                    const serviceElement = document.querySelector('.service-card.selected h3');
+                    const serviceName = serviceElement ? serviceElement.childNodes[0].textContent.trim() : null;
+
+                    // If there's an existing selection, deselect it and release its hold
+                    const currentSelected = document.querySelector('.time-slot.selected');
+                    if (currentSelected && currentSelected !== timeSlot) {
+                        const currentDate = document.querySelector('.date-picker').value;
+                        const currentTime = currentSelected.dataset.time;
+                        
+                        this.debug('Releasing current hold before selecting new slot');
+                        await this.releaseHold(currentDate, currentTime);
+                        currentSelected.classList.remove('selected');
+                    }
+
+                    // Select new time slot and create hold
+                    timeSlot.classList.add('selected');
+                    await this.holdTimeSlot(date, time, serviceName);
+                });
+            }
+
             async holdTimeSlot(date, time, serviceType) {
+                this.debug('Creating new hold:', { date, time, serviceType });
+                
                 try {
                     const response = await fetch('/api/hold-slot', {
                         method: 'POST',
@@ -293,15 +345,31 @@
                     const data = await response.json();
                     
                     if (data.status === 'success') {
+                        this.activeHold = { date, time, serviceType };
+                        this.debug('Successfully created hold:', this.activeHold);
                         this.startHoldCountdown();
                         return true;
                     } else {
-                        throw new Error(data.message);
+                        this.debug('Failed to create hold:', data.message);
+                        this.showError(data.message || 'Unable to hold time slot');
+                        return false;
                     }
                 } catch (error) {
-                    console.error('Error holding slot:', error);
+                    this.debug('Error creating hold:', error);
                     return false;
                 }
+            }
+
+            showTimeslotError(message) {
+                const timeSlotsContainer = document.getElementById('timeSlots');
+                const errorMsg = document.createElement('div');
+                errorMsg.className = 'time-slot-error';
+                errorMsg.innerHTML = `
+                    <i class="fas fa-exclamation-circle"></i>
+                    ${message}
+                `;
+                timeSlotsContainer.insertBefore(errorMsg, timeSlotsContainer.firstChild);
+                setTimeout(() => errorMsg.remove(), 3000);
             }
 
             startHoldCountdown() {
@@ -374,30 +442,37 @@
                     bookButton.disabled = true;
                 }
             }
+
+            debug(...args) {
+                if (this.DEBUG) {
+                    console.log('[BookingSystem]', new Date().toISOString(), ...args);
+                }
+            }
+
+            // Add this method to handle cleanup when component unmounts or user leaves
+            cleanup() {
+                if (this.activeHold) {
+                    this.releaseHold(this.activeHold.date, this.activeHold.time);
+                }
+            }
         }
 
         // Initialize booking system
         const bookingSystem = new BookingSystem();
+        bookingSystem.initializeTimeSlotHandlers();
 
         // Update time slots when date or service changes
         async function updateTimeSlots() {
             const dateInput = document.querySelector('.date-picker').value;
             const selectedServiceElement = document.querySelector('.service-card.selected h3');
             
-            if (!dateInput) {
-                console.error('No date selected');
-                return;
-            }
-            
-            if (!selectedServiceElement) {
-                console.error('No service selected');
+            if (!dateInput || !selectedServiceElement) {
+                console.error('Date or service not selected');
                 return;
             }
 
-            // Extract just the service name without the price
+            // Extract service name without the price
             const serviceName = selectedServiceElement.childNodes[0].textContent.trim();
-            console.log('Selected Service:', serviceName);
-
             const timeSlotsContainer = document.getElementById('timeSlots');
             timeSlotsContainer.innerHTML = '<div class="time-slots-loading"><i class="fas fa-circle-notch fa-spin"></i> Loading available times...</div>';
 
@@ -405,8 +480,6 @@
                 const response = await fetch(`/api/available-slots?date=${dateInput}&service=${encodeURIComponent(serviceName)}`);
                 const data = await response.json();
                 
-                console.log('API Response:', data);
-
                 if (!data.slots || data.slots.length === 0) {
                     timeSlotsContainer.innerHTML = `
                         <div class="no-slots-message">
@@ -419,14 +492,27 @@
 
                 timeSlotsContainer.innerHTML = data.slots.map(slot => `
                     <div class="time-slot" data-time="${slot.start}">
-                        ${slot.start}
-                        <div class="duration">${slot.end}</div>
+                        ${slot.start} - ${slot.end}
                     </div>
                 `).join('');
 
                 // Add click handlers for time slots
                 document.querySelectorAll('.time-slot').forEach(slot => {
                     slot.addEventListener('click', async () => {
+                        // First, validate that all required fields are filled
+                        const requiredFields = document.querySelectorAll('.booking-summary input[required]');
+                        const emptyFields = Array.from(requiredFields).filter(field => !field.value.trim());
+                        
+                        if (emptyFields.length > 0) {
+                            // Scroll to the first empty required field
+                            emptyFields[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            emptyFields[0].classList.add('highlight-required');
+                            setTimeout(() => emptyFields[0].classList.remove('highlight-required'), 2000);
+                            
+                            bookingSystem.showTimeslotError('Please fill in all required information first');
+                            return;
+                        }
+
                         const date = document.querySelector('.date-picker').value;
                         const time = slot.dataset.time;
                         const selectedService = document.querySelector('.service-card.selected h3')
@@ -436,31 +522,17 @@
                         const success = await bookingSystem.holdTimeSlot(date, time, selectedService);
                         
                         if (success) {
-                            // Visual selection
                             document.querySelectorAll('.time-slot').forEach(s => 
                                 s.classList.remove('selected')
                             );
                             slot.classList.add('selected');
                             
-                            // Enable the book button
                             const bookButton = document.querySelector('.book-button');
                             if (bookButton) {
                                 bookButton.disabled = false;
                             }
                         } else {
-                            // Show error message
-                            const timeSlotsContainer = document.getElementById('timeSlots');
-                            const errorMsg = document.createElement('div');
-                            errorMsg.className = 'time-slot-error';
-                            errorMsg.innerHTML = `
-                                <i class="fas fa-exclamation-circle"></i>
-                                This time slot is no longer available
-                            `;
-                            timeSlotsContainer.insertBefore(errorMsg, slot.nextSibling);
-                            setTimeout(() => errorMsg.remove(), 3000);
-                            
-                            // Refresh available slots
-                            updateTimeSlots();
+                            updateTimeSlots(); // Refresh available slots
                         }
                     });
                 });
@@ -661,110 +733,33 @@
             // Update initial price
             updateTotalPrice();
         });
+
+        // Add event listener for page unload to cleanup any active holds
+        window.addEventListener('beforeunload', () => {
+            if (bookingSystem && bookingSystem.activeHold) {
+                bookingSystem.cleanup();
+            }
+        });
     </script>
 
     <style>
-        .form-group {
-    position: relative;
-}
-        
-        .form-control {
-            width: 100%;
-            padding: 0.75rem;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            font-size: 1rem;
-        }
-        
-        .form-row {
-            display: flex;
-            gap: 1rem;
-        }
-        
-        .col-6 {
-            flex: 0 0 calc(50% - 0.5rem);
-        }
-        
-        textarea.form-control {
-            resize: vertical;
-            min-height: 80px;
-        }
-        
-        .form-control:focus {
-            outline: none;
-            border-color: var(--teal-green);
-            box-shadow: 0 0 0 2px rgba(0, 128, 128, 0.1);
+        .highlight-required {
+            animation: shake 0.5s ease-in-out;
+            border-color: var(--error-red) !important;
+            box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.25) !important;
         }
 
-        
-.vehicle-suggestion {
-    position: absolute;
-    left: 12px;
-    top: 0;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    color: #ccc;
-    pointer-events: none;
-    user-select: none;
-    white-space: nowrap;
-    font-size: 1rem;
-    font-family: inherit;
-    z-index: 1;
-}
-
-#vehicleModel {
-    position: relative;
-    background: transparent !important;
-    font-family: inherit;
-    color: #000 !important;
-    z-index: 2;
-}
-
-        .hold-countdown {
-            margin: 1rem 0;
-            padding: 0.75rem;
-            background: var(--seafoam);
-            border-radius: 6px;
-            text-align: center;
-        }
-
-        .hold-message {
-            color: var(--teal-green);
-            font-weight: 500;
-        }
-
-        .hold-message i {
-            margin-right: 0.5rem;
-        }
-
-        .hold-expired {
-            color: var(--error-red);
-            font-weight: 500;
-        }
-
-        .time-slot-error {
-            color: var(--error-red);
-            padding: 0.5rem;
-            margin: 0.5rem 0;
-            font-size: 0.9rem;
-            text-align: center;
-        }
-
-        .book-button:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-        /* Define variables if not already present */
-        :root {
-            --error-red: #dc3545;
-            --seafoam: #e6f3f3;
-            --teal-green: #008080;
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-4px); }
+            75% { transform: translateX(4px); }
         }
     </style>
+
 </body>
 </html>
+
+
 
 
 
