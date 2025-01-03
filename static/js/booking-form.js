@@ -8,6 +8,7 @@ class BookingForm {
         this.initializeDatePicker();
         this.initializeEventListeners();
         this.loadSavedBookingData();
+        this.initializeAddressAutocomplete();
     }
 
     initializeDatePicker() {
@@ -229,5 +230,110 @@ class BookingForm {
             // If no address, show message to enter address first
             this.bookingSystem.showTimeslotError('Please enter your service address first');
         }
+    }
+
+    initializeAddressAutocomplete() {
+        const addressInput = document.querySelector('input[name="address"]');
+        if (!addressInput) return;
+
+        // Create suggestions container
+        const suggestionsContainer = document.createElement('div');
+        suggestionsContainer.className = 'address-suggestions';
+        addressInput.parentNode.insertBefore(suggestionsContainer, addressInput.nextSibling);
+
+        let timeoutId = null;
+
+        addressInput.addEventListener('input', async (e) => {
+            const query = e.target.value.trim();
+            
+            if (timeoutId) clearTimeout(timeoutId);
+            
+            if (!query) {
+                suggestionsContainer.innerHTML = '';
+                return;
+            }
+
+            timeoutId = setTimeout(async () => {
+                try {
+                    const response = await fetch(`/api/place-suggestions?input=${encodeURIComponent(query)}`);
+                    const data = await response.json();
+                    
+                    if (!data.suggestions) {
+                        suggestionsContainer.innerHTML = '';
+                        return;
+                    }
+
+                    suggestionsContainer.innerHTML = data.suggestions
+                        .map(suggestion => `
+                            <div class="suggestion-item" data-place-id="${suggestion.place_id}">
+                                <strong>${suggestion.main_text}</strong>
+                                <small>${suggestion.secondary_text}</small>
+                            </div>
+                        `).join('');
+
+                    // Add click handlers to suggestions
+                    document.querySelectorAll('.suggestion-item').forEach(item => {
+                        item.addEventListener('click', () => {
+                            addressInput.value = item.querySelector('strong').textContent + ', ' + 
+                                               item.querySelector('small').textContent;
+                            suggestionsContainer.innerHTML = '';
+                            // Use existing method to update slots
+                            this.updateAvailableSlots();
+                            // Validate the field
+                            this.validateField(addressInput);
+                        });
+                    });
+
+                } catch (error) {
+                    console.error('Error fetching address suggestions:', error);
+                }
+            }, 300);
+        });
+
+        // Close suggestions when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!addressInput.contains(e.target) && !suggestionsContainer.contains(e.target)) {
+                suggestionsContainer.innerHTML = '';
+            }
+        });
+
+        // Handle keyboard navigation
+        addressInput.addEventListener('keydown', (e) => {
+            const suggestions = document.querySelectorAll('.suggestion-item');
+            const current = document.querySelector('.suggestion-item.highlighted');
+            
+            switch(e.key) {
+                case 'ArrowDown':
+                    e.preventDefault();
+                    if (!current) {
+                        suggestions[0]?.classList.add('highlighted');
+                    } else {
+                        const next = current.nextElementSibling;
+                        if (next) {
+                            current.classList.remove('highlighted');
+                            next.classList.add('highlighted');
+                        }
+                    }
+                    break;
+                    
+                case 'ArrowUp':
+                    e.preventDefault();
+                    if (current) {
+                        const prev = current.previousElementSibling;
+                        current.classList.remove('highlighted');
+                        if (prev) {
+                            prev.classList.add('highlighted');
+                        }
+                    }
+                    break;
+                    
+                case 'Enter':
+                    if (current) {
+                        e.preventDefault();
+                        current.click();
+                    }
+                    break;
+            }
+        });
     }
 }

@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, sen
 from datetime import datetime
 import os
 from getcalendar import init_calendar_routes
+from directions import TravelTimeCalculator
 
 # Initialize Flask app
 app = Flask(__name__, static_folder='static')
@@ -77,6 +78,33 @@ def about():
 def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'),
                              'favicon.ico', mimetype='image/vnd.microsoft.icon')
+
+@app.route('/api/place-suggestions')
+def get_place_suggestions():
+    """Endpoint to get address suggestions for Maryland locations"""
+    query = request.args.get('input')
+    if not query:
+        return jsonify({'suggestions': []})
+
+    try:
+        calculator = TravelTimeCalculator()
+        # Using Maryland coordinates (39.0458, -76.6413) with 50km radius
+        suggestions = calculator.get_place_suggestions(
+            input_text=query,
+            location=(39.0458, -76.6413),
+            radius=50000
+        )
+        
+        return jsonify({
+            'status': 'success',
+            'suggestions': suggestions
+        })
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'message': str(e),
+            'suggestions': []
+        }), 500
 
 # Error handlers
 @app.errorhandler(404)

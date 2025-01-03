@@ -59,6 +59,46 @@ class TravelTimeCalculator:
             print(f"✗ Error calculating travel times: {str(e)}")
             return None
 
+    def get_place_suggestions(self, input_text, location=(39.0458, -76.6413), radius=50000):
+        """Get place suggestions using Google Places Autocomplete API
+        
+        Args:
+            input_text (str): The text to search for
+            location (tuple, optional): Lat/lng tuple to bias results. Defaults to Maryland center
+            radius (int, optional): Radius in meters to bias results. Defaults to 50km
+            
+        Returns:
+            list: List of place suggestions with their details
+        """
+        try:
+            params = {
+                'input_text': input_text,
+                'components': {'country': 'us'},
+                'strict_bounds': True
+            }
+            
+            # Add location bias
+            if location:
+                params['location'] = {'lat': location[0], 'lng': location[1]}
+                if radius:
+                    params['radius'] = radius
+
+            result = self.gmaps.places_autocomplete(**params)
+            
+            # Format the results
+            suggestions = [{
+                'place_id': place['place_id'],
+                'description': place['description'],
+                'main_text': place.get('structured_formatting', {}).get('main_text', ''),
+                'secondary_text': place.get('structured_formatting', {}).get('secondary_text', '')
+            } for place in result]
+            
+            return suggestions
+            
+        except Exception as e:
+            print(f"✗ Error getting place suggestions: {str(e)}")
+            return []
+
 def calculate_travel_scenario(current_location, next_booking_location, home_location, 
                             current_booking_end, next_booking_start):
     """Calculate optimal travel scenario between bookings"""
@@ -148,4 +188,5 @@ if __name__ == "__main__":
             
     except Exception as e:
         print(f"Error calculating travel scenario: {e}")
+
 
