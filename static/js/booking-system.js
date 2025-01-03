@@ -25,12 +25,12 @@ class BookingSystem {
         }
     }
 
-    async updateTimeSlots() {
+    async updateTimeSlots(location = null) {
         const dateInput = document.querySelector('.date-picker').value;
         const selectedServiceElement = document.querySelector('.service-card.selected h3');
         
-        if (!dateInput || !selectedServiceElement) {
-            this.debug('Date or service not selected');
+        if (!dateInput || !selectedServiceElement || !location) {
+            this.debug('Missing required data:', { dateInput, selectedServiceElement, location });
             return;
         }
 
@@ -39,7 +39,14 @@ class BookingSystem {
         timeSlotsContainer.innerHTML = '<div class="time-slots-loading"><i class="fas fa-circle-notch fa-spin"></i> Loading available times...</div>';
 
         try {
-            const response = await fetch(`/api/available-slots?date=${dateInput}&service=${encodeURIComponent(serviceName)}`);
+            const queryParams = new URLSearchParams({
+                date: dateInput,
+                service: serviceName,
+                address: location.address,
+                unit: location.unit
+            });
+
+            const response = await fetch(`/api/available-slots?${queryParams}`);
             const data = await response.json();
             
             if (!data.slots || data.slots.length === 0) {

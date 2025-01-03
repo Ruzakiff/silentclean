@@ -124,7 +124,9 @@ class CalendarService:
                     start = event['start'].get('dateTime', event['start'].get('date'))
                     end = event['end'].get('dateTime', event['end'].get('date'))
                     summary = event.get('summary', 'No title')
+                    location = event.get('location', 'No location')
                     print(f"  • {summary}: {start} - {end}")
+                    print(f"    Location: {location}")
                     # Print full event data for debugging
                     print(f"    Full event data: {json.dumps(event, indent=2)}")
                 
@@ -348,10 +350,13 @@ def init_calendar_routes(app):
         
         date = request.args.get('date')
         service_type = request.args.get('service')
+        address = request.args.get('address')
+        unit = request.args.get('unit')
         
         print(f"\nAPI Request received:")
         print(f"Date: {date}")
         print(f"Service: {service_type}")
+        print(f"Location: {address}{f' Unit {unit}' if unit else ''}")
         
         # Map service types to durations (in minutes)
         service_durations = {

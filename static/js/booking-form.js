@@ -38,6 +38,20 @@ class BookingForm {
         document.querySelectorAll('input[required]').forEach(input => {
             input.addEventListener('blur', () => this.validateField(input));
         });
+
+        // Add address change listener
+        document.querySelector('input[name="address"]').addEventListener('blur', () => {
+            if (document.querySelector('.service-card.selected')) {
+                this.updateAvailableSlots();
+            }
+        });
+
+        // Update date picker listener
+        document.querySelector('.date-picker').addEventListener('change', () => {
+            if (document.querySelector('.service-card.selected')) {
+                this.updateAvailableSlots();
+            }
+        });
     }
 
     handleServiceSelection(card) {
@@ -47,7 +61,7 @@ class BookingForm {
         card.classList.add('selected');
         
         this.pricingCalculator.updateDisplay();
-        this.bookingSystem.updateTimeSlots();
+        this.updateAvailableSlots();
     }
 
     async handleSubmit(e) {
@@ -191,5 +205,29 @@ class BookingForm {
         errorDiv.textContent = message;
         this.form.insertBefore(errorDiv, this.form.firstChild);
         setTimeout(() => errorDiv.remove(), 5000);
+    }
+
+    // Add new method to get location data
+    getLocationData() {
+        const address = document.querySelector('input[name="address"]').value;
+        const unit = document.querySelector('input[name="unit"]').value;
+        
+        if (!address) return null;
+        
+        return {
+            address: address,
+            unit: unit || ''
+        };
+    }
+
+    // Add method to update slots with location
+    updateAvailableSlots() {
+        const location = this.getLocationData();
+        if (location) {
+            this.bookingSystem.updateTimeSlots(location);
+        } else {
+            // If no address, show message to enter address first
+            this.bookingSystem.showTimeslotError('Please enter your service address first');
+        }
     }
 }
