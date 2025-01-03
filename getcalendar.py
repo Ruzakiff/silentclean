@@ -84,13 +84,13 @@ class CalendarService:
             raise
 
     def get_available_slots(self, date_str, service_duration, destination_address=None):
+        """Get available time slots for a given date"""
         try:
-            print(f"\nFetching slots for {date_str}, duration: {service_duration} minutes")
-            
-            # Get existing events for the day
+            # Parse the date
             date_obj = datetime.strptime(date_str, '%Y-%m-%d')
             date_obj = self.timezone.localize(date_obj)
             
+            # Get time bounds for the day
             time_min = date_obj.replace(
                 hour=self.business_hours['start'], 
                 minute=0, 
@@ -104,14 +104,16 @@ class CalendarService:
                 microsecond=0
             )
 
+            # Get existing events
             events = self._get_day_events(time_min, time_max)
             
-            # Get travel times if we have a destination address
+            # Initialize travel calculator if needed
             travel_calculator = None
             if destination_address:
                 from directions import TravelTimeCalculator
                 travel_calculator = TravelTimeCalculator()
 
+            # Calculate available slots
             available_slots = self._calculate_available_slots(
                 events, 
                 date_obj, 
@@ -127,125 +129,166 @@ class CalendarService:
             raise
 
     def _calculate_available_slots(self, events, date, duration_minutes, destination_address=None, travel_calculator=None):
-        """Calculate available time slots considering travel times"""
+        """Calculate available slots considering travel times from/to adjacent bookings"""
         slots = []
         duration = timedelta(minutes=duration_minutes)
+        BUFFER_MINUTES = 15  # Standard buffer between bookings
         
-        print("\nCalculating available slots:")
-        print(f"Date: {date.strftime('%Y-%m-%d')}")
+        print(f"\n{'='*50}")
+        print(f"SLOT CALCULATION DEBUG - {date.strftime('%Y-%m-%d')}")
+        print(f"{'='*50}")
         print(f"Service Duration: {duration_minutes} minutes")
         print(f"Destination: {destination_address}")
-        print(f"Total existing events for day: {len(events)}")
         
-        # Start and end times for the business day
-        current_time = date.replace(
-            hour=self.business_hours['start'], 
-            minute=0, 
-            second=0, 
-            microsecond=0
-        )
-        day_end = date.replace(
-            hour=self.business_hours['end'], 
-            minute=0, 
-            second=0, 
-            microsecond=0
-        )
-
-        print(f"Business hours: {current_time.strftime('%H:%M')} - {day_end.strftime('%H:%M')}")
+        current_time = date.replace(hour=self.business_hours['start'], minute=0)
+        day_end = date.replace(hour=self.business_hours['end'], minute=0)
 
         # If it's today, start from current time
         now = datetime.now(self.timezone)
         if date.date() == now.date():
-            current_time = max(current_time, now.replace(minute=0, second=0, microsecond=0))
-            print(f"Today's date - adjusting start time to: {current_time.strftime('%H:%M')}")
+            current_time = max(current_time, now.replace(minute=0))
+            print(f"Today's date - adjusted start time: {current_time.strftime('%H:%M')}")
 
-        # Sort events chronologically
+        # Sort and log existing bookings
         events.sort(key=lambda x: x['start'].get('dateTime'))
         if events:
-            print("\nExisting bookings:")
+            print("\nEXISTING BOOKINGS:")
             for event in events:
                 start = datetime.fromisoformat(event['start'].get('dateTime')).astimezone(self.timezone)
                 end = datetime.fromisoformat(event['end'].get('dateTime')).astimezone(self.timezone)
                 location = event.get('location', 'No location')
-                print(f"- {start.strftime('%H:%M')} - {end.strftime('%H:%M')} at {location}")
+                print(f"• {start.strftime('%H:%M')} - {end.strftime('%H:%M')} @ {location}")
 
-        print("\nCalculating slots...")
+        # Cache travel times for efficiency
+        travel_cache = {}
+        
+        def get_cached_travel_time(origin, dest, departure_time):
+            cache_key = f"{origin}|{dest}|{departure_time.strftime('%H:%M')}"
+            if cache_key not in travel_cache and travel_calculator:
+                times = travel_calculator.get_travel_times(origin, dest, departure_time)
+                if times:
+                    travel_cache[cache_key] = times[str(origin)][str(dest)]['minutes']
+            return travel_cache.get(cache_key)
+
         while current_time + duration <= day_end:
+            slot_start = current_time
             slot_end = current_time + duration
-            has_overlap = False
+            can_schedule = True
+            
+            print(f"\n{'-'*50}")
+            print(f"Evaluating slot: {slot_start.strftime('%H:%M')} - {slot_end.strftime('%H:%M')}")
 
-            # Find the previous booking (if any)
-            previous_booking = None
-            for event in events:
-                event_end = datetime.fromisoformat(
-                    event['end'].get('dateTime')
-                ).astimezone(self.timezone)
+            # Check for overlaps
+            has_overlap = any(
+                datetime.fromisoformat(event['start'].get('dateTime')).astimezone(self.timezone) < slot_end
+                and datetime.fromisoformat(event['end'].get('dateTime')).astimezone(self.timezone) > slot_start
+                for event in events
+            )
+
+            if has_overlap:
+                print("❌ Slot overlaps with existing booking")
+                current_time = max(
+                    datetime.fromisoformat(event['end'].get('dateTime')).astimezone(self.timezone)
+                    for event in events
+                    if datetime.fromisoformat(event['start'].get('dateTime')).astimezone(self.timezone) < slot_end
+                    and datetime.fromisoformat(event['end'].get('dateTime')).astimezone(self.timezone) > slot_start
+                )
+                continue
+
+            # Find previous and next bookings
+            previous_booking = next((
+                event for event in reversed(events)
+                if datetime.fromisoformat(event['end'].get('dateTime')).astimezone(self.timezone) <= slot_start
+            ), None)
+
+            next_booking = next((
+                event for event in events
+                if datetime.fromisoformat(event['start'].get('dateTime')).astimezone(self.timezone) >= slot_end
+            ), None)
+
+            # Check travel from previous booking
+            if previous_booking:
+                prev_end = datetime.fromisoformat(previous_booking['end'].get('dateTime')).astimezone(self.timezone)
+                prev_location = previous_booking.get('location')
                 
-                if event_end <= current_time:
-                    previous_booking = event
-
-            # If we have a previous booking, check travel time
-            if previous_booking and travel_calculator and destination_address:
-                prev_location = previous_booking.get('location', '')
-                if prev_location:
-                    prev_end_time = datetime.fromisoformat(
-                        previous_booking['end'].get('dateTime')
-                    ).astimezone(self.timezone)
-                    
-                    print(f"\nChecking travel time from previous booking:")
-                    print(f"Previous booking ends: {prev_end_time.strftime('%H:%M')} at {prev_location}")
-                    
+                print(f"\nChecking travel FROM previous booking:")
+                print(f"• Previous ends: {prev_end.strftime('%H:%M')} @ {prev_location or 'No location'}")
+                
+                if prev_location and destination_address and travel_calculator:
+                    # Calculate actual travel time if we have locations
                     travel_times = travel_calculator.get_travel_times(
                         prev_location,
                         destination_address,
-                        prev_end_time
+                        prev_end
                     )
-                    
-                    if travel_times:  # Only process if we got valid travel times
+                    if travel_times:
                         travel_minutes = travel_times[str(prev_location)][str(destination_address)]['minutes']
-                        travel_text = travel_times[str(prev_location)][str(destination_address)]['text']
-                        earliest_possible = prev_end_time + timedelta(minutes=travel_minutes + 15)
+                        earliest_possible = prev_end + timedelta(minutes=travel_minutes + BUFFER_MINUTES)
+                        print(f"• Travel time: {travel_minutes} mins (+{BUFFER_MINUTES} min buffer)")
+                        print(f"• Earliest possible: {earliest_possible.strftime('%H:%M')}")
+                else:
+                    # Just use buffer time if no location
+                    travel_minutes = BUFFER_MINUTES
+                    earliest_possible = prev_end + timedelta(minutes=BUFFER_MINUTES)
+                    print(f"• No location - using {BUFFER_MINUTES} min buffer")
+                    print(f"• Earliest possible: {earliest_possible.strftime('%H:%M')}")
+                
+                if earliest_possible > slot_start:
+                    print(f"❌ Cannot start at requested time")
+                    current_time = earliest_possible
+                    can_schedule = False
+
+            # Check travel to next booking
+            if can_schedule and next_booking:
+                next_start = datetime.fromisoformat(next_booking['start'].get('dateTime')).astimezone(self.timezone)
+                next_location = next_booking.get('location')
+                
+                print(f"\nChecking travel TO next booking:")
+                print(f"• Next starts: {next_start.strftime('%H:%M')} @ {next_location or 'No location'}")
+                
+                if next_location and destination_address and travel_calculator:
+                    # Calculate actual travel time if we have locations
+                    travel_times = travel_calculator.get_travel_times(
+                        destination_address,
+                        next_location,
+                        slot_end
+                    )
+                    if travel_times:
+                        travel_minutes = travel_times[str(destination_address)][str(next_location)]['minutes']
+                        travel_buffer = travel_minutes + BUFFER_MINUTES
+                        must_leave_by = next_start - timedelta(minutes=travel_buffer)
+                        arrival_time = slot_end + timedelta(minutes=travel_buffer)
                         
-                        print(f"Travel time: {travel_text}")
-                        print(f"Travel minutes: {travel_minutes}")
-                        print(f"Buffer added: 15 minutes")
-                        print(f"Earliest possible arrival: {earliest_possible.strftime('%H:%M')}")
+                        print(f"• Travel time: {travel_minutes} mins (+{BUFFER_MINUTES} min buffer)")
+                        print(f"• Must leave by: {must_leave_by.strftime('%H:%M')}")
+                        print(f"• Would arrive at: {arrival_time.strftime('%H:%M')}")
                         
-                        if earliest_possible > current_time:
-                            print(f"⚠️ Cannot reach location in time. Moving start time to {earliest_possible.strftime('%H:%M')}")
-                            current_time = earliest_possible
-                            continue
-                        else:
-                            print(f"✓ Location is reachable for {current_time.strftime('%H:%M')} slot")
-                    else:
-                        print("⚠️ Could not calculate travel time, proceeding without travel time consideration")
+                        if arrival_time > next_start:
+                            print(f"❌ Would arrive too late for next booking")
+                            current_time = next_start
+                            can_schedule = False
+                else:
+                    # Just use buffer time if no location
+                    buffer_end = slot_end + timedelta(minutes=BUFFER_MINUTES)
+                    print(f"• No location - using {BUFFER_MINUTES} min buffer")
+                    print(f"• Must have {BUFFER_MINUTES} min gap")
+                    
+                    if buffer_end > next_start:
+                        print(f"❌ Not enough buffer time to next booking")
+                        current_time = next_start
+                        can_schedule = False
 
-            # Check for overlaps with future events
-            for event in events:
-                event_start = datetime.fromisoformat(
-                    event['start'].get('dateTime')
-                ).astimezone(self.timezone)
-                event_end = datetime.fromisoformat(
-                    event['end'].get('dateTime')
-                ).astimezone(self.timezone)
-
-                if (current_time < event_end and slot_end > event_start):
-                    has_overlap = True
-                    print(f"\n⚠️ Slot {current_time.strftime('%H:%M')} - {slot_end.strftime('%H:%M')} overlaps with booking:")
-                    print(f"Booking: {event_start.strftime('%H:%M')} - {event_end.strftime('%H:%M')}")
-                    print(f"Moving to: {event_end.strftime('%H:%M')}")
-                    current_time = event_end
-                    break
-
-            if not has_overlap:
+            if can_schedule:
+                print("\n✅ SLOT APPROVED")
                 slots.append({
-                    'start': current_time.strftime('%H:%M'),
-                    'end': (current_time + duration).strftime('%H:%M')  # Fixed end time calculation
+                    'start': slot_start.strftime('%H:%M'),
+                    'end': slot_end.strftime('%H:%M')
                 })
-                print(f"\n✓ Added slot: {current_time.strftime('%H:%M')} - {(current_time + duration).strftime('%H:%M')}")
-                current_time += timedelta(minutes=30)
-        
-        print(f"\nFound {len(slots)} available slots")
+            
+            current_time += timedelta(minutes=30)
+
+        print(f"\n{'='*50}")
+        print(f"Found {len(slots)} available slots")
         return slots
 
     def create_booking(self, booking_data):
