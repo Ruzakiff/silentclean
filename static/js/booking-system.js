@@ -188,10 +188,10 @@ class BookingSystem {
             countdownEl = document.createElement('div');
             countdownEl.id = 'holdCountdown';
             countdownEl.className = 'hold-countdown';
-            document.querySelector('.booking-summary').insertBefore(
-                countdownEl,
-                document.querySelector('.summary-section')
-            );
+            const timeSlotsSection = document.querySelector('.summary-section:has(#timeSlots)');
+            if (timeSlotsSection) {
+                timeSlotsSection.insertBefore(countdownEl, document.getElementById('timeSlots'));
+            }
         }
 
         this.holdTimeout = setInterval(() => {
