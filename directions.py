@@ -8,7 +8,7 @@ class TravelTimeCalculator:
         self.gmaps = googlemaps.Client(key=os.environ['GOOGLE_MAPS_API_KEY'])
     
     @lru_cache(maxsize=128)
-    def get_travel_times(self, origins, destinations):
+    def get_travel_times(self, origins, destinations, departure_time):
         """Batch query travel times using Distance Matrix API"""
         # Convert tuples/strings to lists for the API call
         if isinstance(origins, (str, tuple)):
@@ -20,7 +20,7 @@ class TravelTimeCalculator:
             origins=origins,
             destinations=destinations,
             mode="driving",
-            departure_time="now"
+            departure_time=departure_time
         )
         
         # Extract durations into a more usable format
@@ -42,7 +42,7 @@ def calculate_travel_scenario(current_location, next_booking_location, home_loca
     origins = tuple([current_location, home_location])
     destinations = tuple([next_booking_location, home_location])
     
-    travel_times = calculator.get_travel_times(origins, destinations)
+    travel_times = calculator.get_travel_times(origins, destinations, current_booking_end)
     
     # Use string keys when accessing the dictionary
     direct_travel = travel_times[str(current_location)][str(next_booking_location)]
