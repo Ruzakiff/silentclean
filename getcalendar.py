@@ -83,15 +83,14 @@ class CalendarService:
             print(f"✗ Error holding slot: {str(e)}")
             raise
 
-    def get_available_slots(self, date_str, service_duration):
+    def get_available_slots(self, date_str, service_duration, destination_address=None):
         try:
             print(f"\nFetching slots for {date_str}, duration: {service_duration} minutes")
             
-            # Parse the date string and make it timezone-aware
+            # Get existing events for the day
             date_obj = datetime.strptime(date_str, '%Y-%m-%d')
             date_obj = self.timezone.localize(date_obj)
             
-            # Create timezone-aware datetime objects for the day's boundaries
             time_min = date_obj.replace(
                 hour=self.business_hours['start'], 
                 minute=0, 
@@ -105,55 +104,41 @@ class CalendarService:
                 microsecond=0
             )
 
-            print(f"Business hours: {time_min.strftime('%H:%M')} - {time_max.strftime('%H:%M')}")
-            print(f"Service duration: {service_duration} minutes")
+            events = self._get_day_events(time_min, time_max)
+            
+            # Get travel times if we have a destination address
+            travel_calculator = None
+            if destination_address:
+                from directions import TravelTimeCalculator
+                travel_calculator = TravelTimeCalculator()
 
-            # Get existing events with detailed debugging
-            try:
-                events_result = self.service.events().list(
-                    calendarId=self.calendar_id,
-                    timeMin=time_min.isoformat(),
-                    timeMax=time_max.isoformat(),
-                    singleEvents=True,
-                    orderBy='startTime'
-                ).execute()
-                
-                events = events_result.get('items', [])
-                print(f"\nFound {len(events)} existing events:")
-                for event in events:
-                    start = event['start'].get('dateTime', event['start'].get('date'))
-                    end = event['end'].get('dateTime', event['end'].get('date'))
-                    summary = event.get('summary', 'No title')
-                    location = event.get('location', 'No location')
-                    print(f"  • {summary}: {start} - {end}")
-                    print(f"    Location: {location}")
-                    # Print full event data for debugging
-                    print(f"    Full event data: {json.dumps(event, indent=2)}")
-                
-            except Exception as e:
-                print(f"✗ Error fetching events: {str(e)}")
-                raise
-
-            available_slots = self._calculate_available_slots(events, date_obj, service_duration)
-            print(f"\nGenerated {len(available_slots)} available slots:")
-            for slot in available_slots:
-                print(f"  • {slot['start']} - {slot['end']}")
+            available_slots = self._calculate_available_slots(
+                events, 
+                date_obj, 
+                service_duration,
+                destination_address,
+                travel_calculator
+            )
+            
             return available_slots
             
         except Exception as e:
             print(f"✗ Error in get_available_slots: {str(e)}")
             raise
 
-    def _calculate_available_slots(self, events, date, duration_minutes):
-        """Calculate available time slots given existing events"""
-        print(f"\nCalculating slots for {date.strftime('%Y-%m-%d')}")
+    def _calculate_available_slots(self, events, date, duration_minutes, destination_address=None, travel_calculator=None):
+        """Calculate available time slots considering travel times"""
         slots = []
-        
-        # Convert duration to timedelta
         duration = timedelta(minutes=duration_minutes)
         
-        # Start and end times for the business day (timezone-aware)
-        day_start = date.replace(
+        print("\nCalculating available slots:")
+        print(f"Date: {date.strftime('%Y-%m-%d')}")
+        print(f"Service Duration: {duration_minutes} minutes")
+        print(f"Destination: {destination_address}")
+        print(f"Total existing events for day: {len(events)}")
+        
+        # Start and end times for the business day
+        current_time = date.replace(
             hour=self.business_hours['start'], 
             minute=0, 
             second=0, 
@@ -165,64 +150,102 @@ class CalendarService:
             second=0, 
             microsecond=0
         )
-        
-        print(f"Business hours: {day_start.strftime('%H:%M')} - {day_end.strftime('%H:%M')}")
-        
-        # Create list of busy periods
-        busy_periods = []
-        for event in events:
-            try:
-                start = datetime.fromisoformat(
-                    event['start'].get('dateTime', event['start'].get('date'))
-                ).astimezone(self.timezone)
-                
-                end = datetime.fromisoformat(
-                    event['end'].get('dateTime', event['end'].get('date'))
-                ).astimezone(self.timezone)
-                
-                busy_periods.append((start, end))
-                print(f"Found busy period: {start.strftime('%H:%M')} - {end.strftime('%H:%M')}")
-                
-            except Exception as e:
-                print(f"✗ Error parsing event time: {str(e)}")
-                continue
-        
-        # Sort busy periods by start time
-        busy_periods.sort(key=lambda x: x[0])
-        
-        # Find available slots
-        current_time = day_start
-        
+
+        print(f"Business hours: {current_time.strftime('%H:%M')} - {day_end.strftime('%H:%M')}")
+
         # If it's today, start from current time
         now = datetime.now(self.timezone)
         if date.date() == now.date():
-            current_time = max(
-                current_time, 
-                now.replace(minute=0, second=0, microsecond=0)
-            )
-            print(f"\nToday's schedule, starting from: {current_time.strftime('%H:%M')}")
-        
+            current_time = max(current_time, now.replace(minute=0, second=0, microsecond=0))
+            print(f"Today's date - adjusting start time to: {current_time.strftime('%H:%M')}")
+
+        # Sort events chronologically
+        events.sort(key=lambda x: x['start'].get('dateTime'))
+        if events:
+            print("\nExisting bookings:")
+            for event in events:
+                start = datetime.fromisoformat(event['start'].get('dateTime')).astimezone(self.timezone)
+                end = datetime.fromisoformat(event['end'].get('dateTime')).astimezone(self.timezone)
+                location = event.get('location', 'No location')
+                print(f"- {start.strftime('%H:%M')} - {end.strftime('%H:%M')} at {location}")
+
+        print("\nCalculating slots...")
         while current_time + duration <= day_end:
-            # Check if this slot overlaps with any busy period
             slot_end = current_time + duration
             has_overlap = False
-            
-            for busy_start, busy_end in busy_periods:
-                if (current_time < busy_end and slot_end > busy_start):
+
+            # Find the previous booking (if any)
+            previous_booking = None
+            for event in events:
+                event_end = datetime.fromisoformat(
+                    event['end'].get('dateTime')
+                ).astimezone(self.timezone)
+                
+                if event_end <= current_time:
+                    previous_booking = event
+
+            # If we have a previous booking, check travel time
+            if previous_booking and travel_calculator and destination_address:
+                prev_location = previous_booking.get('location', '')
+                if prev_location:
+                    prev_end_time = datetime.fromisoformat(
+                        previous_booking['end'].get('dateTime')
+                    ).astimezone(self.timezone)
+                    
+                    print(f"\nChecking travel time from previous booking:")
+                    print(f"Previous booking ends: {prev_end_time.strftime('%H:%M')} at {prev_location}")
+                    
+                    travel_times = travel_calculator.get_travel_times(
+                        prev_location,
+                        destination_address,
+                        prev_end_time
+                    )
+                    
+                    if travel_times:  # Only process if we got valid travel times
+                        travel_minutes = travel_times[str(prev_location)][str(destination_address)]['minutes']
+                        travel_text = travel_times[str(prev_location)][str(destination_address)]['text']
+                        earliest_possible = prev_end_time + timedelta(minutes=travel_minutes + 15)
+                        
+                        print(f"Travel time: {travel_text}")
+                        print(f"Travel minutes: {travel_minutes}")
+                        print(f"Buffer added: 15 minutes")
+                        print(f"Earliest possible arrival: {earliest_possible.strftime('%H:%M')}")
+                        
+                        if earliest_possible > current_time:
+                            print(f"⚠️ Cannot reach location in time. Moving start time to {earliest_possible.strftime('%H:%M')}")
+                            current_time = earliest_possible
+                            continue
+                        else:
+                            print(f"✓ Location is reachable for {current_time.strftime('%H:%M')} slot")
+                    else:
+                        print("⚠️ Could not calculate travel time, proceeding without travel time consideration")
+
+            # Check for overlaps with future events
+            for event in events:
+                event_start = datetime.fromisoformat(
+                    event['start'].get('dateTime')
+                ).astimezone(self.timezone)
+                event_end = datetime.fromisoformat(
+                    event['end'].get('dateTime')
+                ).astimezone(self.timezone)
+
+                if (current_time < event_end and slot_end > event_start):
                     has_overlap = True
-                    # Jump to the end of this busy period
-                    current_time = busy_end
+                    print(f"\n⚠️ Slot {current_time.strftime('%H:%M')} - {slot_end.strftime('%H:%M')} overlaps with booking:")
+                    print(f"Booking: {event_start.strftime('%H:%M')} - {event_end.strftime('%H:%M')}")
+                    print(f"Moving to: {event_end.strftime('%H:%M')}")
+                    current_time = event_end
                     break
-            
+
             if not has_overlap:
-                slot = {
+                slots.append({
                     'start': current_time.strftime('%H:%M'),
-                    'end': slot_end.strftime('%H:%M')
-                }
-                slots.append(slot)
-                print(f"Added available slot: {slot['start']} - {slot['end']}")
+                    'end': (current_time + duration).strftime('%H:%M')  # Fixed end time calculation
+                })
+                print(f"\n✓ Added slot: {current_time.strftime('%H:%M')} - {(current_time + duration).strftime('%H:%M')}")
                 current_time += timedelta(minutes=30)
-            
+        
+        print(f"\nFound {len(slots)} available slots")
         return slots
 
     def create_booking(self, booking_data):
@@ -326,6 +349,23 @@ Special Instructions: {booking_data.get('notes', 'None')}
             print(f"✗ Error creating booking: {str(e)}")
             raise
 
+    def _get_day_events(self, time_min, time_max):
+        """Get all events for a specific day period"""
+        try:
+            events_result = self.service.events().list(
+                calendarId=self.calendar_id,
+                timeMin=time_min.isoformat(),
+                timeMax=time_max.isoformat(),
+                singleEvents=True,
+                orderBy='startTime'
+            ).execute()
+            
+            return events_result.get('items', [])
+            
+        except Exception as e:
+            print(f"✗ Error fetching events: {str(e)}")
+            raise
+
 def init_calendar_routes(app):
     calendar_service = CalendarService()
     
@@ -353,10 +393,13 @@ def init_calendar_routes(app):
         address = request.args.get('address')
         unit = request.args.get('unit')
         
+        # Construct full address
+        full_address = f"{address}{f' Unit {unit}' if unit else ''}"
+        
         print(f"\nAPI Request received:")
         print(f"Date: {date}")
         print(f"Service: {service_type}")
-        print(f"Location: {address}{f' Unit {unit}' if unit else ''}")
+        print(f"Location: {full_address}")
         
         # Map service types to durations (in minutes)
         service_durations = {
@@ -371,7 +414,12 @@ def init_calendar_routes(app):
             return jsonify({'error': error_msg}), 400
         
         try:
-            available_slots = calendar_service.get_available_slots(date, duration)
+            # Pass the full_address to get_available_slots
+            available_slots = calendar_service.get_available_slots(
+                date, 
+                duration,
+                destination_address=full_address  # Make sure to pass the address
+            )
             response_data = {'slots': available_slots}
             print(f"✓ Returning {len(available_slots)} slots")
             return jsonify(response_data)

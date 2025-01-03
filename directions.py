@@ -10,28 +10,54 @@ class TravelTimeCalculator:
     @lru_cache(maxsize=128)
     def get_travel_times(self, origins, destinations, departure_time):
         """Batch query travel times using Distance Matrix API"""
-        # Convert tuples/strings to lists for the API call
-        if isinstance(origins, (str, tuple)):
-            origins = [origins] if isinstance(origins, str) else list(origins)
-        if isinstance(destinations, (str, tuple)):
-            destinations = [destinations] if isinstance(destinations, str) else list(destinations)
-        
-        result = self.gmaps.distance_matrix(
-            origins=origins,
-            destinations=destinations,
-            mode="driving",
-            departure_time=departure_time
-        )
-        
-        # Extract durations into a more usable format
-        travel_times = {}
-        for i, origin in enumerate(origins):
-            travel_times[str(origin)] = {}
-            for j, dest in enumerate(destinations):
-                duration = result['rows'][i]['elements'][j]['duration']['text']
-                travel_times[str(origin)][str(dest)] = duration
-                
-        return travel_times
+        try:
+            # Convert tuples/strings to lists for the API call
+            if isinstance(origins, (str, tuple)):
+                origins = [origins] if isinstance(origins, str) else list(origins)
+            if isinstance(destinations, (str, tuple)):
+                destinations = [destinations] if isinstance(destinations, str) else list(destinations)
+            
+            # For future dates, we need to use the time of day but set to today
+            now = datetime.now()
+            departure_hour = departure_time.hour
+            departure_minute = departure_time.minute
+            
+            # Set departure time to today at the same time
+            adjusted_departure = now.replace(
+                hour=departure_hour,
+                minute=departure_minute,
+                second=0,
+                microsecond=0
+            )
+            
+            # If the time has already passed today, set to tomorrow
+            if adjusted_departure < now:
+                adjusted_departure += timedelta(days=1)
+            
+            print(f"Calculating travel time using departure: {adjusted_departure.strftime('%Y-%m-%d %H:%M')}")
+            
+            result = self.gmaps.distance_matrix(
+                origins=origins,
+                destinations=destinations,
+                mode="driving",
+                departure_time=adjusted_departure
+            )
+            
+            # Extract durations into a more usable format
+            travel_times = {}
+            for i, origin in enumerate(origins):
+                travel_times[str(origin)] = {}
+                for j, dest in enumerate(destinations):
+                    element = result['rows'][i]['elements'][j]
+                    travel_times[str(origin)][str(dest)] = {
+                        'text': element['duration']['text'],
+                        'minutes': element['duration']['value'] // 60  # Convert seconds to minutes
+                    }
+            
+            return travel_times
+        except Exception as e:
+            print(f"✗ Error calculating travel times: {str(e)}")
+            return None
 
 def calculate_travel_scenario(current_location, next_booking_location, home_location, 
                             current_booking_end, next_booking_start):
