@@ -7,10 +7,14 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <script src="{{ url_for('static', filename='js/vehicle-autofill.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/booking-system.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/pricing-calc.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/booking-form.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/booking-init.js') }}" defer></script>
 </head>
 <body>
     <div class="booking-container">
-        <div class="booking-header">s
+        <div class="booking-header">
             <h1>Book Your Detail</h1>
             <p>Select your service and preferred time</p>
         </div>
@@ -46,17 +50,27 @@
                 </div>
             </div>
 
-            <div class="booking-summary">
+            <form class="booking-summary">
                 <div class="summary-section">
                     <h3>Service Location</h3>
                     <div class="form-group">
-                        <input type="text" class="form-control" placeholder="Street Address" required>
+                        <input type="text" 
+                               class="form-control" 
+                               name="address"
+                               placeholder="Street Address" 
+                               required>
                     </div>
                     <div class="form-group">
-                        <input type="text" class="form-control" placeholder="Apartment/Unit (optional)">
+                        <input type="text" 
+                               class="form-control" 
+                               name="unit"
+                               placeholder="Apartment/Unit (optional)">
                     </div>
                     <div class="form-group">
-                        <textarea class="form-control" placeholder="Parking Instructions & Details" rows="2"></textarea>
+                        <textarea class="form-control" 
+                                  name="parking"
+                                  placeholder="Parking Instructions & Details" 
+                                  rows="2"></textarea>
                     </div>
                 </div>
 
@@ -66,18 +80,21 @@
                         <input type="text" 
                                class="form-control" 
                                id="vehicleModel" 
+                               name="vehicleModel"
                                placeholder="Enter make and model (e.g., Tesla Model 3)" 
                                required>
                     </div>
                     <div class="form-group">
                         <input type="text" 
                                class="form-control" 
+                               name="vehicleColor"
                                placeholder="Vehicle Color" 
                                required>
                     </div>
                     <div class="form-group">
                         <input type="text" 
                                class="form-control" 
+                               name="licensePlate"
                                placeholder="License Plate" 
                                required>
                     </div>
@@ -86,13 +103,25 @@
                 <div class="summary-section">
                     <h3>Contact Information</h3>
                     <div class="form-group">
-                        <input type="text" class="form-control" placeholder="Full Name" required>
+                        <input type="text" 
+                               class="form-control" 
+                               name="fullName"
+                               placeholder="Full Name" 
+                               required>
                     </div>
                     <div class="form-group">
-                        <input type="email" class="form-control" placeholder="Email Address" required>
+                        <input type="email" 
+                               class="form-control" 
+                               name="email"
+                               placeholder="Email Address" 
+                               required>
                     </div>
                     <div class="form-group">
-                        <input type="tel" class="form-control" placeholder="Phone Number" required>
+                        <input type="tel" 
+                               class="form-control" 
+                               name="phone"
+                               placeholder="Phone Number" 
+                               required>
                     </div>
                 </div>
 
@@ -102,14 +131,16 @@
                         <div class="addon-item">
                             <label class="d-flex justify-content-between align-items-center">
                                 <div>
-                                    <input type="checkbox" class="form-check-input" name="addons" value="pet_hair">
+                                    <input type="checkbox" 
+                                           class="form-check-input" 
+                                           name="addons" 
+                                           value="pet_hair">
                                     <span>Pet Hair Removal</span>
                                     <small class="d-block text-muted">Ideal for pet lovers</small>
                                 </div>
                                 <span class="text-primary">+$25</span>
                             </label>
                         </div>
-                        <!-- Add more add-ons matching the pricing calculator -->
                     </div>
                 </div>
 
@@ -125,7 +156,7 @@
 
                 <div class="summary-section">
                     <h3>Select Date</h3>
-                    <input type="date" class="date-picker">
+                    <input type="date" class="date-picker" name="date" required>
                 </div>
 
                 <div class="summary-section">
@@ -138,628 +169,16 @@
                     </div>
                 </div>
 
-
                 <div class="total-price">
                     <span>Total</span>
-                    <span>$199</span>
+                    <span>$0</span>
                 </div>
 
-                <button class="book-button">Book Now</button>
-            </div>
+                <button type="submit" class="book-button" disabled>Book Now</button>
+            </form>
         </div>
     </div>
-
-    <script>
-        class BookingSystem {
-            constructor() {
-                this.googleCalendarId = 'your_calendar_id';
-                this.servicesDuration = {
-                    'Full Detail': 180,
-                    'Interior Detail': 120,
-                    'Exterior Detail': 60
-                };
-                this.businessHours = {
-                    start: 0,
-                    end: 23
-                };
-                this.bufferTime = 30;
-                
-                // Get current date and time
-                this.now = new Date();
-                this.activeHold = null;  // Track current hold timer
-                this.holdTimeout = null;  // Track countdown interval
-                this.DEBUG = true; // Enable debug logging
-            }
-
-            async getAvailableSlots(date, serviceType) {
-                try {
-                    const serviceName = serviceType.split('$')[0].trim();
-                    console.log('Service Name:', serviceName);
-                    console.log('Duration:', this.servicesDuration[serviceName]);
-
-                    const existingBookings = await this.fetchGoogleCalendarEvents(date);
-                    const slots = this.calculateAvailableSlots(
-                        date,
-                        this.servicesDuration[serviceName],
-                        existingBookings
-                    );
-                    
-                    console.log('Available Slots:', slots);
-                    return slots;
-                } catch (error) {
-                    console.error('Error fetching available slots:', error);
-                    return [];
-                }
-            }
-
-            calculateAvailableSlots(date, duration, existingBookings) {
-                if (!duration) {
-                    console.error('Invalid duration for service');
-                    return [];
-                }
-
-                const slots = [];
-                const startTime = this.businessHours.start * 60;
-                const endTime = this.businessHours.end * 60;
-                
-                // Check if the date is today
-                const isToday = new Date(date).toDateString() === this.now.toDateString();
-                
-                // If it's today, start from the next available 30-minute slot
-                let currentTime = startTime;
-                if (isToday) {
-                    const currentMinutes = this.now.getHours() * 60 + this.now.getMinutes();
-                    // Round up to next 30-minute slot
-                    currentTime = Math.ceil(currentMinutes / 30) * 30;
-                    
-                    // If we're past business hours, return no slots
-                    if (currentTime >= endTime) {
-                        return [];
-                    }
-                    
-                    // Start from the next available slot
-                    currentTime = Math.max(currentTime, startTime);
-                }
-
-                // Create slots every 30 minutes from the calculated start time
-                for (let time = currentTime; time <= endTime - duration; time += 30) {
-                    if (this.isSlotAvailable(time, duration, existingBookings)) {
-                        slots.push({
-                            time: this.formatTimeSlot(time),
-                            duration: duration
-                        });
-                    }
-                }
-
-                return slots;
-            }
-
-            isSlotAvailable(startTime, duration, existingBookings) {
-                const endTime = startTime + duration;
-
-                return !existingBookings.some(booking => {
-                    const bookingStart = this.timeToMinutes(booking.start);
-                    const bookingEnd = this.timeToMinutes(booking.end);
-                    return (startTime < bookingEnd && endTime > bookingStart);
-                });
-            }
-
-            formatTimeSlot(minutes) {
-                const hour = Math.floor(minutes / 60);
-                const minute = minutes % 60;
-                const period = hour >= 12 ? 'PM' : 'AM';
-                const formattedHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
-                return `${formattedHour}:${minute.toString().padStart(2, '0')} ${period}`;
-            }
-
-            timeToMinutes(time) {
-                const [hours, minutes] = time.split(':');
-                return parseInt(hours) * 60 + parseInt(minutes);
-            }
-
-            async fetchGoogleCalendarEvents(date) {
-                // Mock implementation - replace with actual Google Calendar API call
-                return new Promise((resolve) => {
-                    setTimeout(() => {
-                        resolve([
-                            { start: '10:00', end: '11:30' },
-                            { start: '14:00', end: '15:30' }
-                        ]);
-                    }, 1000);
-                });
-            }
-
-            async releaseHold(date, time) {
-                this.debug('releaseHold called with:', { date, time });
-                
-                if (!date || !time) {
-                    this.debug('Invalid release request - missing data');
-                    return false;
-                }
-
-                try {
-                    this.debug('Sending release request');
-                    const response = await fetch('/api/release-hold', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            date: date,
-                            time: time
-                        })
-                    });
-                    
-                    const data = await response.json();
-                    this.debug('Release response:', data);
-                    
-                    if (data.status === 'success') {
-                        this.debug('Successfully released hold');
-                        return true;
-                    } else {
-                        this.debug('Failed to release hold:', data.message);
-                        return false;
-                    }
-                } catch (error) {
-                    this.debug('Error releasing hold:', error);
-                    return false;
-                }
-            }
-
-            initializeTimeSlotHandlers() {
-                document.getElementById('timeSlots').addEventListener('click', async (e) => {
-                    const timeSlot = e.target.closest('.time-slot');
-                    if (!timeSlot) return;
-
-                    const date = document.querySelector('.date-picker').value;
-                    const time = timeSlot.dataset.time;
-                    const serviceElement = document.querySelector('.service-card.selected h3');
-                    const serviceName = serviceElement ? serviceElement.childNodes[0].textContent.trim() : null;
-
-                    // If there's an existing selection, deselect it and release its hold
-                    const currentSelected = document.querySelector('.time-slot.selected');
-                    if (currentSelected && currentSelected !== timeSlot) {
-                        const currentDate = document.querySelector('.date-picker').value;
-                        const currentTime = currentSelected.dataset.time;
-                        
-                        this.debug('Releasing current hold before selecting new slot');
-                        await this.releaseHold(currentDate, currentTime);
-                        currentSelected.classList.remove('selected');
-                    }
-
-                    // Select new time slot and create hold
-                    timeSlot.classList.add('selected');
-                    await this.holdTimeSlot(date, time, serviceName);
-                });
-            }
-
-            async holdTimeSlot(date, time, serviceType) {
-                this.debug('Creating new hold:', { date, time, serviceType });
-                
-                try {
-                    const response = await fetch('/api/hold-slot', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ date, time, service_type: serviceType })
-                    });
-                    const data = await response.json();
-                    
-                    if (data.status === 'success') {
-                        this.activeHold = { date, time, serviceType };
-                        this.debug('Successfully created hold:', this.activeHold);
-                        this.startHoldCountdown();
-                        return true;
-                    } else {
-                        this.debug('Failed to create hold:', data.message);
-                        this.showError(data.message || 'Unable to hold time slot');
-                        return false;
-                    }
-                } catch (error) {
-                    this.debug('Error creating hold:', error);
-                    return false;
-                }
-            }
-
-            showTimeslotError(message) {
-                const timeSlotsContainer = document.getElementById('timeSlots');
-                const errorMsg = document.createElement('div');
-                errorMsg.className = 'time-slot-error';
-                errorMsg.innerHTML = `
-                    <i class="fas fa-exclamation-circle"></i>
-                    ${message}
-                `;
-                timeSlotsContainer.insertBefore(errorMsg, timeSlotsContainer.firstChild);
-                setTimeout(() => errorMsg.remove(), 3000);
-            }
-
-            startHoldCountdown() {
-                // Clear any existing countdown
-                if (this.holdTimeout) {
-                    clearInterval(this.holdTimeout);
-                }
-
-                // Set expiration time (5 minutes from now)
-                this.activeHold = new Date(Date.now() + 5 * 60 * 1000);
-
-                // Create or update the countdown element
-                let countdownEl = document.getElementById('holdCountdown');
-                if (!countdownEl) {
-                    countdownEl = document.createElement('div');
-                    countdownEl.id = 'holdCountdown';
-                    countdownEl.className = 'hold-countdown';
-                    document.querySelector('.booking-summary').insertBefore(
-                        countdownEl,
-                        document.querySelector('.summary-section')
-                    );
-                }
-
-                // Update countdown every second
-                this.holdTimeout = setInterval(() => {
-                    const now = new Date();
-                    const timeLeft = Math.max(0, this.activeHold - now);
-                    
-                    if (timeLeft === 0) {
-                        clearInterval(this.holdTimeout);
-                        this.handleHoldExpired();
-                        return;
-                    }
-
-                    const minutes = Math.floor(timeLeft / 60000);
-                    const seconds = Math.floor((timeLeft % 60000) / 1000);
-                    
-                    countdownEl.innerHTML = `
-                        <div class="hold-message">
-                            <i class="fas fa-clock"></i>
-                            Time slot held for ${minutes}:${seconds.toString().padStart(2, '0')}
-                        </div>
-                    `;
-                }, 1000);
-            }
-
-            handleHoldExpired() {
-                // Clear the selected time slot
-                document.querySelectorAll('.time-slot').forEach(slot => 
-                    slot.classList.remove('selected')
-                );
-
-                // Show expired message
-                const countdownEl = document.getElementById('holdCountdown');
-                if (countdownEl) {
-                    countdownEl.innerHTML = `
-                        <div class="hold-expired">
-                            <i class="fas fa-exclamation-circle"></i>
-                            Session expired. Please select a new time slot.
-                        </div>
-                    `;
-                    
-                    // Remove expired message after 5 seconds
-                    setTimeout(() => countdownEl.remove(), 5000);
-                }
-
-                // Disable the book button
-                const bookButton = document.querySelector('.book-button');
-                if (bookButton) {
-                    bookButton.disabled = true;
-                }
-            }
-
-            debug(...args) {
-                if (this.DEBUG) {
-                    console.log('[BookingSystem]', new Date().toISOString(), ...args);
-                }
-            }
-
-            // Add this method to handle cleanup when component unmounts or user leaves
-            cleanup() {
-                if (this.activeHold) {
-                    this.releaseHold(this.activeHold.date, this.activeHold.time);
-                }
-            }
-        }
-
-        // Initialize booking system
-        const bookingSystem = new BookingSystem();
-        bookingSystem.initializeTimeSlotHandlers();
-
-        // Update time slots when date or service changes
-        async function updateTimeSlots() {
-            const dateInput = document.querySelector('.date-picker').value;
-            const selectedServiceElement = document.querySelector('.service-card.selected h3');
-            
-            if (!dateInput || !selectedServiceElement) {
-                console.error('Date or service not selected');
-                return;
-            }
-
-            // Extract service name without the price
-            const serviceName = selectedServiceElement.childNodes[0].textContent.trim();
-            const timeSlotsContainer = document.getElementById('timeSlots');
-            timeSlotsContainer.innerHTML = '<div class="time-slots-loading"><i class="fas fa-circle-notch fa-spin"></i> Loading available times...</div>';
-
-            try {
-                const response = await fetch(`/api/available-slots?date=${dateInput}&service=${encodeURIComponent(serviceName)}`);
-                const data = await response.json();
-                
-                if (!data.slots || data.slots.length === 0) {
-                    timeSlotsContainer.innerHTML = `
-                        <div class="no-slots-message">
-                            <i class="fas fa-calendar-times"></i>
-                            <p>No available times on this date. Please try another day.</p>
-                        </div>
-                    `;
-                    return;
-                }
-
-                timeSlotsContainer.innerHTML = data.slots.map(slot => `
-                    <div class="time-slot" data-time="${slot.start}">
-                        ${slot.start} - ${slot.end}
-                    </div>
-                `).join('');
-
-                // Add click handlers for time slots
-                document.querySelectorAll('.time-slot').forEach(slot => {
-                    slot.addEventListener('click', async () => {
-                        // First, validate that all required fields are filled
-                        const requiredFields = document.querySelectorAll('.booking-summary input[required]');
-                        const emptyFields = Array.from(requiredFields).filter(field => !field.value.trim());
-                        
-                        if (emptyFields.length > 0) {
-                            // Scroll to the first empty required field
-                            emptyFields[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
-                            emptyFields[0].classList.add('highlight-required');
-                            setTimeout(() => emptyFields[0].classList.remove('highlight-required'), 2000);
-                            
-                            bookingSystem.showTimeslotError('Please fill in all required information first');
-                            return;
-                        }
-
-                        const date = document.querySelector('.date-picker').value;
-                        const time = slot.dataset.time;
-                        const selectedService = document.querySelector('.service-card.selected h3')
-                            .textContent.split('$')[0].trim();
-
-                        // Try to hold the slot
-                        const success = await bookingSystem.holdTimeSlot(date, time, selectedService);
-                        
-                        if (success) {
-                            document.querySelectorAll('.time-slot').forEach(s => 
-                                s.classList.remove('selected')
-                            );
-                            slot.classList.add('selected');
-                            
-                            const bookButton = document.querySelector('.book-button');
-                            if (bookButton) {
-                                bookButton.disabled = false;
-                            }
-                        } else {
-                            updateTimeSlots(); // Refresh available slots
-                        }
-                    });
-                });
-            } catch (error) {
-                console.error('Error:', error);
-                timeSlotsContainer.innerHTML = `
-                    <div class="no-slots-message error">
-                        <i class="fas fa-exclamation-circle"></i>
-                        <p>Error loading time slots. Please try again.</p>
-                    </div>
-                `;
-            }
-        }
-
-        // Update the price calculation logic
-        function updateTotalPrice() {
-            let totalPrice = 0;
-            
-            // Get selected service price
-            const selectedCard = document.querySelector('.service-card.selected');
-            if (selectedCard) {
-                totalPrice += parseFloat(selectedCard.querySelector('.service-price').textContent.replace('$', ''));
-            }
-
-            // Add selected add-ons
-            document.querySelectorAll('input[name="addons"]:checked').forEach(addon => {
-                const priceText = addon.closest('.addon-item').querySelector('.text-primary').textContent;
-                totalPrice += parseFloat(priceText.replace('+$', ''));
-            });
-
-            // Apply frequency discount
-            const frequency = document.querySelector('select[name="frequency"]').value;
-            const discounts = {
-                once: 1,
-                monthly: 0.9,
-                biweekly: 0.85,
-                weekly: 0.8
-            };
-            totalPrice *= discounts[frequency] || 1;
-
-            // Update display with animation
-            const totalPriceElement = document.querySelector('.total-price span:last-child');
-            totalPriceElement.textContent = `$${Math.round(totalPrice)}`;
-            totalPriceElement.classList.add('price-update');
-            setTimeout(() => totalPriceElement.classList.remove('price-update'), 300);
-        }
-
-        // Add event listeners
-        document.addEventListener('DOMContentLoaded', function() {
-            // Load saved booking data
-            const savedBookingData = JSON.parse(sessionStorage.getItem('bookingData') || '{}');
-            
-            if (Object.keys(savedBookingData).length > 0) {
-                // Auto-select the correct service card
-                const serviceCards = document.querySelectorAll('.service-card');
-                serviceCards.forEach(card => {
-                    // Get the service type from the card title (Essential Clean or Premium Detail)
-                    const cardTitle = card.querySelector('h3').textContent.split('$')[0].trim().toLowerCase();
-                    const savedService = savedBookingData.serviceType.toLowerCase();
-                    
-                    console.log('Card Title:', cardTitle);
-                    console.log('Saved Service:', savedService);
-                    
-                    // Match 'basic' with 'Essential Clean' and 'premium' with 'Premium Detail'
-                    const shouldSelect = 
-                        (savedService === 'basic' && cardTitle === 'essential clean') ||
-                        (savedService === 'premium' && cardTitle === 'premium detail');
-                    
-                    if (shouldSelect) {
-                        // Remove selection from all cards first
-                        serviceCards.forEach(c => c.classList.remove('selected'));
-                        // Select this card
-                        card.classList.add('selected');
-                        
-                        // Trigger price update
-                        updateTotalPrice();
-                        // Trigger time slots update
-                        updateTimeSlots();
-                    }
-                });
-
-                // Pre-select add-ons
-                if (savedBookingData.addons?.length > 0) {
-                    savedBookingData.addons.forEach(addon => {
-                        const addonCheckbox = document.querySelector(`input[name="addons"][value="${addon}"]`);
-                        if (addonCheckbox) {
-                            addonCheckbox.checked = true;
-                        }
-                    });
-                }
-
-                // Set frequency selection
-                if (savedBookingData.frequency) {
-                    const frequencySelect = document.querySelector('select[name="frequency"]');
-                    if (frequencySelect) {
-                        frequencySelect.value = savedBookingData.frequency;
-                    }
-                }
-
-                // Update the total price
-                const totalPriceElement = document.querySelector('.total-price span:last-child');
-                totalPriceElement.textContent = `$${savedBookingData.totalPrice}`;
-
-                // Add visual confirmation of transferred selections
-                const bookingHeader = document.querySelector('.booking-header');
-                const confirmationMessage = document.createElement('div');
-                confirmationMessage.className = 'alert alert-success mb-4 fade show';
-                confirmationMessage.innerHTML = `
-                    <div class="d-flex align-items-center">
-                        <i class="fas fa-check-circle me-2"></i>
-                        <div>
-                            <strong>Your selections have been transferred!</strong>
-                            <p class="mb-0 small">We've pre-filled your choices from the calculator.</p>
-                        </div>
-                    </div>
-                `;
-                bookingHeader.insertAdjacentElement('afterend', confirmationMessage);
-
-                // Fade out confirmation message after 5 seconds
-                setTimeout(() => {
-                    confirmationMessage.classList.remove('show');
-                    setTimeout(() => confirmationMessage.remove(), 150);
-                }, 5000);
-            }
-
-            // Add CSS for the confirmation message
-            const style = document.createElement('style');
-            style.textContent = `
-                .alert {
-                    padding: 1rem;
-                    border-radius: 8px;
-                    background: var(--seafoam);
-                    border: 2px solid var(--teal-green);
-                    transition: opacity 0.15s ease-in-out;
-                }
-
-                .alert.fade {
-                    opacity: 1;
-                }
-
-                .alert.fade.show {
-                    opacity: 1;
-                }
-
-                .alert.fade:not(.show) {
-                    opacity: 0;
-                }
-
-                .alert i {
-                    color: var(--teal-green);
-                    font-size: 1.25rem;
-                }
-            `;
-            document.head.appendChild(style);
-
-            // Service card selection
-            document.querySelectorAll('.service-card').forEach(card => {
-                card.addEventListener('click', () => {
-                    document.querySelectorAll('.service-card').forEach(c => c.classList.remove('selected'));
-                    card.classList.add('selected');
-                    
-                    // Instead of directly setting the price, call updateTotalPrice
-                    updateTotalPrice();
-                    updateTimeSlots();
-                });
-            });
-
-            // Date picker change
-            document.querySelector('.date-picker').addEventListener('change', updateTimeSlots);
-
-            // Set minimum date to today
-            const datePicker = document.querySelector('.date-picker');
-            const now = new Date();
-            const today = now.toISOString().split('T')[0];
-            datePicker.min = today;
-            
-            // Set maximum date to 2 weeks from now (optional)
-            const twoWeeksFromNow = new Date(now);
-            twoWeeksFromNow.setDate(twoWeeksFromNow.getDate() + 14);
-            datePicker.max = twoWeeksFromNow.toISOString().split('T')[0];
-            
-            // Set initial value to today
-            datePicker.value = today;
-
-            // Initial time slots load
-            updateTimeSlots();
-
-            // Add event listeners for all price-affecting changes
-            document.querySelectorAll('.service-card, input[name="addons"], select[name="frequency"]')
-                .forEach(element => {
-                    if (element.matches('.service-card')) {
-                        // Service cards are handled by click event above
-                    } else {
-                        element.addEventListener('change', updateTotalPrice);
-                    }
-                });
-
-            // Update initial price
-            updateTotalPrice();
-        });
-
-        // Add event listener for page unload to cleanup any active holds
-        window.addEventListener('beforeunload', () => {
-            if (bookingSystem && bookingSystem.activeHold) {
-                bookingSystem.cleanup();
-            }
-        });
-    </script>
-
-    <style>
-        .highlight-required {
-            animation: shake 0.5s ease-in-out;
-            border-color: var(--error-red) !important;
-            box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.25) !important;
-        }
-
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-4px); }
-            75% { transform: translateX(4px); }
-        }
-    </style>
-
 </body>
 </html>
-
-
-
 
 
