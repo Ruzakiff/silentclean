@@ -1,15 +1,16 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, send_from_directory, jsonify
 from datetime import datetime
 import os
-from getcalendar import init_calendar_routes
+from getcalendar import init_calendar_routes, get_calendar_service
 from directions import TravelTimeCalculator
 
 # Initialize Flask app
 app = Flask(__name__, static_folder='static')
 app.secret_key = 'your-secret-key-here'  # Required for flash messages
 
-# Initialize calendar routes
+# Initialize calendar routes and get service instance
 init_calendar_routes(app)
+calendar_service = get_calendar_service()
 
 # Routes
 @app.route('/')
@@ -29,9 +30,18 @@ def booking():
         
     return render_template('booking.html')
 
-@app.route('/booking/confirmation')
-def booking_confirmation():
-    return render_template('confirmation.html')
+@app.route('/booking/confirmation/<event_id>')
+def booking_confirmation(event_id):
+    try:
+        # Get booking details from calendar
+        event = calendar_service.get_event(event_id)
+        
+        return render_template(
+            'booking-confirmation.html',
+            booking=event
+        )
+    except Exception as e:
+        return render_template('error.html', message=str(e))
 
 @app.route('/services')
 def services():
@@ -104,6 +114,44 @@ def get_place_suggestions():
             'status': 'error',
             'message': str(e),
             'suggestions': []
+        }), 500
+
+@app.route('/api/book', methods=['POST'])
+def book_appointment():
+    try:
+        booking_data = request.json
+        
+        # Validate required fields
+        required_fields = ['service_type', 'date', 'time', 'name', 'email', 'phone', 'address']
+        missing_fields = [field for field in required_fields if not booking_data.get(field)]
+        
+        if missing_fields:
+            return jsonify({
+                'status': 'error',
+                'message': f'Missing required fields: {", ".join(missing_fields)}'
+            }), 400
+
+        # Create the booking
+        result = calendar_service.create_booking(booking_data)
+        
+        # # Send confirmation email
+        # send_booking_confirmation(
+        #     recipient=booking_data['email'],
+        #     booking_details=booking_data,
+        #     calendar_link=result['html_link']
+        # )
+        
+        return jsonify({
+            'status': 'success',
+            'event_id': result['event_id'],
+            'calendar_link': result['html_link']
+        })
+
+    except Exception as e:
+        print(f"Error processing booking: {str(e)}")
+        return jsonify({
+            'status': 'error',
+            'message': str(e)
         }), 500
 
 # Error handlers

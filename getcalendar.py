@@ -5,6 +5,10 @@ from flask import jsonify
 import pytz
 from googleapiclient.errors import HttpError
 import json
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.util.retry import Retry
+import ssl
+import time
 
 class CalendarService:
     def __init__(self):
@@ -41,6 +45,9 @@ class CalendarService:
         # Add a dictionary to track pending bookings
         # Format: {'2024-03-20 14:00': {'expires': datetime, 'duration': timedelta}}
         self.pending_bookings = {}
+        
+        # Add retry strategy
+        self.max_retries = 3
         
     def _clean_expired_pending(self):
         """Remove expired pending bookings"""
@@ -273,55 +280,34 @@ class CalendarService:
         return slots
 
     def create_booking(self, booking_data):
-        """Create a new calendar event for a booking"""
-        try:
-            # Check if slot was held and is still valid
-            slot_key = f"{booking_data['date']} {booking_data['time']}"
-            if slot_key not in self.pending_bookings:
-                raise Exception("Booking session expired. Please try again.")
+        """Create a new calendar event for a booking, including travel time blocks"""
+        retry_count = 0
+        BUFFER_MINUTES = 15  # Buffer time for travel
+        
+        while retry_count < self.max_retries:
+            try:
+                # Parse the booking time
+                date_str = booking_data['date']
+                time_str = booking_data['time']
+                datetime_str = f"{date_str} {time_str}"
+                
+                # Create start time (timezone aware)
+                start_time = datetime.strptime(datetime_str, '%Y-%m-%d %I:%M %p')
+                start_time = self.timezone.localize(start_time)
+                
+                # Calculate service duration
+                service_duration = {
+                    'Essential Clean': timedelta(minutes=60),
+                    'Premium Detail': timedelta(minutes=120)
+                }.get(booking_data['service_type'])
+                
+                end_time = start_time + service_duration
 
-            print(f"\nCreating booking:")
-            print(f"Date: {booking_data['date']}")
-            print(f"Time: {booking_data['time']}")
-            print(f"Service: {booking_data['service_type']}")
-            print(f"Customer: {booking_data['name']}")
-
-            # Parse the date and time
-            date_str = booking_data['date']
-            time_str = booking_data['time']
-            datetime_str = f"{date_str} {time_str}"
-            
-            # Create start time (timezone aware)
-            start_time = datetime.strptime(datetime_str, '%Y-%m-%d %H:%M')
-            start_time = self.timezone.localize(start_time)
-            
-            # Calculate end time based on service type
-            service_duration = {
-                'Essential Clean': timedelta(minutes=60),
-                'Premium Detail': timedelta(minutes=120)
-            }.get(booking_data['service_type'], timedelta(minutes=60))
-            
-            end_time = start_time + service_duration
-
-            # Verify the slot is still available
-            events_result = self.service.events().list(
-                calendarId=self.calendar_id,
-                timeMin=start_time.isoformat(),
-                timeMax=end_time.isoformat(),
-                singleEvents=True
-            ).execute()
-            
-            existing_events = events_result.get('items', [])
-            if existing_events:
-                error_msg = "This time slot is no longer available"
-                print(f"✗ {error_msg}")
-                raise Exception(error_msg)
-
-            # Create event details
-            event = {
-                'summary': f"Car Detail - {booking_data['service_type']}",
-                'location': booking_data.get('address', 'TBD'),
-                'description': f"""
+                # Create main service event
+                service_event = {
+                    'summary': f"Car Detail - {booking_data['service_type']}",
+                    'location': booking_data.get('address', 'TBD'),
+                    'description': f"""
 Booking Details:
 ---------------
 Customer: {booking_data['name']}
@@ -330,48 +316,141 @@ Vehicle: {booking_data.get('vehicle', 'Not specified')}
 Phone: {booking_data.get('phone', 'Not provided')}
 Email: {booking_data.get('email', 'Not provided')}
 Special Instructions: {booking_data.get('notes', 'None')}
-                """.strip(),
-                'start': {
-                    'dateTime': start_time.isoformat(),
-                    'timeZone': str(self.timezone),
-                },
-                'end': {
-                    'dateTime': end_time.isoformat(),
-                    'timeZone': str(self.timezone),
-                },
-                'reminders': {
-                    'useDefault': False,
-                    'overrides': [
-                        {'method': 'email', 'minutes': 24 * 60},  # 24 hours
-                        {'method': 'popup', 'minutes': 60},       # 1 hour
-                    ],
-                },
-            }
+                    """.strip(),
+                    'start': {
+                        'dateTime': start_time.isoformat(),
+                        'timeZone': str(self.timezone),
+                    },
+                    'end': {
+                        'dateTime': end_time.isoformat(),
+                        'timeZone': str(self.timezone),
+                    },
+                    'reminders': {
+                        'useDefault': True
+                    }
+                }
 
-            try:
+                # Create the main service event
                 event = self.service.events().insert(
                     calendarId=self.calendar_id,
-                    body=event
+                    body=service_event
                 ).execute()
-                print(f"✓ Event created successfully: {event.get('htmlLink')}")
-                
-                # If successful, remove from pending
-                del self.pending_bookings[slot_key]
-                
+                print(f"✓ Service event created: {event.get('htmlLink')}")
+
+                # Create travel blocks if address is provided
+                if booking_data.get('address'):
+                    print("\nAttempting to create travel blocks...")
+                    from directions import TravelTimeCalculator
+                    travel_calculator = TravelTimeCalculator()
+                    
+                    # Get adjacent bookings
+                    day_start = start_time.replace(hour=self.business_hours['start'], minute=0)
+                    day_end = start_time.replace(hour=self.business_hours['end'], minute=0)
+                    day_events = self._get_day_events(day_start, day_end)
+                    print(f"Found {len(day_events)} events for the day")
+                    
+                    # Find previous and next bookings
+                    previous_booking = next((
+                        evt for evt in reversed(day_events)
+                        if datetime.fromisoformat(evt['end'].get('dateTime')).astimezone(self.timezone) <= start_time
+                        and evt.get('id') != event.get('id')
+                    ), None)
+
+                    next_booking = next((
+                        evt for evt in day_events
+                        if datetime.fromisoformat(evt['start'].get('dateTime')).astimezone(self.timezone) >= end_time
+                        and evt.get('id') != event.get('id')
+                    ), None)
+
+                    print(f"Previous booking found: {previous_booking is not None}")
+                    print(f"Next booking found: {next_booking is not None}")
+
+                    # Create travel block from previous booking if needed
+                    if previous_booking and previous_booking.get('location'):
+                        print(f"\nProcessing travel FROM previous booking:")
+                        print(f"From: {previous_booking['location']}")
+                        print(f"To: {booking_data['address']}")
+                        
+                        travel_times = travel_calculator.get_travel_times(
+                            previous_booking['location'],
+                            booking_data['address'],
+                            datetime.fromisoformat(previous_booking['end'].get('dateTime'))
+                        )
+                        
+                        if travel_times:
+                            travel_minutes = travel_times[str(previous_booking['location'])][str(booking_data['address'])]['minutes']
+                            total_travel_time = travel_minutes + BUFFER_MINUTES
+                            
+                            # Calculate travel block times
+                            travel_end = start_time
+                            travel_start = travel_end - timedelta(minutes=total_travel_time)
+                            
+                            travel_event = {
+                                'summary': '🚗 Travel Time',
+                                'description': f"Travel from {previous_booking['location']} to {booking_data['address']}\nEstimated: {travel_minutes} minutes",
+                                'start': {'dateTime': travel_start.isoformat(), 'timeZone': str(self.timezone)},
+                                'end': {'dateTime': travel_end.isoformat(), 'timeZone': str(self.timezone)},
+                                'colorId': '8'  # Gray
+                            }
+                            
+                            self.service.events().insert(
+                                calendarId=self.calendar_id,
+                                body=travel_event
+                            ).execute()
+                            print(f"✓ Created {total_travel_time} minute travel block from previous booking")
+
+                    # Create travel block to next booking if needed
+                    if next_booking and next_booking.get('location'):
+                        print(f"\nProcessing travel TO next booking:")
+                        print(f"From: {booking_data['address']}")
+                        print(f"To: {next_booking['location']}")
+                        
+                        travel_times = travel_calculator.get_travel_times(
+                            booking_data['address'],
+                            next_booking['location'],
+                            end_time
+                        )
+                        
+                        if travel_times:
+                            travel_minutes = travel_times[str(booking_data['address'])][str(next_booking['location'])]['minutes']
+                            total_travel_time = travel_minutes + BUFFER_MINUTES
+                            
+                            # Calculate travel block times
+                            travel_start = end_time
+                            travel_end = travel_start + timedelta(minutes=total_travel_time)
+                            
+                            travel_event = {
+                                'summary': '🚗 Travel Time',
+                                'description': f"Travel from {booking_data['address']} to {next_booking['location']}\nEstimated: {travel_minutes} minutes",
+                                'start': {'dateTime': travel_start.isoformat(), 'timeZone': str(self.timezone)},
+                                'end': {'dateTime': travel_end.isoformat(), 'timeZone': str(self.timezone)},
+                                'colorId': '8'  # Gray
+                            }
+                            
+                            self.service.events().insert(
+                                calendarId=self.calendar_id,
+                                body=travel_event
+                            ).execute()
+                            print(f"✓ Created {total_travel_time} minute travel block to next booking")
+
                 return {
                     'status': 'success',
                     'event_id': event['id'],
                     'html_link': event['htmlLink']
                 }
-                
-            except HttpError as e:
-                error_msg = f"Failed to create event: {str(e)}"
-                print(f"✗ {error_msg}")
-                raise Exception(error_msg)
 
-        except Exception as e:
-            print(f"✗ Error creating booking: {str(e)}")
-            raise
+            except ssl.SSLError as e:
+                retry_count += 1
+                if retry_count >= self.max_retries:
+                    error_msg = f"SSL Error after {self.max_retries} retries: {str(e)}"
+                    print(f"✗ {error_msg}")
+                    raise Exception(error_msg)
+                print(f"⚠ SSL Error, retrying ({retry_count}/{self.max_retries})...")
+                time.sleep(1)
+                
+            except Exception as e:
+                print(f"✗ Error creating booking: {str(e)}")
+                raise
 
     def _get_day_events(self, time_min, time_max):
         """Get all events for a specific day period"""
@@ -390,8 +469,13 @@ Special Instructions: {booking_data.get('notes', 'None')}
             print(f"✗ Error fetching events: {str(e)}")
             raise
 
+# At the top level of getcalendar.py
+calendar_service = None
+
 def init_calendar_routes(app):
-    calendar_service = CalendarService()
+    global calendar_service
+    if calendar_service is None:
+        calendar_service = CalendarService()
     
     @app.route('/api/hold-slot', methods=['POST'])
     def hold_slot():
@@ -525,6 +609,13 @@ def init_calendar_routes(app):
                 'message': str(e)
             }), 400
 
+# Export the calendar service
+def get_calendar_service():
+    global calendar_service
+    if calendar_service is None:
+        calendar_service = CalendarService()
+    return calendar_service
+
 if __name__ == "__main__":
     from flask import Flask
     import json
@@ -581,3 +672,4 @@ if __name__ == "__main__":
     # Optional: Run Flask development server
     print("\nStarting Flask development server...")
     app.run(debug=True, port=5000)
+

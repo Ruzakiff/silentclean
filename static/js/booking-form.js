@@ -9,6 +9,8 @@ class BookingForm {
         this.initializeEventListeners();
         this.loadSavedBookingData();
         this.initializeAddressAutocomplete();
+        this.submitButton = this.form.querySelector('button[type="submit"]');
+        this.updateSubmitButtonState();
     }
 
     initializeDatePicker() {
@@ -53,6 +55,24 @@ class BookingForm {
                 this.updateAvailableSlots();
             }
         });
+
+        // Add input listeners for required fields
+        document.querySelectorAll('input[required]').forEach(input => {
+            input.addEventListener('input', () => this.updateSubmitButtonState());
+            input.addEventListener('blur', () => {
+                this.validateField(input);
+                this.updateSubmitButtonState();
+            });
+        });
+
+        // Add time slot selection listener
+        document.addEventListener('click', (e) => {
+            const timeSlot = e.target.closest('.time-slot');
+            if (timeSlot) {
+                this.handleTimeSlotSelection(timeSlot);
+                this.updateSubmitButtonState();
+            }
+        });
     }
 
     handleServiceSelection(card) {
@@ -63,6 +83,7 @@ class BookingForm {
         
         this.pricingCalculator.updateDisplay();
         this.updateAvailableSlots();
+        this.updateSubmitButtonState();
     }
 
     async handleSubmit(e) {
@@ -72,31 +93,37 @@ class BookingForm {
             return;
         }
 
+        const selectedTimeSlot = document.querySelector('.time-slot.selected');
+        if (!selectedTimeSlot) {
+            this.showError('Please select a time slot');
+            return;
+        }
+
         const formData = new FormData(this.form);
         const bookingData = {
-            service: document.querySelector('.service-card.selected h3').textContent.split('$')[0].trim(),
+            service_type: document.querySelector('.service-card.selected h3').textContent.split('$')[0].trim(),
             date: document.querySelector('.date-picker').value,
-            time: document.querySelector('.time-slot.selected')?.dataset.time,
-            // Add other form fields
-            contact: {
-                name: formData.get('fullName'),
-                email: formData.get('email'),
-                phone: formData.get('phone')
-            },
-            location: {
-                address: formData.get('address'),
-                unit: formData.get('unit'),
-                instructions: formData.get('parking')
-            },
-            vehicle: {
-                model: formData.get('vehicleModel'),
-                color: formData.get('vehicleColor'),
-                plate: formData.get('licensePlate')
-            },
+            time: selectedTimeSlot.dataset.time,
+            name: formData.get('fullName'),
+            email: formData.get('email'),
+            phone: formData.get('phone'),
+            address: formData.get('address'),
+            unit: formData.get('unit') || '',
+            vehicle: `${formData.get('vehicleYear') || ''} ${formData.get('vehicleModel')} - ${formData.get('vehicleColor')} (${formData.get('licensePlate')})`,
+            notes: `
+                Parking Instructions: ${formData.get('parking') || 'None'}
+                Additional Notes: ${formData.get('notes') || 'None'}
+            `.trim(),
             addons: Array.from(formData.getAll('addons')),
             frequency: formData.get('frequency'),
-            totalPrice: this.pricingCalculator.calculateTotal()
+            total_price: this.pricingCalculator.calculateTotal()
         };
+
+        // Show loading state
+        const submitButton = this.form.querySelector('button[type="submit"]');
+        const originalText = submitButton.textContent;
+        submitButton.disabled = true;
+        submitButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing...';
 
         try {
             const response = await fetch('/api/book', {
@@ -106,13 +133,44 @@ class BookingForm {
             });
 
             const result = await response.json();
+            
             if (result.status === 'success') {
-                window.location.href = '/booking/confirmation';
+                // Show success message
+                const successMessage = document.createElement('div');
+                successMessage.className = 'booking-success text-center p-4';
+                successMessage.innerHTML = `
+                    <div class="success-icon mb-3">
+                        <i class="fas fa-check-circle fa-3x text-success"></i>
+                    </div>
+                    <h3 class="mb-3">Booking Confirmed!</h3>
+                    <p class="mb-4">Your appointment has been scheduled for:</p>
+                    <div class="booking-details mb-4">
+                        <strong>${bookingData.date}</strong><br>
+                        <strong>${bookingData.time}</strong>
+                    </div>
+                    <p class="mb-4">A confirmation email has been sent to ${bookingData.email}</p>
+                    <a href="/booking/confirmation/${result.event_id}" class="btn btn-primary">
+                        View Booking Details
+                    </a>
+                `;
+
+                // Replace form with success message
+                this.form.innerHTML = '';
+                this.form.appendChild(successMessage);
+
+                // Scroll to top
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+
             } else {
                 this.showError(result.message || 'Booking failed. Please try again.');
+                submitButton.disabled = false;
+                submitButton.textContent = originalText;
             }
         } catch (error) {
+            console.error('Booking error:', error);
             this.showError('An error occurred. Please try again.');
+            submitButton.disabled = false;
+            submitButton.textContent = originalText;
         }
     }
 
@@ -122,14 +180,16 @@ class BookingForm {
         return isValid;
     }
 
-    validateAllFields() {
+    validateAllFields(shouldScroll = true) {
         const requiredFields = document.querySelectorAll('input[required]');
         let isValid = true;
 
         requiredFields.forEach(field => {
             if (!this.validateField(field)) {
                 isValid = false;
-                field.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                if (shouldScroll) {
+                    field.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
             }
         });
 
@@ -202,10 +262,16 @@ class BookingForm {
 
     showError(message) {
         const errorDiv = document.createElement('div');
-        errorDiv.className = 'alert alert-danger';
-        errorDiv.textContent = message;
+        errorDiv.className = 'alert alert-danger alert-dismissible fade show';
+        errorDiv.innerHTML = `
+            <div class="d-flex align-items-center">
+                <i class="fas fa-exclamation-circle me-2"></i>
+                <div>${message}</div>
+                <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
+            </div>
+        `;
         this.form.insertBefore(errorDiv, this.form.firstChild);
-        setTimeout(() => errorDiv.remove(), 5000);
+        errorDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 
     // Add new method to get location data
@@ -335,5 +401,24 @@ class BookingForm {
                     break;
             }
         });
+    }
+
+    // Add new method to handle time slot selection
+    handleTimeSlotSelection(timeSlot) {
+        // Remove selection from other slots
+        document.querySelectorAll('.time-slot').forEach(slot => {
+            slot.classList.remove('selected');
+        });
+        
+        // Add selection to clicked slot
+        timeSlot.classList.add('selected');
+    }
+
+    updateSubmitButtonState() {
+        const allFieldsValid = this.validateAllFields(false);
+        const timeSlotSelected = document.querySelector('.time-slot.selected');
+        const serviceSelected = document.querySelector('.service-card.selected');
+
+        this.submitButton.disabled = !(allFieldsValid && timeSlotSelected && serviceSelected);
     }
 }
