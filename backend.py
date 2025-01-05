@@ -33,22 +33,20 @@ def booking():
 @app.route('/booking/confirmation/<event_id>')
 def booking_confirmation(event_id):
     try:
-        # Add debug logging
         print(f"Fetching event details for ID: {event_id}")
-        
-        # Get booking details from calendar
         event = calendar_service.get_event(event_id)
-        
-        # Debug print the event data
         print(f"Event data received: {event}")
         
-        if not event:
-            print("No event found")
-            return render_template('404.html'), 404
-            
+        # Calculate duration in hours and minutes
+        start = datetime.fromisoformat(event['start']['dateTime'].replace('Z', '+00:00'))
+        end = datetime.fromisoformat(event['end']['dateTime'].replace('Z', '+00:00'))
+        duration = end - start
+        duration_hours = duration.total_seconds() / 3600
+        
         return render_template(
             'confirmation.html',
-            event=event
+            event=event,
+            duration=f"{duration_hours:.1f} hours"  # Format as "1.5 hours"
         )
     except Exception as e:
         print(f"Error in booking confirmation: {str(e)}")
