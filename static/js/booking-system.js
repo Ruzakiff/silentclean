@@ -1,13 +1,5 @@
 class BookingSystem {
     constructor() {
-        this.googleCalendarId = 'your_calendar_id';
-        this.servicesDuration = {
-            'Essential Clean': 60,
-            'Premium Detail': 120
-        };
-        this.businessHours = { start: 9, end: 17 };
-        this.bufferTime = 30;
-        this.now = new Date();
         this.activeHold = null;
         this.holdTimeout = null;
         this.DEBUG = true;
@@ -47,6 +39,8 @@ class BookingSystem {
             });
 
             const response = await fetch(`/api/available-slots?${queryParams}`);
+            if (!response.ok) throw new Error('Failed to fetch available slots');
+            
             const data = await response.json();
             
             if (!data.slots || data.slots.length === 0) {
@@ -65,7 +59,6 @@ class BookingSystem {
                 </div>
             `).join('');
 
-            // Add click handlers for time slots
             this.initializeTimeSlotHandlers();
 
         } catch (error) {
