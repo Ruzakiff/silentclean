@@ -99,6 +99,12 @@ class BookingForm {
             return;
         }
 
+        // Show loading state
+        const submitButton = this.form.querySelector('button[type="submit"]');
+        const originalText = submitButton.textContent;
+        submitButton.disabled = true;
+        submitButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing...';
+
         const formData = new FormData(this.form);
         const bookingData = {
             service_type: document.querySelector('.service-card.selected h3').textContent.split('$')[0].trim(),
@@ -119,12 +125,6 @@ class BookingForm {
             total_price: this.pricingCalculator.calculateTotal()
         };
 
-        // Show loading state
-        const submitButton = this.form.querySelector('button[type="submit"]');
-        const originalText = submitButton.textContent;
-        submitButton.disabled = true;
-        submitButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing...';
-
         try {
             const response = await fetch('/api/book', {
                 method: 'POST',
@@ -135,32 +135,8 @@ class BookingForm {
             const result = await response.json();
             
             if (result.status === 'success') {
-                // Show success message
-                const successMessage = document.createElement('div');
-                successMessage.className = 'booking-success text-center p-4';
-                successMessage.innerHTML = `
-                    <div class="success-icon mb-3">
-                        <i class="fas fa-check-circle fa-3x text-success"></i>
-                    </div>
-                    <h3 class="mb-3">Booking Confirmed!</h3>
-                    <p class="mb-4">Your appointment has been scheduled for:</p>
-                    <div class="booking-details mb-4">
-                        <strong>${bookingData.date}</strong><br>
-                        <strong>${bookingData.time}</strong>
-                    </div>
-                    <p class="mb-4">A confirmation email has been sent to ${bookingData.email}</p>
-                    <a href="/booking/confirmation/${result.event_id}" class="btn btn-primary">
-                        View Booking Details
-                    </a>
-                `;
-
-                // Replace form with success message
-                this.form.innerHTML = '';
-                this.form.appendChild(successMessage);
-
-                // Scroll to top
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-
+                // Redirect to confirmation page
+                window.location.href = `/booking/confirmation/${result.event_id}`;
             } else {
                 this.showError(result.message || 'Booking failed. Please try again.');
                 submitButton.disabled = false;

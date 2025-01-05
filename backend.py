@@ -33,14 +33,25 @@ def booking():
 @app.route('/booking/confirmation/<event_id>')
 def booking_confirmation(event_id):
     try:
+        # Add debug logging
+        print(f"Fetching event details for ID: {event_id}")
+        
         # Get booking details from calendar
         event = calendar_service.get_event(event_id)
         
+        # Debug print the event data
+        print(f"Event data received: {event}")
+        
+        if not event:
+            print("No event found")
+            return render_template('404.html'), 404
+            
         return render_template(
-            'booking-confirmation.html',
-            booking=event
+            'confirmation.html',
+            event=event
         )
     except Exception as e:
+        print(f"Error in booking confirmation: {str(e)}")
         return render_template('error.html', message=str(e))
 
 @app.route('/services')
@@ -176,6 +187,14 @@ def utility_processor():
 def currency_format(value):
     return f"${value:,.2f}"
 
+@app.template_filter('format_datetime')
+def format_datetime(value):
+    """Format datetime for the confirmation page"""
+    if isinstance(value, str):
+        dt = datetime.fromisoformat(value.replace('Z', '+00:00'))
+    else:
+        dt = value
+    return dt.strftime('%B %d, %Y at %I:%M %p')  # Example: March 15, 2024 at 02:30 PM
 if __name__ == '__main__':
     # Ensure the static/images directory exists
     os.makedirs('static/images', exist_ok=True)

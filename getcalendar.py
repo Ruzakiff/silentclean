@@ -469,6 +469,21 @@ Special Instructions: {booking_data.get('notes', 'None')}
             print(f"✗ Error fetching events: {str(e)}")
             raise
 
+    def get_event(self, event_id):
+        """Get a specific event by ID"""
+        try:
+            event = self.service.events().get(
+                calendarId=self.calendar_id,
+                eventId=event_id
+            ).execute()
+            
+            print(f"Retrieved event: {event}")  # Debug print
+            return event
+            
+        except Exception as e:
+            print(f"✗ Error getting event: {str(e)}")
+            raise
+
 # At the top level of getcalendar.py
 calendar_service = None
 
