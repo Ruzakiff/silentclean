@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Terms and conditions for Silentwash, ensuring clarity and trust for our customers.">
+    <title>Terms and Conditions - Silentwash</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        /* Terms page specific styles */
+        .terms-hero {
+            background: linear-gradient(135deg, var(--deep-midnight) 0%, #1F1F1F 100%);
+            padding: 4rem 0 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .terms-hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                radial-gradient(circle at 70% 50%, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0) 70%);
+            background-size: 4px 100%, 100% 100%;
+            pointer-events: none;
+            opacity: 0.4;
+        }
+
+        .terms-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: var(--soft-platinum);
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(28, 30, 38, 0.08);
+        }
+
+        .terms-container h2 {
+            color: var(--teal-green);
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .terms-container ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .terms-container ul li {
+            margin-bottom: 0.75rem;
+            color: var(--slate-gray);
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .terms-container ul li::before {
+            content: '•';
+            color: var(--teal-green);
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
+
+        .terms-container a {
+            color: var(--teal-green);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .terms-container a:hover {
+            color: var(--deep-midnight);
+            text-decoration: underline;
+        }
+
+        .terms-section {
+            margin-bottom: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Hero Section -->
+    <section class="terms-hero text-white">
+        <div class="container text-center">
+            <h1 class="display-4 mb-3">Terms and Conditions</h1>
+            <p class="lead">Setting clear expectations for an effortless experience.</p>
+        </div>
+    </section>
+
+    <div class="terms-container">
+        <div class="terms-section">
+            <h2>Introduction</h2>
+            <p>Welcome to Silentwash! By using our services, you agree to these terms and conditions. Please read them carefully to understand your rights and obligations.</p>
+        </div>
+
+        <div class="terms-section">
+            <h2>Services Provided</h2>
+            <p>Silentwash offers mobile car cleaning services tailored for electric and luxury vehicles. Services are subject to availability and scheduling through our app or website.</p>
+        </div>
+
+        <div class="terms-section">
+            <h2>User Responsibilities</h2>
+            <p>To ensure a seamless experience, users must:</p>
+            <ul>
+                <li>Provide accurate vehicle and location information</li>
+                <li>Ensure vehicle accessibility during the scheduled cleaning time</li>
+                <li>Communicate any special requests or conditions prior to service</li>
+            </ul>
+            <p>Failure to meet these responsibilities may result in rescheduling or additional fees.</p>
+        </div>
+
+        <div class="terms-section">
+            <h2>Payment and Refunds</h2>
+            <p>Payments are processed securely through our platform. All charges are final unless:</p>
+            <ul>
+                <li>A service is canceled within the allowable cancellation window (as detailed in our app)</li>
+                <li>An error occurs on our part, which will be reviewed and refunded at our discretion</li>
+            </ul>
+        </div>
+
+        <div class="terms-section">
+            <h2>Limitations of Liability</h2>
+            <p>Silentwash is committed to providing high-quality services but is not liable for:</p>
+            <ul>
+                <li>Pre-existing damage to vehicles</li>
+                <li>Delays caused by circumstances beyond our control, such as extreme weather or access issues</li>
+                <li>Indirect, incidental, or consequential damages arising from the use of our services</li>
+            </ul>
+        </div>
+
+        <div class="terms-section">
+            <h2>Termination of Services</h2>
+            <p>We reserve the right to terminate or refuse service to users who:</p>
+            <ul>
+                <li>Violate these terms and conditions</li>
+                <li>Engage in fraudulent or abusive behavior</li>
+                <li>Fail to comply with payment obligations</li>
+            </ul>
+        </div>
+
+        <div class="terms-section">
+            <h2>Policy Updates</h2>
+            <p>We may update these terms to reflect changes in our services or policies. Users will be notified of significant updates via email or app notifications.</p>
+        </div>
+
+        <div class="terms-section">
+            <h2>Contact Us</h2>
+            <p>If you have any questions about these terms, please contact us at <a href="mailto:contact@silentwashev.com">contact@silentwashev.com</a>.</p>
+        </div>
+    </div>
+
+    {% include 'footer.html' %}
+
+    <!-- Bootstrap JavaScript Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+

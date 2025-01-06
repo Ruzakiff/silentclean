@@ -173,6 +173,14 @@ def book_appointment():
             'message': str(e)
         }), 500
 
+@app.route('/privacy')
+def privacy():
+    return render_template('privacy.html')
+
+@app.route('/terms')
+def terms():
+    return render_template('terms.html')
+
 # Error handlers
 @app.errorhandler(404)
 def page_not_found(e):
@@ -264,20 +272,20 @@ if __name__ == '__main__':
     # Ensure the static/images directory exists
     os.makedirs('static/images', exist_ok=True)
     
-    # If you want to test email before running the server, use app context:
-    with app.app_context():
-        test_booking = {
-            'service_type': 'Basic Clean',
-            'date': '2025-01-15',
-            'time': '14:30',
-            'address': '123 Test St, Baltimore, MD',
-            'name':'MADISON'
-        }
-        send_booking_confirmation(
-            recipient='madi.enolp@gmail.com',
-            booking_details=test_booking,
-            calendar_link='https://calendar.google.com/test'
-        )
+    # # If you want to test email before running the server, use app context:
+    # with app.app_context():
+    #     test_booking = {
+    #         'service_type': 'Basic Clean',
+    #         'date': '2025-01-15',
+    #         'time': '14:30',
+    #         'address': '123 Test St, Baltimore, MD',
+    #         'name':'MADISON'
+    #     }
+    #     send_booking_confirmation(
+    #         recipient='madi.enolp@gmail.com',
+    #         booking_details=test_booking,
+    #         calendar_link='https://calendar.google.com/test'
+    #     )
     
     # Run the app with host='0.0.0.0' to make it publicly accessible
     app.run(host='0.0.0.0', port=8080, debug=False)
