@@ -65,13 +65,28 @@ class BookingForm {
             });
         });
 
-        // Add time slot selection listener
-        document.addEventListener('click', (e) => {
+        // Update time slot selection to handle both click and touch events
+        const handleTimeSlotEvent = (e) => {
             const timeSlot = e.target.closest('.time-slot');
             if (timeSlot) {
+                e.preventDefault(); // Prevent any default touch/click behavior
                 this.handleTimeSlotSelection(timeSlot);
                 this.updateSubmitButtonState();
             }
+        };
+
+        // Add both touch and click handlers
+        document.addEventListener('click', handleTimeSlotEvent);
+        document.addEventListener('touchend', handleTimeSlotEvent);
+
+        // Add input and change listeners for all form controls
+        const formControls = this.form.querySelectorAll('input[required], select, .service-card');
+        formControls.forEach(control => {
+            ['input', 'change', 'touchend'].forEach(eventType => {
+                control.addEventListener(eventType, () => {
+                    setTimeout(() => this.updateSubmitButtonState(), 100);
+                });
+            });
         });
     }
 
@@ -386,8 +401,11 @@ class BookingForm {
             slot.classList.remove('selected');
         });
         
-        // Add selection to clicked slot
+        // Add selection to clicked/touched slot
         timeSlot.classList.add('selected');
+
+        // Force a recheck of submit button state
+        setTimeout(() => this.updateSubmitButtonState(), 100);
     }
 
     updateSubmitButtonState() {
@@ -395,6 +413,11 @@ class BookingForm {
         const timeSlotSelected = document.querySelector('.time-slot.selected');
         const serviceSelected = document.querySelector('.service-card.selected');
 
-        this.submitButton.disabled = !(allFieldsValid && timeSlotSelected && serviceSelected);
+        const shouldEnable = allFieldsValid && timeSlotSelected && serviceSelected;
+        
+        // Update button state and ensure it's clickable on mobile
+        this.submitButton.disabled = !shouldEnable;
+        this.submitButton.style.pointerEvents = shouldEnable ? 'auto' : 'none';
+        this.submitButton.style.opacity = shouldEnable ? '1' : '0.65';
     }
 }

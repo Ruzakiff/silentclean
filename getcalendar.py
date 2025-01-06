@@ -9,17 +9,33 @@ from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 import ssl
 import time
+import os
 
 class CalendarService:
     def __init__(self):
-        # Load credentials from service account file
+        # Load credentials from environment variable or file
         SCOPES = [
             'https://www.googleapis.com/auth/calendar.readonly',
             'https://www.googleapis.com/auth/calendar.events'
         ]
         try:
-            credentials = service_account.Credentials.from_service_account_file(
-                'silentwash-4b7a2b2c111e.json', scopes=SCOPES)
+            # Check for credentials in environment
+            if 'GOOGLE_CREDENTIALS' in os.environ:
+                # Write environment variable content to temporary file
+                temp_creds_path = '/tmp/google-credentials.json'
+                with open(temp_creds_path, 'w') as f:
+                    f.write(os.environ['GOOGLE_CREDENTIALS'])
+                
+                credentials = service_account.Credentials.from_service_account_file(
+                    temp_creds_path, scopes=SCOPES)
+                
+                # Clean up
+                os.remove(temp_creds_path)
+            else:
+                # Fall back to local file for development
+                credentials = service_account.Credentials.from_service_account_file(
+                    'silentwash-4b7a2b2c111e.json', scopes=SCOPES)
+                
             print("✓ Credentials loaded successfully")
         except Exception as e:
             print(f"✗ Error loading credentials: {str(e)}")
@@ -206,6 +222,9 @@ class CalendarService:
                 
                 print(f"\nChecking travel FROM previous booking:")
                 print(f"• Previous ends: {prev_end.strftime('%H:%M')} @ {prev_location or 'No location'}")
+                
+                # Initialize earliest_possible before conditionals
+                earliest_possible = prev_end  # Default value
                 
                 if prev_location and destination_address and travel_calculator:
                     travel_times = travel_calculator.get_travel_times(

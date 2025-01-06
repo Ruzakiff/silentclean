@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Confirmation - SilentWash</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #ffffff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .email-header {
+            background-color: #343a40;
+            color: #ffffff;
+            text-align: center;
+            padding: 20px;
+        }
+        .email-header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .email-header p {
+            margin: 5px 0 0;
+            font-size: 14px;
+        }
+        .email-body {
+            padding: 20px;
+        }
+        .email-body h2 {
+            color: #343a40;
+            font-size: 20px;
+            margin-top: 0;
+        }
+        .email-body p {
+            line-height: 1.6;
+            margin: 10px 0;
+        }
+        .booking-details {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .booking-details h3 {
+            margin: 0 0 10px;
+            font-size: 18px;
+        }
+        .booking-details p {
+            margin: 5px 0;
+            font-size: 14px;
+        }
+        .email-footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 14px;
+            background-color: #f5f5f5;
+            border-top: 1px solid #ddd;
+        }
+        .email-footer a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        .email-footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <!-- Header -->
+        <div class="email-header">
+            <h1>Your Ride, Always Spotless. Always Effortless.</h1>
+            <p>Effortless care for your vehicle, around the clock.</p>
+        </div>
+
+        <!-- Body -->
+        <div class="email-body">
+            <h2>Booking Confirmation</h2>
+            <p>Dear {{ customer_name }},</p>
+            <p>Thank you for choosing SilentWash—where effortless luxury meets seamless car care. Your booking is confirmed, and we're excited to deliver a spotless experience that fits perfectly into your life.</p>
+
+            <!-- Booking Details -->
+            <div class="booking-details">
+                <h3>Booking Details:</h3>
+                <p><strong>Service:</strong> {{ service_type }}</p>
+                <p><strong>Date:</strong> {{ date }}</p>
+                <p><strong>Time:</strong> {{ time }}</p>
+                <p><strong>Location:</strong> {{ location }}</p>
+            </div>
+
+            <!-- Add calendar link -->
+            <p>View your appointment in Google Calendar: <a href="{{ calendar_link }}">Click here</a></p>
+
+            <p>Here's what you can expect:</p>
+            <ul>
+                <li><strong>Before the Service:</strong> You'll receive a reminder the day before your appointment.</li>
+                <li><strong>During the Service:</strong> Our team will get to work while your car stays parked—quietly and efficiently.</li>
+                <li><strong>After the Service:</strong> You'll receive a notification with before-and-after photos so you can enjoy the transformation without lifting a finger.</li>
+            </ul>
+
+            <p>At SilentWash, we believe your time is priceless. That's why we handle every detail with care and precision, offering you the freedom to focus on what truly matters.</p>
+
+            <p><strong>Your ride. Your time. Spotless, always.</strong></p>
+
+            <p>If you have any questions or need to reschedule, feel free to reach out to us anytime:</p>
+            <p>Email: <a href="mailto:contact@silentwashev.com">contact@silentwashev.com</a></p>
+            <p>Phone: <a href="tel:+1234567890">(123) 456-7890</a></p>
+        </div>
+
+        <!-- Footer -->
+        <div class="email-footer">
+            <p>Thank you for trusting us to care for your vehicle. We look forward to exceeding your expectations!</p>
+            <p>&copy; 2024 SilentWash LLC. All rights reserved.</p>
+            <p><a href="#privacy">Privacy Policy</a> | <a href="#terms">Terms of Service</a></p>
+        </div>
+    </div>
+</body>
+</html>

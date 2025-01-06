@@ -3,10 +3,20 @@ from datetime import datetime
 import os
 from getcalendar import init_calendar_routes, get_calendar_service
 from directions import TravelTimeCalculator
+from flask_mail import Mail, Message
 
 # Initialize Flask app
 app = Flask(__name__, static_folder='static')
-app.secret_key = 'your-secret-key-here'  # Required for flash messages
+
+# Mail configuration
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 465  # Changed from 587 to 465
+app.config['MAIL_USE_TLS'] = False  # Changed from True
+app.config['MAIL_USE_SSL'] = True  # Added SSL
+app.config['MAIL_USERNAME'] = 'ryanchenyang@gmail.com'
+app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')  # Get from environment variable
+app.config['MAIL_DEFAULT_SENDER'] = ('Silentwash', 'contact@silentwashev.com')  # Tuple format for name + email
+mail = Mail(app)
 
 # Initialize calendar routes and get service instance
 init_calendar_routes(app)
@@ -143,12 +153,12 @@ def book_appointment():
         # Create the booking
         result = calendar_service.create_booking(booking_data)
         
-        # # Send confirmation email
-        # send_booking_confirmation(
-        #     recipient=booking_data['email'],
-        #     booking_details=booking_data,
-        #     calendar_link=result['html_link']
-        # )
+        # Send confirmation email
+        send_booking_confirmation(
+            recipient=booking_data['email'],
+            booking_details=booking_data,
+            calendar_link=result['html_link']
+        )
         
         return jsonify({
             'status': 'success',
@@ -193,9 +203,83 @@ def format_datetime(value):
     else:
         dt = value
     return dt.strftime('%B %d, %Y at %I:%M %p')  # Example: March 15, 2024 at 02:30 PM
+def send_booking_confirmation(recipient, booking_details, calendar_link):
+    """Send booking confirmation email to customer"""
+    try:
+        
+        msg = Message(
+            "We've Got You Covered—Your SilentWash Appointment Details",
+            sender=('SilentWash', 'contact@silentwashev.com'),
+            recipients=[recipient],
+            reply_to='contact@silentwashev.com'
+        )
+        
+        # Plain text version
+        msg.body = f"""
+Hi {booking_details.get('name', 'Valued Customer')},
+
+Thank you for choosing SilentWash! Your booking is confirmed, and we're excited to deliver a spotless experience that fits seamlessly into your lifestyle.
+
+Appointment Details:
+- Service: {booking_details['service_type']}
+- Date: {booking_details['date']}
+- Time: {booking_details['time']}
+- Location: {booking_details['address']}
+
+Here's what to expect:
+1. **Before Your Service**: You'll receive a reminder the day before.
+2. **During the Service**: Our team will clean your vehicle while it stays parked—quietly and efficiently.
+3. **After the Service**: You'll receive a notification with before-and-after photos to review the results.
+
+Manage or update your booking here:
+{calendar_link}
+
+At SilentWash, we believe your time is priceless. That's why we handle every detail with care and precision, offering you the freedom to focus on what matters most.
+
+If you have any questions or need assistance, feel free to reply to this email.  
+We look forward to exceeding your expectations!
+
+Best regards,  
+The SilentWash Team  
+"Your ride, always spotless. Always effortless."
+"""
+        
+        # HTML version using the template
+        msg.html = render_template(
+            'emailtemplate.html',
+            customer_name=booking_details.get('name', 'Valued Customer'),
+            service_type=booking_details['service_type'],
+            date=booking_details['date'],
+            time=booking_details['time'],
+            location=booking_details['address'],
+            calendar_link=calendar_link
+        )
+        
+        mail.send(msg)
+        print(f"Confirmation email sent to {recipient}")
+    except Exception as e:
+        print(f"Error sending confirmation email: {str(e)}")
+
 if __name__ == '__main__':
     # Ensure the static/images directory exists
     os.makedirs('static/images', exist_ok=True)
     
+    # If you want to test email before running the server, use app context:
+    with app.app_context():
+        test_booking = {
+            'service_type': 'Basic Clean',
+            'date': '2025-01-15',
+            'time': '14:30',
+            'address': '123 Test St, Baltimore, MD',
+            'name':'MADISON'
+        }
+        send_booking_confirmation(
+            recipient='madi.enolp@gmail.com',
+            booking_details=test_booking,
+            calendar_link='https://calendar.google.com/test'
+        )
+    
     # Run the app with host='0.0.0.0' to make it publicly accessible
     app.run(host='0.0.0.0', port=8080, debug=False)
+   
+
