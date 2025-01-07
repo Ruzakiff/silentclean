@@ -83,21 +83,21 @@ def services():
     ]
     return render_template('services.html', services=services_list)
 
-@app.route('/contact', methods=['GET', 'POST'])
-def contact():
-    if request.method == 'POST':
-        name = request.form.get('name')
-        email = request.form.get('email')
-        message = request.form.get('message')
+# @app.route('/contact', methods=['GET', 'POST'])
+# def contact():
+#     if request.method == 'POST':
+#         name = request.form.get('name')
+#         email = request.form.get('email')
+#         message = request.form.get('message')
         
-        # Here you would typically:
-        # 1. Save the message to database
-        # 2. Send notification email
+#         # Here you would typically:
+#         # 1. Save the message to database
+#         # 2. Send notification email
         
-        flash('Message sent! We will get back to you soon.', 'success')
-        return redirect(url_for('contact'))
+#         flash('Message sent! We will get back to you soon.', 'success')
+#         return redirect(url_for('contact'))
         
-    return render_template('contact.html')
+#     return render_template('contact.html')
 
 @app.route('/about')
 def about():
@@ -185,6 +185,10 @@ def terms():
 @app.route('/faq')
 def faq():
     return render_template('faq.html')
+
+@app.route('/contact')
+def contact():
+    return render_template('contact.html')
 
 # Error handlers
 @app.errorhandler(404)

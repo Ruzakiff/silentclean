@@ -155,7 +155,6 @@
                                 <div class="mb-4">
                                     <label class="form-label h5">Step 2: Select Add-ons</label>
                                     <div class="add-ons-list">
-                                        <!-- Add individual add-ons here -->
                                         <div class="card mb-2 p-3">
                                             <div class="form-check d-flex justify-content-between align-items-center">
                                                 <div>
@@ -168,8 +167,42 @@
                                                 <span class="text-primary">+$25</span>
                                             </div>
                                         </div>
-                                        <!-- More add-ons... -->
+
+                                        <div class="card mb-2 p-3">
+                                            <div class="form-check d-flex justify-content-between align-items-center">
+                                                <div>
+                                                    <input class="form-check-input" type="checkbox" name="addons" value="windshield_fluid">
+                                                    <label class="form-check-label">
+                                                        <strong>Windshield Fluid Refill</strong>
+                                                        <small class="d-block text-muted">Top up your washer fluid</small>
+                                                    </label>
+                                                </div>
+                                                <span class="text-primary">+$10</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="card mb-2 p-3">
+                                            <div class="form-check d-flex justify-content-between align-items-center">
+                                                <div>
+                                                    <input class="form-check-input" type="checkbox" name="addons" value="wiper_change">
+                                                    <label class="form-check-label">
+                                                        <strong>Wiper Blade Replacement</strong>
+                                                        <small class="d-block text-muted">Install new wiper blades (parts not included)</small>
+                                                    </label>
+                                                </div>
+                                                <span class="text-primary">+$20</span>
+                                            </div>
+                                        </div>
                                     </div>
+                                </div>
+
+                                <!-- Special Requests -->
+                                <div class="mb-4">
+                                    <label class="form-label h5">Step 3: Special Requests (Optional)</label>
+                                    <textarea class="form-control" 
+                                              name="special_requests" 
+                                              rows="3" 
+                                              placeholder="Any additional services or special requests?"></textarea>
                                 </div>
 
                                 <!-- ... rest of the form ... -->
@@ -234,9 +267,9 @@ document.addEventListener('DOMContentLoaded', function() {
         },
         addons: {
             pet_hair: 25,
-            deep_stain: 30,
-            odor_removal: 40,
-            heavy_dirt: 20
+            windshield_fluid: 10,
+            wiper_change: 20,
+            deep_stain: 30
         },
         frequency: {
             once: 1,
