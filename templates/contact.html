@@ -272,14 +272,16 @@
                         body: formData
                     });
                     
+                    const result = await response.json();
+                    
                     if (response.ok) {
                         form.reset();
-                        alert('Message sent successfully!');
+                        alert(result.message || 'Message sent successfully!');
                     } else {
-                        throw new Error('Failed to send message');
+                        throw new Error(result.message || 'Failed to send message');
                     }
                 } catch (error) {
-                    alert('Failed to send message. Please try again.');
+                    alert(error.message || 'Failed to send message. Please try again.');
                 } finally {
                     submitButton.disabled = false;
                     submitButton.innerHTML = 'Send Message <i class="fas fa-paper-plane ms-2"></i>';

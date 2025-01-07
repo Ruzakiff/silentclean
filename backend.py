@@ -83,22 +83,6 @@ def services():
     ]
     return render_template('services.html', services=services_list)
 
-# @app.route('/contact', methods=['GET', 'POST'])
-# def contact():
-#     if request.method == 'POST':
-#         name = request.form.get('name')
-#         email = request.form.get('email')
-#         message = request.form.get('message')
-        
-#         # Here you would typically:
-#         # 1. Save the message to database
-#         # 2. Send notification email
-        
-#         flash('Message sent! We will get back to you soon.', 'success')
-#         return redirect(url_for('contact'))
-        
-#     return render_template('contact.html')
-
 @app.route('/about')
 def about():
     return render_template('about.html')
@@ -190,6 +174,53 @@ def faq():
 def contact():
     return render_template('contact.html')
 
+@app.route('/submit-contact', methods=['POST'])
+def submit_contact():
+    try:
+        # Get form data
+        name = request.form.get('name')
+        email = request.form.get('email')
+        message = request.form.get('message')
+        
+        # Validate required fields
+        if not all([name, email, message]):
+            return jsonify({
+                'status': 'error',
+                'message': 'Please fill in all required fields'
+            }), 400
+        
+        # Create email message
+        msg = Message(
+            f"New Contact Form Submission from {name}",
+            sender=('SilentWash Website', 'contact@silentwashev.com'),
+            recipients=['contact@silentwashev.com'],
+            reply_to=email
+        )
+        
+        msg.body = f"""
+New contact form submission from the website:
+
+Name: {name}
+Email: {email}
+
+Message:
+{message}
+"""
+        
+        mail.send(msg)
+        
+        return jsonify({
+            'status': 'success',
+            'message': 'Thank you for your message. We will get back to you soon!'
+        })
+        
+    except Exception as e:
+        print(f"Error processing contact form: {str(e)}")
+        return jsonify({
+            'status': 'error',
+            'message': 'Sorry, there was an error sending your message. Please try again later.'
+        }), 500
+
 # Error handlers
 @app.errorhandler(404)
 def page_not_found(e):
@@ -226,7 +257,7 @@ def send_booking_confirmation(recipient, booking_details, calendar_link):
         
         msg = Message(
             "We've Got You Covered—Your SilentWash Appointment Details",
-            sender=('SilentWash', 'contact@silentwashev.com'),
+            sender=('Silentwash', 'contact@silentwashev.com'),
             recipients=[recipient],
             reply_to='contact@silentwashev.com'
         )
