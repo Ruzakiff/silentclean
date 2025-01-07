@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Frequently Asked Questions about Silentwash - your effortless car cleaning solution.">
+    <title>FAQ - Silentwash</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        /* FAQ page specific styles */
+        .faq-hero {
+            background: linear-gradient(135deg, var(--deep-midnight) 0%, #1F1F1F 100%);
+            padding: 4rem 0 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .faq-hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                radial-gradient(circle at 70% 50%, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0) 70%);
+            background-size: 4px 100%, 100% 100%;
+            pointer-events: none;
+            opacity: 0.4;
+        }
+
+        .faq-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+        }
+
+        .faq-item {
+            background: var(--soft-platinum);
+            border-radius: 16px;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 12px rgba(28, 30, 38, 0.08);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .faq-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(28, 30, 38, 0.12);
+        }
+
+        .faq-question {
+            padding: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--deep-midnight);
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .faq-question:hover {
+            color: var(--teal-green);
+        }
+
+        .faq-question i {
+            transition: transform 0.3s ease;
+            color: var(--teal-green);
+        }
+
+        .faq-answer {
+            padding: 0 1.5rem;
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            color: var(--slate-gray);
+        }
+
+        .faq-answer-inner {
+            padding-bottom: 1.5rem;
+        }
+
+        .faq-item.active .faq-question {
+            color: var(--teal-green);
+        }
+
+        .faq-item.active .faq-question i {
+            transform: rotate(180deg);
+        }
+
+        .faq-item.active .faq-answer {
+            max-height: 500px;
+        }
+
+        .faq-categories {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .category-btn {
+            padding: 0.75rem 1.5rem;
+            border: 2px solid var(--teal-green);
+            border-radius: 50px;
+            color: var(--teal-green);
+            background: transparent;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .category-btn:hover,
+        .category-btn.active {
+            background: var(--teal-green);
+            color: var(--soft-platinum);
+        }
+
+        .faq-search {
+            position: relative;
+            margin-bottom: 2rem;
+        }
+
+        .faq-search input {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            border: 2px solid var(--light-seafoam);
+            border-radius: 50px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .faq-search input:focus {
+            outline: none;
+            border-color: var(--teal-green);
+            box-shadow: 0 0 0 4px rgba(90, 191, 191, 0.1);
+        }
+
+        .faq-search i {
+            position: absolute;
+            right: 1.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--slate-gray);
+        }
+    </style>
+</head>
+<body>
+    <!-- Hero Section -->
+    <section class="faq-hero text-white">
+        <div class="container text-center">
+            <h1 class="display-4 mb-3">Frequently Asked Questions</h1>
+            <p class="lead">Answers to make your experience effortless and magical.</p>
+        </div>
+    </section>
+
+    <div class="faq-container">
+        <!-- Search Bar -->
+        <div class="faq-search">
+            <input type="text" placeholder="Search questions..." id="faqSearch">
+            <i class="fas fa-search"></i>
+        </div>
+
+        <!-- Categories -->
+        <div class="faq-categories">
+            <button class="category-btn active" data-category="all">All</button>
+            <button class="category-btn" data-category="service">Service</button>
+            <button class="category-btn" data-category="pricing">Pricing</button>
+            <button class="category-btn" data-category="booking">Booking</button>
+            <button class="category-btn" data-category="safety">Safety & Security</button>
+        </div>
+
+        <!-- FAQ Items -->
+        <div class="faq-item" data-category="service">
+            <div class="faq-question">
+                How does Silentwash work?
+                <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="faq-answer">
+                <div class="faq-answer-inner">
+                    Silentwash is a mobile car cleaning service designed for Tesla and high-end EV owners. Schedule a cleaning online, and we handle the rest—cleaning your car wherever it's parked, without disrupting your day.
+                </div>
+            </div>
+        </div>
+
+        <div class="faq-item" data-category="pricing">
+            <div class="faq-question">
+                What are your pricing options?
+                <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="faq-answer">
+                <div class="faq-answer-inner">
+                    We offer two simple pricing tiers: Essential Clean ($50) and Premium Detail ($100). These flat rates apply to all vehicles, regardless of size. Special promotions may offer additional savings.
+                </div>
+            </div>
+        </div>
+
+        <div class="faq-item" data-category="booking">
+            <div class="faq-question">
+                How do I schedule a cleaning?
+                <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="faq-answer">
+                <div class="faq-answer-inner">
+                    Booking is simple through our website. Select your service type, preferred date and time, and provide your vehicle's location. We'll handle the rest!
+                </div>
+            </div>
+        </div>
+
+        <div class="faq-item" data-category="safety">
+            <div class="faq-question">
+                How do you ensure my vehicle's security?
+                <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="faq-answer">
+                <div class="faq-answer-inner">
+                    All our technicians undergo thorough background checks and are fully insured. We use secure, tracked access methods and provide real-time updates throughout the service.
+                </div>
+            </div>
+        </div>
+
+        <div class="faq-item" data-category="service">
+            <div class="faq-question">
+                What products do you use?
+                <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="faq-answer">
+                <div class="faq-answer-inner">
+                    We use premium, eco-friendly products specifically designed for high-end vehicles and EVs. All our cleaning solutions are pH-neutral and safe for your vehicle's surfaces.
+                </div>
+            </div>
+        </div>
+
+        <div class="faq-item" data-category="booking">
+            <div class="faq-question">
+                Can I modify or cancel my booking?
+                <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="faq-answer">
+                <div class="faq-answer-inner">
+                    Yes, you can modify or cancel your booking up to 24 hours before the scheduled service through our app or website. Late cancellations may incur a fee.
+                </div>
+            </div>
+        </div>
+
+        <div class="faq-item" data-category="pricing">
+            <div class="faq-question">
+                Do you offer subscriptions?
+                <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="faq-answer">
+                <div class="faq-answer-inner">
+                    Yes! We offer monthly and quarterly subscription plans that provide regular cleanings at discounted rates. Check our pricing page for current subscription options.
+                </div>
+            </div>
+        </div>
+
+        <div class="faq-item" data-category="service">
+            <div class="faq-question">
+                How long does a cleaning take?
+                <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="faq-answer">
+                <div class="faq-answer-inner">
+                    A Basic Clean typically takes 45-60 minutes, while a Premium Detail takes 2-3 hours. Times may vary based on your vehicle's condition and selected services.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% include 'footer.html' %}
+
+    <!-- Bootstrap JavaScript Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const faqItems = document.querySelectorAll('.faq-item');
+            const searchInput = document.getElementById('faqSearch');
+            const categoryButtons = document.querySelectorAll('.category-btn');
+            let currentCategory = 'all';
+            let currentSearchTerm = '';
+
+            // FAQ Toggle functionality
+            document.querySelectorAll('.faq-question').forEach(question => {
+                question.addEventListener('click', () => {
+                    const item = question.parentElement;
+                    const isActive = item.classList.contains('active');
+                    
+                    // Close all other items
+                    document.querySelectorAll('.faq-item').forEach(otherItem => {
+                        if (otherItem !== item) {
+                            otherItem.classList.remove('active');
+                        }
+                    });
+                    
+                    // Toggle current item
+                    item.classList.toggle('active');
+                });
+            });
+
+            // Combined filter function
+            function filterFAQs() {
+                faqItems.forEach(item => {
+                    const question = item.querySelector('.faq-question').textContent.toLowerCase();
+                    const answer = item.querySelector('.faq-answer').textContent.toLowerCase();
+                    const category = item.dataset.category;
+                    
+                    const matchesSearch = question.includes(currentSearchTerm) || 
+                                        answer.includes(currentSearchTerm);
+                    const matchesCategory = currentCategory === 'all' || 
+                                          category === currentCategory;
+
+                    if (matchesSearch && matchesCategory) {
+                        item.style.display = '';
+                        // Add fade-in animation
+                        item.style.opacity = '0';
+                        setTimeout(() => {
+                            item.style.transition = 'opacity 0.3s ease';
+                            item.style.opacity = '1';
+                        }, 50);
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+            }
+
+            // Search functionality
+            searchInput.addEventListener('input', (e) => {
+                currentSearchTerm = e.target.value.toLowerCase();
+                filterFAQs();
+            });
+
+            // Category filter functionality
+            categoryButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    // Update active state
+                    categoryButtons.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    
+                    // Update current category and filter
+                    currentCategory = btn.dataset.category;
+                    filterFAQs();
+                });
+            });
+
+            // Add animation when FAQ items first load
+            faqItems.forEach((item, index) => {
+                item.style.opacity = '0';
+                item.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    item.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                    item.style.opacity = '1';
+                    item.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+        });
+    </script>
+</body>
+</html>
+

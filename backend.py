@@ -181,6 +181,11 @@ def privacy():
 def terms():
     return render_template('terms.html')
 
+
+@app.route('/faq')
+def faq():
+    return render_template('faq.html')
+
 # Error handlers
 @app.errorhandler(404)
 def page_not_found(e):
