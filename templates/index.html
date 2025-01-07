@@ -15,19 +15,19 @@
     <!-- Hero Section -->
     <section id="hero" class="hero-section text-white position-relative">
         <!-- New Year Promotional Banner -->
-        <div class="promo-banner position-absolute w-100 text-center py-3">
+        <div class="promo-banner position-absolute w-100 text-center py-2">
             <div class="container">
-                <div class="d-flex justify-content-center align-items-center flex-wrap gap-3">
-                    <div class="sparkle-icons">
+                <div class="d-flex justify-content-center align-items-center flex-wrap gap-2">
+                    <div class="sparkle-icons d-none d-sm-block">
                         <i class="fas fa-star text-warning sparkle-1"></i>
                         <i class="fas fa-star text-warning sparkle-2"></i>
                         <i class="fas fa-star text-warning sparkle-3"></i>
                     </div>
                     <div class="promo-content">
-                        <div class="fw-bold h5 mb-1">New Year Promo: $50/$100 Flat Pricing for Any Vehicle!</div>
-                        <div class="text-light small">Cars, SUVs, or Trucks—start 2025 spotless without paying extra.</div>
+                        <div class="fw-bold h6 mb-0">New Year Promo: $50/$100 Flat Pricing!</div>
+                        <div class="text-light small d-none d-sm-block">Cars, SUVs, or Trucks—start 2025 spotless.</div>
                     </div>
-                    <div class="countdown-timer ms-3">
+                    <div class="countdown-timer ms-2">
                         <span class="text-warning">Ends in: </span>
                         <span id="countdown" class="fw-bold text-warning"></span>
                     </div>
@@ -45,7 +45,7 @@
         </div>
         
         <!-- Content container -->
-        <div class="hero-content-container" style="margin-top: 60px;">
+        <div class="hero-content-container" style="margin-top: 45px;">
             <div class="container">
                 <div class="row">
                     <div class="col-lg-6 col-md-8">
@@ -589,6 +589,21 @@
             rgba(0,0,0,0.9)
         );
         box-shadow: 0 2px 15px rgba(0,0,0,0.2);
+        font-size: 0.9rem;
+    }
+
+    @media (max-width: 576px) {
+        .promo-banner {
+            font-size: 0.8rem;
+        }
+        
+        .hero-content-container {
+            margin-top: 35px !important;
+        }
+        
+        .countdown-timer {
+            padding: 0.15rem 0.5rem;
+        }
     }
 
     .countdown-timer {
