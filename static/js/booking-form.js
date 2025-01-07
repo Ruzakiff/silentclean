@@ -88,6 +88,16 @@ class BookingForm {
                 });
             });
         });
+
+        // Add listeners for all required fields to trigger time slot update
+        const requiredInputs = document.querySelectorAll('input[required]');
+        requiredInputs.forEach(input => {
+            input.addEventListener('blur', () => {
+                if (document.querySelector('.service-card.selected')) {
+                    this.updateAvailableSlots();
+                }
+            });
+        });
     }
 
     handleServiceSelection(card) {
@@ -281,11 +291,42 @@ class BookingForm {
     // Add method to update slots with location
     updateAvailableSlots() {
         const location = this.getLocationData();
+        const requiredFields = [
+            'fullName',
+            'email',
+            'phone',
+            'address',
+            'vehicleModel',
+            'vehicleColor',
+            'licensePlate'
+        ];
+
+        // Check if all required fields are filled
+        const missingFields = requiredFields.filter(field => {
+            const input = document.querySelector(`input[name="${field}"]`);
+            return !input || !input.value.trim();
+        });
+
+        if (missingFields.length > 0) {
+            // Show error message listing missing fields
+            const fieldNames = missingFields.map(field => {
+                switch (field) {
+                    case 'fullName': return 'Full Name';
+                    case 'vehicleModel': return 'Vehicle Model';
+                    case 'vehicleColor': return 'Vehicle Color';
+                    case 'licensePlate': return 'License Plate';
+                    default: return field.charAt(0).toUpperCase() + field.slice(1);
+                }
+            });
+            this.bookingSystem.showTimeslotError(
+                `Please fill in all required fields before viewing available time slots:<br>` +
+                `<ul class="mt-2 mb-0"><li>${fieldNames.join('</li><li>')}</li></ul>`
+            );
+            return;
+        }
+
         if (location) {
             this.bookingSystem.updateTimeSlots(location);
-        } else {
-            // If no address, show message to enter address first
-            this.bookingSystem.showTimeslotError('Please enter your service address first');
         }
     }
 
