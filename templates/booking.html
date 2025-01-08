@@ -56,74 +56,83 @@
             <form class="booking-summary">
                 <div class="summary-section">
                     <h3>Service Location</h3>
-                    <div class="form-group">
+                    <div class="form-group mb-3">
+                        <label class="form-label fw-bold">Street Address *</label>
                         <input type="text" 
                                class="form-control" 
                                name="address"
-                               placeholder="Street Address" 
+                               placeholder="Enter your street address" 
                                required>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group mb-3">
+                        <label class="form-label fw-bold">Apartment/Unit Number</label>
                         <input type="text" 
                                class="form-control" 
                                name="unit"
-                               placeholder="Apartment/Unit (optional)">
+                               placeholder="Enter unit number if applicable">
                     </div>
-                    <div class="form-group">
+                    <div class="form-group mb-3">
+                        <label class="form-label fw-bold">Parking Instructions</label>
                         <textarea class="form-control" 
                                   name="parking"
-                                  placeholder="Parking Instructions & Details" 
+                                  placeholder="Where should we park? Any access codes or special instructions?" 
                                   rows="2"></textarea>
                     </div>
                 </div>
 
                 <div class="summary-section">
                     <h3>Vehicle Information</h3>
-                    <div class="form-group vehicle-input-wrapper">
+                    <div class="form-group vehicle-input-wrapper mb-3">
+                        <label class="form-label fw-bold">Vehicle Make & Model *</label>
                         <input type="text" 
                                class="form-control" 
                                id="vehicleModel" 
                                name="vehicleModel"
-                               placeholder="Enter make and model (e.g., Tesla Model 3)" 
+                               placeholder="Example: Tesla Model 3" 
                                required>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group mb-3">
+                        <label class="form-label fw-bold">Vehicle Color *</label>
                         <input type="text" 
                                class="form-control" 
                                name="vehicleColor"
-                               placeholder="Vehicle Color" 
+                               placeholder="Example: Pearl White" 
                                required>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group mb-3">
+                        <label class="form-label fw-bold">License Plate Number *</label>
                         <input type="text" 
                                class="form-control" 
                                name="licensePlate"
-                               placeholder="License Plate" 
+                               placeholder="Enter your license plate number" 
                                required>
                     </div>
                 </div>
 
                 <div class="summary-section">
                     <h3>Contact Information</h3>
-                    <div class="form-group">
+                    <div class="form-group mb-3">
+                        <label class="form-label fw-bold">Full Name *</label>
                         <input type="text" 
                                class="form-control" 
                                name="fullName"
-                               placeholder="Full Name" 
+                               placeholder="Enter your full name" 
                                required>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group mb-3">
+                        <label class="form-label fw-bold">Email Address *</label>
                         <input type="email" 
                                class="form-control" 
                                name="email"
-                               placeholder="Email Address" 
+                               placeholder="Enter your email address" 
                                required>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group mb-3">
+                        <label class="form-label fw-bold">Phone Number *</label>
                         <input type="tel" 
                                class="form-control" 
                                name="phone"
-                               placeholder="Phone Number" 
+                               placeholder="Enter your phone number" 
                                required>
                     </div>
                 </div>
@@ -227,7 +236,12 @@
                     <span>Total</span>
                     <span>$0</span>
                 </div>
-                <button type="submit" class="book-button" disabled>Book Now</button>
+                <div class="payment-notice alert alert-info">
+                    <i class="fas fa-info-circle"></i>
+                    <strong>Booking Deposit: $10</strong>
+                    <p class="mb-0">A $10 deposit is required to reserve your slot. The remaining balance will be collected after service completion.</p>
+                </div>
+                <button type="submit" class="book-button" disabled>Book Now - $10 Deposit</button>
             </form>
         </div>
         
@@ -236,5 +250,3 @@
     {% include 'footer.html' %}
 </body>
 </html>
-
-

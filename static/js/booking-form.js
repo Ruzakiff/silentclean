@@ -143,6 +143,7 @@ class BookingForm {
             vehicle: `${formData.get('vehicleYear') || ''} ${formData.get('vehicleModel')} - ${formData.get('vehicleColor')} (${formData.get('licensePlate')})`,
             notes: `
                 Parking Instructions: ${formData.get('parking') || 'None'}
+                Special Requests: ${formData.get('special_requests') || 'None'}
                 Additional Notes: ${formData.get('notes') || 'None'}
             `.trim(),
             addons: Array.from(formData.getAll('addons')),
