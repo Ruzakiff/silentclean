@@ -4,6 +4,8 @@ import os
 from getcalendar import init_calendar_routes, get_calendar_service
 from directions import TravelTimeCalculator
 from flask_mail import Mail, Message
+import stripe
+import uuid
 
 # Initialize Flask app
 app = Flask(__name__, static_folder='static')
@@ -21,6 +23,10 @@ mail = Mail(app)
 # Initialize calendar routes and get service instance
 init_calendar_routes(app)
 calendar_service = get_calendar_service()
+
+# Add after Flask app initialization
+stripe.api_key = os.environ.get('STRIPE_SECRET_KEY')
+temp_bookings = {}  # Temporary storage (use database in production)
 
 # Routes
 @app.route('/')
@@ -62,26 +68,6 @@ def booking_confirmation(event_id):
         print(f"Error in booking confirmation: {str(e)}")
         return render_template('error.html', message=str(e))
 
-@app.route('/services')
-def services():
-    services_list = [
-        {
-            'name': 'Basic Clean',
-            'price': 79,
-            'description': 'Exterior wash, interior vacuum, and windows'
-        },
-        {
-            'name': 'Premium Clean',
-            'price': 149,
-            'description': 'Basic clean plus interior detailing and tire shine'
-        },
-        {
-            'name': 'Ultimate Package',
-            'price': 249,
-            'description': 'Premium clean plus paint protection and sanitization'
-        }
-    ]
-    return render_template('services.html', services=services_list)
 
 @app.route('/about')
 def about():
@@ -119,43 +105,102 @@ def get_place_suggestions():
             'suggestions': []
         }), 500
 
-@app.route('/api/book', methods=['POST'])
+@app.route('/api/book', methods=['GET', 'POST'])
 def book_appointment():
-    try:
-        booking_data = request.json
-        
-        # Validate required fields
-        required_fields = ['service_type', 'date', 'time', 'name', 'email', 'phone', 'address']
-        missing_fields = [field for field in required_fields if not booking_data.get(field)]
-        
-        if missing_fields:
+    if request.method == 'GET':
+        try:
+            # Handle post-payment confirmation
+            session_id = request.args.get('session_id')
+            if not session_id:
+                return jsonify({
+                    'status': 'error',
+                    'message': 'Missing session ID'
+                }), 400
+
+            booking_data = temp_bookings.get(session_id)
+            if not booking_data:
+                return jsonify({
+                    'status': 'error',
+                    'message': 'Booking data not found'
+                }), 400
+
+            # Create the booking
+            result = calendar_service.create_booking(booking_data)
+            
+            # Send confirmation email
+            send_booking_confirmation(
+                recipient=booking_data['email'],
+                booking_details=booking_data,
+                calendar_link=result['html_link']
+            )
+
+            # Clean up temporary storage
+            temp_bookings.pop(session_id, None)
+
+            return redirect(f"/booking/confirmation/{result['event_id']}")
+
+        except Exception as e:
+            print(f"Error confirming booking: {str(e)}")
             return jsonify({
                 'status': 'error',
-                'message': f'Missing required fields: {", ".join(missing_fields)}'
-            }), 400
+                'message': str(e)
+            }), 500
 
-        # Create the booking
-        result = calendar_service.create_booking(booking_data)
-        
-        # Send confirmation email
-        send_booking_confirmation(
-            recipient=booking_data['email'],
-            booking_details=booking_data,
-            calendar_link=result['html_link']
-        )
-        
-        return jsonify({
-            'status': 'success',
-            'event_id': result['event_id'],
-            'calendar_link': result['html_link']
-        })
+    else:  # POST request
+        try:
+            booking_data = request.json
+            
+            # Validate required fields
+            required_fields = ['service_type', 'date', 'time', 'name', 'email', 'phone', 'address']
+            missing_fields = [field for field in required_fields if not booking_data.get(field)]
+            
+            if missing_fields:
+                return jsonify({
+                    'status': 'error',
+                    'message': f'Missing required fields: {", ".join(missing_fields)}'
+                }), 400
 
-    except Exception as e:
-        print(f"Error processing booking: {str(e)}")
-        return jsonify({
-            'status': 'error',
-            'message': str(e)
-        }), 500
+            # Store booking data temporarily
+            booking_id = str(uuid.uuid4())
+            temp_bookings[booking_id] = booking_data
+
+            # Get price based on service type
+            service_prices = {
+                'Essential Clean': 1000,      # $79.00
+                'Premium Detail': 1000   # $149.00
+            }
+            price = service_prices.get(booking_data['service_type'])
+            
+            # Create Stripe checkout session
+            session = stripe.checkout.Session.create(
+                payment_method_types=['card'],
+                line_items=[{
+                    'price_data': {
+                        'currency': 'usd',
+                        'product_data': {
+                            'name': f"SilentWash - {booking_data['service_type']}",
+                            'description': f"Appointment on {booking_data['date']} at {booking_data['time']}"
+                        },
+                        'unit_amount': price,
+                    },
+                    'quantity': 1,
+                }],
+                mode='payment',
+                success_url=request.url_root.rstrip('/') + f"/api/book?session_id={booking_id}",
+                cancel_url=request.url_root.rstrip('/') + "/booking/cancelled",
+            )
+
+            return jsonify({
+                'status': 'success',
+                'sessionUrl': session.url
+            })
+
+        except Exception as e:
+            print(f"Error processing booking: {str(e)}")
+            return jsonify({
+                'status': 'error',
+                'message': str(e)
+            }), 500
 
 @app.route('/privacy')
 def privacy():
@@ -164,6 +209,10 @@ def privacy():
 @app.route('/terms')
 def terms():
     return render_template('terms.html')
+
+@app.route('/booking/cancelled')
+def booking_cancelled():
+    return render_template('cancelled.html')
 
 
 @app.route('/faq')

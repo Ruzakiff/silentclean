@@ -160,8 +160,8 @@ class BookingForm {
             const result = await response.json();
             
             if (result.status === 'success') {
-                // Redirect to confirmation page
-                window.location.href = `/booking/confirmation/${result.event_id}`;
+                // Redirect to Stripe Checkout
+                window.location.href = result.sessionUrl;
             } else {
                 this.showError(result.message || 'Booking failed. Please try again.');
                 submitButton.disabled = false;

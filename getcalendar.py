@@ -650,60 +650,60 @@ def get_calendar_service():
         calendar_service = CalendarService()
     return calendar_service
 
-if __name__ == "__main__":
-    from flask import Flask
-    import json
-    from datetime import datetime, timedelta
+# if __name__ == "__main__":
+#     from flask import Flask
+#     import json
+#     from datetime import datetime, timedelta
 
-    # Create test Flask app
-    app = Flask(__name__)
-    init_calendar_routes(app)
+#     # Create test Flask app
+#     app = Flask(__name__)
+#     init_calendar_routes(app)
 
-    def test_tomorrow_booking():
-        print("\nTesting Tomorrow's Booking:")
-        print("=" * 50)
+#     def test_tomorrow_booking():
+#         print("\nTesting Tomorrow's Booking:")
+#         print("=" * 50)
         
-        # Calculate tomorrow's date
-        tomorrow = (datetime.now() + timedelta(days=1)).strftime('%Y-%m-%d')
+#         # Calculate tomorrow's date
+#         tomorrow = (datetime.now() + timedelta(days=1)).strftime('%Y-%m-%d')
         
-        with app.test_client() as client:
-            test_booking = {
-                'date': tomorrow,
-                'time': '10:00',  # Morning slot
-                'service_type': 'Premium Detail',
-                'name': 'Test Customer',
-                'email': 'test@example.com',
-                'phone': '555-0123',
-                'vehicle': 'Tesla Model 3',
-                'address': '123 Main St',
-                'notes': 'Test booking for tomorrow'
-            }
+#         with app.test_client() as client:
+#             test_booking = {
+#                 'date': tomorrow,
+#                 'time': '10:00',  # Morning slot
+#                 'service_type': 'Premium Detail',
+#                 'name': 'Test Customer',
+#                 'email': 'test@example.com',
+#                 'phone': '555-0123',
+#                 'vehicle': 'Tesla Model 3',
+#                 'address': '123 Main St',
+#                 'notes': 'Test booking for tomorrow'
+#             }
             
-            print("\nCreating booking for tomorrow:")
-            print(json.dumps(test_booking, indent=2))
+#             print("\nCreating booking for tomorrow:")
+#             print(json.dumps(test_booking, indent=2))
             
-            response = client.post(
-                '/api/create-booking',
-                json=test_booking,
-                content_type='application/json'
-            )
+#             response = client.post(
+#                 '/api/create-booking',
+#                 json=test_booking,
+#                 content_type='application/json'
+#             )
             
-            print(f"Status Code: {response.status_code}")
-            print(f"Response: {json.loads(response.data.decode())}")
+#             print(f"Status Code: {response.status_code}")
+#             print(f"Response: {json.loads(response.data.decode())}")
 
-    # Run tests
-    print("\nStarting Calendar Service Tests")
-    print("=" * 50)
+#     # Run tests
+#     print("\nStarting Calendar Service Tests")
+#     print("=" * 50)
     
-    try:
-        test_tomorrow_booking()
+#     try:
+#         test_tomorrow_booking()
         
-        print("\nAll tests completed!")
+#         print("\nAll tests completed!")
         
-    except Exception as e:
-        print(f"\nTest failed with error: {str(e)}")
+#     except Exception as e:
+#         print(f"\nTest failed with error: {str(e)}")
 
-    # Optional: Run Flask development server
-    print("\nStarting Flask development server...")
-    app.run(debug=True, port=5000)
+#     # Optional: Run Flask development server
+#     print("\nStarting Flask development server...")
+#     app.run(debug=True, port=5000)
 
