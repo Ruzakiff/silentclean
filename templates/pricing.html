@@ -132,8 +132,10 @@
                                                 <label class="form-check-label">
                                                     <i class="fa-solid fa-car-side mb-3 display-6 text-primary"></i>
                                                     <strong class="d-block h5">Essential Clean</strong>
-                                                    <small class="d-block text-muted mb-2">Perfect for quick, regular maintenance</small>
-                                                    <span class="badge bg-primary">From $50</span>
+                                                    <small class="d-block text-muted mb-2">
+                                                        Exterior wash, light undercarriage salt wipe, interior touch-up, windows & mirrors, Tire shine
+                                                    </small>
+                                                    <span class="badge bg-primary">$50</span>
                                                 </label>
                                             </div>
                                         </div>
@@ -143,8 +145,10 @@
                                                 <label class="form-check-label">
                                                     <i class="fa-solid fa-car mb-3 display-6 text-primary"></i>
                                                     <strong class="d-block h5">Premium Detail</strong>
-                                                    <small class="d-block text-muted mb-2">Thorough care for a spotless finish</small>
-                                                    <span class="badge bg-primary">From $100</span>
+                                                    <small class="d-block text-muted mb-2">
+                                                        Everything in Essential Clean plus deep interior cleaning, paint protection, leather conditioning & more
+                                                    </small>
+                                                    <span class="badge bg-primary">$100</span>
                                                 </label>
                                             </div>
                                         </div>
@@ -155,31 +159,42 @@
                                 <div class="mb-4">
                                     <label class="form-label h5">Step 2: Select Add-ons</label>
                                     <div class="add-ons-list">
-                                        <!-- New Salt Removal Add-on -->
-                                        <div class="card mb-2 p-3">
-                                            <div class="form-check d-flex justify-content-between align-items-center">
-                                                <div>
-                                                    <input class="form-check-input" type="checkbox" name="addons" value="salt_removal">
-                                                    <label class="form-check-label">
-                                                        <strong>Salt & Winter Protection</strong>
-                                                        <small class="d-block text-muted">Thorough salt removal and protective coating</small>
-                                                    </label>
-                                                </div>
-                                                <span class="text-primary">+$25</span>
-                                            </div>
-                                        </div>
-
-
                                         <div class="card mb-2 p-3">
                                             <div class="form-check d-flex justify-content-between align-items-center">
                                                 <div>
                                                     <input class="form-check-input" type="checkbox" name="addons" value="pet_hair">
                                                     <label class="form-check-label">
                                                         <strong>Pet Hair Removal</strong>
-                                                        <small class="d-block text-muted">Ideal for pet lovers</small>
+                                                        <small class="d-block text-muted">Deep cleaning for pet hair removal</small>
                                                     </label>
                                                 </div>
                                                 <span class="text-primary">+$25</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="card mb-2 p-3">
+                                            <div class="form-check d-flex justify-content-between align-items-center">
+                                                <div>
+                                                    <input class="form-check-input" type="checkbox" name="addons" value="odor_removal">
+                                                    <label class="form-check-label">
+                                                        <strong>Odor Removal</strong>
+                                                        <small class="d-block text-muted">Professional deodorizing treatment</small>
+                                                    </label>
+                                                </div>
+                                                <span class="text-primary">+$40</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="card mb-2 p-3">
+                                            <div class="form-check d-flex justify-content-between align-items-center">
+                                                <div>
+                                                    <input class="form-check-input" type="checkbox" name="addons" value="wiper_change">
+                                                    <label class="form-check-label">
+                                                        <strong>Wiper Blade Replacement</strong>
+                                                        <small class="d-block text-muted">Install new wiper blades (parts not included)</small>
+                                                    </label>
+                                                </div>
+                                                <span class="text-primary">+$20</span>
                                             </div>
                                         </div>
 
@@ -199,13 +214,13 @@
                                         <div class="card mb-2 p-3">
                                             <div class="form-check d-flex justify-content-between align-items-center">
                                                 <div>
-                                                    <input class="form-check-input" type="checkbox" name="addons" value="wiper_change">
+                                                    <input class="form-check-input" type="checkbox" name="addons" value="wheel_sealant">
                                                     <label class="form-check-label">
-                                                        <strong>Wiper Blade Replacement</strong>
-                                                        <small class="d-block text-muted">Install new wiper blades (parts not included)</small>
+                                                        <strong>Wheel Sealant Protection</strong>
+                                                        <small class="d-block text-muted">Long-lasting wheel protection coating</small>
                                                     </label>
                                                 </div>
-                                                <span class="text-primary">+$20</span>
+                                                <span class="text-primary">+$15</span>
                                             </div>
                                         </div>
                                     </div>
@@ -281,11 +296,11 @@ document.addEventListener('DOMContentLoaded', function() {
             premium: 100
         },
         addons: {
-            salt_removal: 25,
             pet_hair: 25,
-            windshield_fluid: 10,
+            odor_removal: 40,
             wiper_change: 20,
-            deep_stain: 30
+            windshield_fluid: 10,
+            wheel_sealant: 15
         },
         frequency: {
             once: 1,

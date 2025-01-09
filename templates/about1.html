@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>About Us - Silent Wash</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        /* About page specific styles */
+        .about-hero {
+            background: linear-gradient(135deg, var(--deep-midnight) 0%, #1F1F1F 100%);
+            padding: 4rem 0 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .about-hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                radial-gradient(circle at 70% 50%, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0) 70%);
+            background-size: 4px 100%, 100% 100%;
+            pointer-events: none;
+            opacity: 0.4;
+        }
+
+        .about-container {
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: var(--soft-platinum);
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(28, 30, 38, 0.08);
+        }
+
+        .about-container h2 {
+            color: var(--teal-green);
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .about-container h3 {
+            color: var(--deep-midnight);
+        }
+
+        .service-card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 8px rgba(28, 30, 38, 0.05);
+        }
+
+        .method-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: transform 0.3s ease;
+        }
+
+        .method-card:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Marketing-focused card styles */
+        .feature-card {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(28, 30, 38, 0.08);
+            transition: transform 0.2s ease;
+            border-left: 4px solid var(--teal-green);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .price-tag {
+            display: inline-block;
+            background: var(--teal-green);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: bold;
+            margin-left: 1rem;
+        }
+
+        .benefit-list {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .benefit-list li {
+            padding: 0.75rem 0;
+            padding-left: 2rem;
+            position: relative;
+        }
+
+        .benefit-list li:before {
+            content: '✓';
+            color: var(--teal-green);
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+
+        .service-highlight {
+            background: rgba(var(--teal-green-rgb), 0.05);
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+
+        .method-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .addon-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            height: 100%;
+            border: 1px solid rgba(28, 30, 38, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .addon-card:hover {
+            border-color: var(--teal-green);
+            transform: translateY(-2px);
+        }
+
+        .section-divider {
+            width: 100%;
+            height: 1px;
+            background: linear-gradient(to right, transparent, var(--teal-green), transparent);
+            margin: 3rem 0;
+        }
+    </style>
+</head>
+<body>
+    {% include 'navbar.html' %}
+    
+    <!-- Hero Section -->
+    <section class="about-hero text-white">
+        <div class="container text-center">
+            <h1 class="display-4 mb-3">Silent Wash</h1>
+            <p class="lead">Where Thoughtful Care Meets Cutting-Edge Cleaning</p>
+        </div>
+    </section>
+
+    <div class="about-container">
+        <!-- Main Heading Section -->
+        <div class="feature-card text-center">
+            <h1>Silent Wash: Where Thoughtful Care Meets Cutting-Edge Cleaning</h1>
+            <p class="lead mt-4">
+                Your car is a significant investment. At Silent Wash, we treat it as such—ensuring that every product, tool, and technique is backed by meticulous research and chosen with your car's unique needs in mind. Whether you own an EV, luxury vehicle, or everyday ride, we deliver care that's effortless, damage-free, and eco-friendly.
+            </p>
+        </div>
+
+        <h2 class="text-center mb-5">Our Services</h2>
+        
+        <!-- Essential Clean Service -->
+        <div class="feature-card">
+            <h3>Essential Clean <span class="price-tag">$50</span></h3>
+            <p>Perfect for keeping your car fresh and well-maintained.</p>
+            
+            <div class="service-highlight">
+                <h4>Includes:</h4>
+                <ul class="benefit-list">
+                    <li><strong>Exterior Waterless Wash:</strong> Removes dirt and grime without scratching, using pH-neutral, wax-infused sprays.</li>
+                    <li><strong>Light Undercarriage Salt Wipe (Seasonal):</strong> Reduces salt buildup to prevent corrosion.</li>
+                    <li><strong>Interior Touch-Up:</strong> Dashboard, door panels, and seats are wiped with gentle, non-greasy detailers.</li>
+                    <li><strong>Windows & Mirrors:</strong> Streak-free cleaning for maximum visibility.</li>
+                </ul>
+            </div>
+
+            <div class="service-highlight mt-4">
+                <h4>Why It's Different:</h4>
+                <ul class="benefit-list">
+                    <li>Every towel is rotated frequently to avoid contamination.</li>
+                    <li>Each surface is inspected for dirt before cleaning begins, ensuring precision and thoroughness.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Premium Detail Service -->
+        <div class="feature-card">
+            <h3>Premium Detail <span class="price-tag">$100</span></h3>
+            <p>Comprehensive care to protect and preserve every aspect of your car.</p>
+
+            <div class="service-highlight">
+                <h4>Includes Everything in Essential Clean, Plus:</h4>
+                <ul class="benefit-list">
+                    <li><strong>Deep Interior Cleaning:</strong> Steam cleaning for vents, crevices, carpets, and touchscreens.</li>
+                    <li><strong>Paint Protection:</strong> Ceramic-infused spray wax creates a hydrophobic shield for long-lasting shine.</li>
+                    <li><strong>Leather/Vinyl Conditioning:</strong> Hydrates and protects seats, preventing cracks and wear.</li>
+                    <li><strong>Wheel Detailing:</strong> Brake dust and grime are safely removed for a like-new finish.</li>
+                    <li><strong>Premium Undercarriage Salt Removal (Seasonal):</strong> Thorough, targeted cleaning to prevent rust.</li>
+                </ul>
+            </div>
+
+            <div class="service-highlight mt-4">
+                <h4>Why It's Different:</h4>
+                <ul class="benefit-list">
+                    <li>We use EV-safe products and techniques that protect delicate electronics and materials.</li>
+                    <li>Every step is designed to extend your car's lifespan, inside and out.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section-divider"></div>
+
+        <!-- What Sets Us Apart Section -->
+        <div class="row mt-5">
+            <div class="col-lg-12">
+                <h2 class="text-center mb-5">What Sets Silent Wash Apart?</h2>
+                
+                <!-- Zero-Damage Philosophy Section -->
+                <div class="mb-5">
+                    <h3>1. A Zero-Damage Cleaning Philosophy</h3>
+                    <div class="feature-card">
+                        <p><strong>Problem:</strong> Scratches, fading, and wear caused by harsh chemicals or improper tools.</p>
+                        <p><strong>Our Solution:</strong></p>
+                        <ul class="benefit-list">
+                            <li>Waterless Wash Sprays: Gently lift dirt while protecting paint finishes.</li>
+                            <li>High-Pile Microfiber Towels: Trap dirt safely without dragging it across surfaces.</li>
+                            <li>Scratch-Free Uniforms: Employees wear zipper-free, buttonless athletic wear to eliminate the risk of accidental damage.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- First Principles Section -->
+                <div class="feature-card">
+                    <h3>2. Cleaning Backed by First Principles</h3>
+                    
+                    <div class="service-highlight">
+                        <h4>For Every Surface, We Ask:</h4>
+                        <ul class="benefit-list">
+                            <li>What risks exist here?</li>
+                            <li>What materials will protect this surface?</li>
+                            <li>What techniques will preserve its beauty long-term?</li>
+                        </ul>
+                    </div>
+
+                    <div class="service-highlight mt-4">
+                        <h4>Examples:</h4>
+                        <ul class="benefit-list">
+                            <li><strong>Paint:</strong> pH-neutral sprays protect coatings and finishes.</li>
+                            <li><strong>Leather:</strong> Non-abrasive conditioners maintain flexibility and hydration.</li>
+                            <li><strong>Touchscreens:</strong> Damp microfiber cloths ensure streak-free clarity without over-saturating sensitive electronics.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- EV Expertise Section -->
+                <div class="feature-card">
+                    <h3>3. EV-Specific Expertise</h3>
+                    <p>Electric vehicles demand unique care, and we deliver:</p>
+                    <ul class="benefit-list">
+                        <li><strong>Battery-Safe Cleaning:</strong> No pooling water or risk of contact with electrical components.</li>
+                        <li><strong>Vegan Leather Focus:</strong> Specialized products prevent cracking or discoloration.</li>
+                        <li><strong>ADAS-Compatible Cleaning:</strong> Clear windows and touchscreens support advanced driver-assistance systems.</li>
+                    </ul>
+                </div>
+
+                <!-- Eco-Friendly Section -->
+                <div class="feature-card">
+                    <h3>4. Eco-Friendly and Waterless Methods</h3>
+                    <ul class="benefit-list">
+                        <li>Save thousands of gallons of water annually.</li>
+                        <li>Use biodegradable, non-toxic cleaning products that are safe for you and the environment.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-divider"></div>
+
+        <!-- Detailed Methods Section -->
+        <div class="row mt-5">
+            <div class="col-lg-12">
+                <h2 class="text-center mb-5">Detailed Methods: How We Clean Every Part of Your Car</h2>
+
+                <!-- Exterior Cleaning Section -->
+                <div class="mb-5">
+                    <h3>Exterior Cleaning: Scratch-Free Perfection</h3>
+                    <div class="feature-card">
+                        <h4>Why It Matters:</h4>
+                        <ul class="benefit-list">
+                            <li>Micro-scratches from improper washing dull your car's finish over time.</li>
+                        </ul>
+                        
+                        <h4 class="mt-4">Our Process:</h4>
+                        <ul class="benefit-list">
+                            <li>Dirt is encapsulated and lifted using pH-neutral sprays.</li>
+                            <li>Panels are cleaned one section at a time with microfiber towels, ensuring precision.</li>
+                        </ul>
+
+                        <h4 class="mt-4">Added Value:</h4>
+                        <ul class="benefit-list">
+                            <li>Optional sealants protect your car from water spots, UV damage, and grime.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Interior Cleaning Section -->
+                <div class="mb-5">
+                    <h3>Interior Cleaning: Meticulous and Non-Toxic</h3>
+                    <div class="feature-card">
+                        <h4>Why It Matters:</h4>
+                        <ul class="benefit-list">
+                            <li>Leather, touchscreens, and soft-touch materials are easily damaged by harsh chemicals.</li>
+                        </ul>
+
+                        <h4 class="mt-4">Our Process:</h4>
+                        <ul class="benefit-list">
+                            <li>Vegan leather is cleaned with non-greasy, hydrating conditioners.</li>
+                            <li>Steam cleaning removes debris from vents, carpets, and crevices without leaving moisture behind.</li>
+                            <li>Anti-UV sprays prevent fading and cracking on dashboards and trims.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Wheels & Tires Section -->
+                <div class="mb-5">
+                    <h3>Wheels & Tires: Gentle but Effective</h3>
+                    <div class="feature-card">
+                        <h4>Why It Matters:</h4>
+                        <ul class="benefit-list">
+                            <li>Brake dust is corrosive and must be safely removed.</li>
+                        </ul>
+
+                        <h4 class="mt-4">Our Process:</h4>
+                        <ul class="benefit-list">
+                            <li>Non-acidic wheel cleaners dissolve grime without corroding finishes.</li>
+                            <li>Tires are treated with water-based dressing for a natural, matte finish.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Salt Removal Section -->
+                <div class="mb-5">
+                    <h3>Salt Removal (Seasonal)</h3>
+                    <div class="feature-card">
+                        <h4>Why It Matters:</h4>
+                        <ul class="benefit-list">
+                            <li>Road salt is one of the leading causes of rust and corrosion.</li>
+                        </ul>
+
+                        <h4 class="mt-4">Our Process:</h4>
+                        <ul class="benefit-list">
+                            <li>A waterless degreaser safely removes salt without pooling water.</li>
+                            <li>Focused manual wiping ensures thorough cleaning of critical areas.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-divider"></div>
+
+        <!-- Add-Ons Section -->
+        <div class="row mt-5">
+            <div class="col-lg-12">
+                <h2 class="text-center mb-5">Add-Ons: Custom Care for Specific Needs</h2>
+                
+                <div class="row">
+                    <!-- Pet Hair Removal -->
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h3 class="card-title">Pet Hair Removal <span class="text-primary">$30</span></h3>
+                                <p class="card-text">Specialized tools to remove stubborn pet hair from seats and carpets.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Odor Removal -->
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h3 class="card-title">Odor Removal <span class="text-primary">$40</span></h3>
+                                <p class="card-text">Steam sanitization eliminates smoke, food, or pet odors.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Wiper Replacement -->
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h3 class="card-title">Wiper Replacement <span class="text-primary">$30 + parts</span></h3>
+                                <p class="card-text">Professional installation of streak-free wipers.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Windshield Washer Fluid -->
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h3 class="card-title">Windshield Washer Fluid Refill <span class="text-primary">$10</span></h3>
+                                <p class="card-text">Top off with premium, winter-grade fluid.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Wheel Sealant -->
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h3 class="card-title">Wheel Sealant Protection <span class="text-primary">$25</span></h3>
+                                <p class="card-text">Adds a ceramic coating to repel brake dust and grime.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- FAQ Link Section -->
+        <div class="row mt-4">
+            <div class="col-lg-12 text-center">
+                <p class="lead">
+                    Have more questions? Visit our <a href="/faq" class="text-primary">FAQ page</a> for detailed answers.
+                </p>
+            </div>
+        </div>
+        <!-- Call to Action Section -->
+        <div class="row mt-5 mb-5">
+            <div class="col-lg-12 text-center">
+                <h2 class="mb-4">Experience Silent Wash Today</h2>
+                <p class="lead mb-4">
+                    Your car deserves care that protects its beauty, performance, and value. Book your service today and experience the difference of meticulous, research-backed detailing.
+                </p>
+                <a href="/book" class="btn btn-primary btn-lg">Book Now</a>
+            </div>
+        </div>
+    </div>
+
+    {% include 'footer.html' %}
+
+    <!-- Bootstrap JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
+
+

@@ -69,9 +69,6 @@ def booking_confirmation(event_id):
         return render_template('error.html', message=str(e))
 
 
-@app.route('/about')
-def about():
-    return render_template('about.html')
 
 @app.route('/favicon.ico')
 def favicon():
@@ -209,6 +206,10 @@ def privacy():
 @app.route('/terms')
 def terms():
     return render_template('terms.html')
+
+@app.route('/about')
+def about():
+    return render_template('about1.html')
 
 @app.route('/booking/cancelled')
 def booking_cancelled():

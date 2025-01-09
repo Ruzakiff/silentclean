@@ -11,8 +11,11 @@ class PricingCalculator {
             'weekly': 0.80    // 20% off
         };
         this.addOnPrices = {
-            'pet_hair': 25
-            // Add other add-ons here
+            'pet_hair': 25,
+            'odor_removal': 40,
+            'wiper_change': 20,
+            'windshield_fluid': 10,
+            'wheel_sealant': 15
         };
         this.initializeListeners();
     }

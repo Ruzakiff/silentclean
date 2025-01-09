@@ -16,6 +16,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js" defer></script>
 </head>
 <body>
+     {% include 'navbar.html' %}
     <div class="booking-container">
         <div class="booking-header">
             <h1>Book Your Detail</h1>
@@ -32,7 +33,8 @@
                     <p>Perfect for quick, regular maintenance</p>
                     <ul class="service-features">
                         <li><i class="fas fa-check"></i> Exterior wash</li>
-                        <li><i class="fas fa-check"></i> Basic interior clean</li>
+                        <li><i class="fas fa-check"></i> Light undercarriage salt wipe (seasonal)</li>
+                        <li><i class="fas fa-check"></i> Interior touch-up (dash, panels, quick vacuum)</li>
                         <li><i class="fas fa-check"></i> Windows and mirrors</li>
                         <li><i class="fas fa-check"></i> Tire shine</li>
                     </ul>
@@ -45,10 +47,12 @@
                     </h3>
                     <p>Thorough care for a spotless finish</p>
                     <ul class="service-features">
-                        <li><i class="fas fa-check"></i> Deep interior cleaning</li>
-                        <li><i class="fas fa-check"></i> Paint protection</li>
-                        <li><i class="fas fa-check"></i> Premium wax</li>
-                        <li><i class="fas fa-check"></i> Leather conditioning</li>
+                        <li><i class="fas fa-check"></i> Everything in Essential Clean</li>
+                        <li><i class="fas fa-check"></i> Deep interior cleaning (vents, touchscreens)</li>
+                        <li><i class="fas fa-check"></i> Paint protection (spray wax/sealant)</li>
+                        <li><i class="fas fa-check"></i> Leather/vinyl conditioning</li>
+                        <li><i class="fas fa-check"></i> Wheel detailing</li>
+                        <li><i class="fas fa-check"></i> Premium undercarriage salt removal (seasonal)</li>
                     </ul>
                 </div>
             </div>
@@ -146,9 +150,9 @@
                                     <input type="checkbox" 
                                            class="form-check-input" 
                                            name="addons" 
-                                           value="salt_removal">
-                                    <span>Salt & Winter Protection</span>
-                                    <small class="d-block text-muted">Thorough salt removal and protective coating</small>
+                                           value="pet_hair">
+                                    <span>Pet Hair Removal</span>
+                                    <small class="d-block text-muted">Deep cleaning for pet hair removal</small>
                                 </div>
                                 <span class="text-primary">+$25</span>
                             </label>
@@ -160,14 +164,28 @@
                                     <input type="checkbox" 
                                            class="form-check-input" 
                                            name="addons" 
-                                           value="pet_hair">
-                                    <span>Pet Hair Removal</span>
-                                    <small class="d-block text-muted">Ideal for pet lovers</small>
+                                           value="odor_removal">
+                                    <span>Odor Removal</span>
+                                    <small class="d-block text-muted">Professional deodorizing treatment</small>
                                 </div>
-                                <span class="text-primary">+$25</span>
+                                <span class="text-primary">+$40</span>
                             </label>
                         </div>
                         
+                        <div class="addon-item">
+                            <label class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <input type="checkbox" 
+                                           class="form-check-input" 
+                                           name="addons" 
+                                           value="wiper_change">
+                                    <span>Wiper Replacement</span>
+                                    <small class="d-block text-muted">Install new wiper blades (parts not included)</small>
+                                </div>
+                                <span class="text-primary">+$20</span>
+                            </label>
+                        </div>
+
                         <div class="addon-item">
                             <label class="d-flex justify-content-between align-items-center">
                                 <div>
@@ -188,11 +206,11 @@
                                     <input type="checkbox" 
                                            class="form-check-input" 
                                            name="addons" 
-                                           value="wiper_change">
-                                    <span>Wiper Blade Replacement</span>
-                                    <small class="d-block text-muted">Install new wiper blades (parts not included)</small>
+                                           value="wheel_sealant">
+                                    <span>Wheel Sealant Protection</span>
+                                    <small class="d-block text-muted">Long-lasting wheel protection coating</small>
                                 </div>
-                                <span class="text-primary">+$20</span>
+                                <span class="text-primary">+$15</span>
                             </label>
                         </div>
                     </div>

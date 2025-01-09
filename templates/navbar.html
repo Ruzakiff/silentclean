@@ -1,0 +1,105 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+    <div class="container">
+        <!-- Brand -->
+        <a class="navbar-brand" href="/">
+            <span class="fw-bold">Silent</span>Wash
+        </a>
+
+        <!-- Mobile Toggle Button -->
+        <button class="navbar-toggler" 
+                type="button" 
+                data-bs-toggle="collapse" 
+                data-bs-target="#navbarMain" 
+                aria-controls="navbarMain" 
+                aria-expanded="false" 
+                aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- Navigation Links -->
+        <div class="collapse navbar-collapse" id="navbarMain">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link" href="/#services">Services</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/#pricing">Pricing</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/about">About Us</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/#testimonials">Testimonials</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/faq">FAQ</a>
+                </li>
+            </ul>
+
+            <!-- Contact Info & CTA -->
+            <div class="d-flex flex-column flex-lg-row align-items-start align-items-lg-center gap-3">
+                <!-- Contact Number -->
+                <a href="tel:+13019608759" 
+                   class="text-white-50 text-decoration-none hover-white d-none d-lg-inline-block">
+                    <i class="fa-solid fa-phone me-2"></i>(301) 901-8759
+                </a>
+
+                <!-- Book Now Button -->
+                <a href="/booking" 
+                   class="btn btn-primary">
+                    Book Now
+                    <i class="fa-solid fa-arrow-right ms-2"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- Add some spacing below navbar -->
+<div style="margin-top: 76px;"></div>
+
+<style>
+    /* Hover effect for nav links */
+    .navbar .nav-link {
+        position: relative;
+        padding: 0.5rem 1rem;
+    }
+
+    .navbar .nav-link::after {
+        content: '';
+        position: absolute;
+        width: 0;
+        height: 2px;
+        bottom: 0;
+        left: 50%;
+        background-color: var(--bs-primary);
+        transition: all 0.3s ease;
+        transform: translateX(-50%);
+    }
+
+    .navbar .nav-link:hover::after {
+        width: 80%;
+    }
+
+    /* Hover effect for contact number */
+    .hover-white:hover {
+        color: white !important;
+        transition: color 0.3s ease;
+    }
+
+    /* Active link styling */
+    .navbar .nav-link.active {
+        color: var(--bs-primary) !important;
+    }
+
+    /* Mobile menu styling */
+    @media (max-width: 991.98px) {
+        .navbar-collapse {
+            padding: 1rem 0;
+        }
+        
+        .navbar .nav-link {
+            padding: 0.75rem 0;
+        }
+    }
+</style>
