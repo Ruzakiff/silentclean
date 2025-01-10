@@ -26,6 +26,15 @@ class BeforeAfterSlider {
                     box-shadow: 0 4px 12px rgba(28, 30, 38, 0.1);
                 }
 
+                .after-image {
+                    position: absolute;
+                    height: 100%;
+                    width: 100%;
+                    top: 0;
+                    left: 0;
+                    overflow: hidden;
+                }
+                
                 .before-image {
                     position: absolute;
                     height: 100%;
@@ -35,7 +44,7 @@ class BeforeAfterSlider {
                     overflow: hidden;
                     z-index: 2;
                 }
-
+                
                 .before-image img,
                 .after-image img {
                     width: 100%;
