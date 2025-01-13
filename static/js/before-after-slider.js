@@ -11,6 +11,7 @@ class BeforeAfterSlider {
             ...options
         };
         
+        this.currentIndex = 0;
         this.init();
     }
 
@@ -86,18 +87,54 @@ class BeforeAfterSlider {
                     font-size: 18px;
                     z-index: 6;
                 }
+
+                .slider-nav {
+                    position: absolute;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    z-index: 10;
+                    background: rgba(244, 244, 244, 0.8);
+                    width: 40px;
+                    height: 40px;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    cursor: pointer;
+                    transition: background 0.3s;
+                }
+
+                .slider-nav:hover {
+                    background: rgba(244, 244, 244, 1);
+                }
+
+                .slider-nav.prev {
+                    left: 20px;
+                }
+
+                .slider-nav.next {
+                    right: 20px;
+                }
             </style>
 
             <div class="before-after-slider" id="before-after-slider">
                 <div class="after-image">
-                    <img src="${this.options.images[0].after}" alt="After"/>
+                    <img src="${this.options.images[this.currentIndex].after}" alt="After"/>
                 </div>
                 <div class="before-image" id="before-image">
-                    <img src="${this.options.images[0].before}" alt="Before"/>
+                    <img src="${this.options.images[this.currentIndex].before}" alt="Before"/>
                 </div>
                 <div class="resizer" id="resizer">
                     <i class="fas fa-arrows-left-right"></i>
                 </div>
+                ${this.options.images.length > 1 ? `
+                    <div class="slider-nav prev" id="prev-btn">
+                        <i class="fas fa-chevron-left"></i>
+                    </div>
+                    <div class="slider-nav next" id="next-btn">
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                ` : ''}
             </div>
         `;
     }
@@ -120,6 +157,13 @@ class BeforeAfterSlider {
         
         // Bind events
         this.bindEvents();
+
+        // Add navigation if multiple images
+        if (this.options.images.length > 1) {
+            this.prevBtn = document.getElementById('prev-btn');
+            this.nextBtn = document.getElementById('next-btn');
+            this.bindNavigationEvents();
+        }
     }
 
     setImageWidth() {
@@ -142,6 +186,11 @@ class BeforeAfterSlider {
         document.body.addEventListener('touchend', () => this.active = false);
         document.body.addEventListener('touchcancel', () => this.active = false);
         document.body.addEventListener('touchmove', (e) => this.handleMove(e));
+    }
+
+    bindNavigationEvents() {
+        this.prevBtn.addEventListener('click', () => this.navigate('prev'));
+        this.nextBtn.addEventListener('click', () => this.navigate('next'));
     }
 
     handleMove(e) {
@@ -171,5 +220,23 @@ class BeforeAfterSlider {
         e.cancelBubble = true;
         e.returnValue = false;
         return false;
+    }
+
+    navigate(direction) {
+        if (direction === 'next') {
+            this.currentIndex = (this.currentIndex + 1) % this.options.images.length;
+        } else {
+            this.currentIndex = (this.currentIndex - 1 + this.options.images.length) % this.options.images.length;
+        }
+        
+        const afterImage = this.slider.querySelector('.after-image img');
+        const beforeImage = this.beforeImage;
+        
+        afterImage.src = this.options.images[this.currentIndex].after;
+        beforeImage.src = this.options.images[this.currentIndex].before;
+        
+        // Reset slider position
+        this.before.style.width = '50%';
+        this.resizer.style.left = '50%';
     }
 }
