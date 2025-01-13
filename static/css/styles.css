@@ -109,59 +109,83 @@ html {
 
 /* Hero Section Styles */
 .hero-section {
-    background: linear-gradient(135deg, var(--deep-midnight) 0%, #1F1F1F 100%);
     position: relative;
-    overflow: hidden;
     min-height: 90vh;
+    background: var(--deep-midnight);
+    overflow: hidden;
 }
 
-.hero-section::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: 
-        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-        radial-gradient(circle at 70% 50%, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0) 70%);
-    background-size: 4px 100%, 100% 100%;
-    pointer-events: none;
-    opacity: 0.4;
-}
-
+/* Image container with proper aspect ratio and positioning */
 .hero-image-wrapper {
     position: absolute;
-    width: 70%;
-    height: 100%;
-    top: 0;
-    right: 0;
+    width: 100%;
+    inset: 0;  /* Shorthand for top/right/bottom/left: 0 */
     z-index: 1;
 }
 
+/* Image itself with modern object-fit approach */
 .hero-image-wrapper img {
     width: 100%;
     height: 100%;
     object-fit: cover;
     object-position: center;
+    opacity: 0.8;
+    mix-blend-mode: overlay;
+    filter: brightness(0.9) contrast(1.1);
 }
 
+/* Gradient overlay */
 .hero-image-wrapper::after {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(90deg, rgba(28, 30, 38, 0.95) 0%, rgba(28, 30, 38, 0.8) 40%, rgba(28, 30, 38, 0) 100%);
+    inset: 0;
+    background: linear-gradient(90deg, 
+        var(--deep-midnight) 0%, 
+        rgba(28, 30, 38, 0.98) 10%,
+        rgba(28, 30, 38, 0.95) 20%,
+        rgba(28, 30, 38, 0.8) 35%, 
+        rgba(28, 30, 38, 0.6) 50%,
+        rgba(28, 30, 38, 0.4) 65%,
+        rgba(28, 30, 38, 0.2) 80%,
+        rgba(28, 30, 38, 0.1) 90%,
+        rgba(28, 30, 38, 0) 100%
+    );
 }
 
+/* Content container with subtle blur */
 .hero-content-container {
     position: relative;
     z-index: 2;
     min-height: 90vh;
     display: flex;
     align-items: center;
+    background: rgba(28, 30, 38, 0.2);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+}
+
+/* Responsive adjustments */
+@media (max-width: 767px) {
+    .hero-image-wrapper img {
+        opacity: 0.7;
+    }
+    
+    .hero-image-wrapper::after {
+        background: linear-gradient(180deg, 
+            rgba(28, 30, 38, 0.2) 0%,
+            rgba(28, 30, 38, 0.3) 20%,
+            rgba(28, 30, 38, 0.5) 40%,
+            rgba(28, 30, 38, 0.7) 60%,
+            rgba(28, 30, 38, 0.85) 80%,
+            var(--deep-midnight) 100%
+        );
+    }
+
+    .hero-content-container {
+        background: rgba(28, 30, 38, 0.15);
+        backdrop-filter: blur(2px);
+        -webkit-backdrop-filter: blur(2px);
+    }
 }
 
 .hero-content {

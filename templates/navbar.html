@@ -59,6 +59,23 @@
 <div style="margin-top: 76px;"></div>
 
 <style>
+    :root {
+        --navbar-height: 76px;
+    }
+
+    .navbar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+    }
+
+    /* Push content below navbar ONLY when no promo banner */
+    body:has(.promo-banner) {
+        padding-top: var(--navbar-height);
+    }
+
     /* Hover effect for nav links */
     .navbar .nav-link {
         position: relative;
@@ -103,3 +120,14 @@
         }
     }
 </style>
+
+<script>
+    // Calculate and set actual navbar height
+    document.addEventListener('DOMContentLoaded', function() {
+        const navbar = document.querySelector('.navbar');
+        if (navbar) {
+            const height = navbar.offsetHeight;
+            document.documentElement.style.setProperty('--navbar-height', height + 'px');
+        }
+    });
+</script>

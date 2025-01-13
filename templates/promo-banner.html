@@ -1,0 +1,164 @@
+<!-- New Year Promotional Banner -->
+<div class="promo-banner w-100 text-center py-2 text-white">
+    <div class="container">
+        <div class="d-flex justify-content-center align-items-center flex-wrap gap-2">
+            <div class="sparkle-icons d-none d-sm-block">
+                <i class="fas fa-star text-warning sparkle-1"></i>
+                <i class="fas fa-star text-warning sparkle-2"></i>
+                <i class="fas fa-star text-warning sparkle-3"></i>
+            </div>
+            <div class="promo-content">
+                <div class="fw-bold h6 mb-0">New Year Promo: $50/$100 Flat Pricing!</div>
+                <div class="text-light small d-none d-sm-block">Cars, SUVs, or Trucks—start 2025 spotless.</div>
+            </div>
+            <div class="countdown-timer ms-2">
+                <span class="text-warning">Ends in: </span>
+                <span id="countdown" class="fw-bold text-warning"></span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Promo Banner Styles -->
+<style>
+    @keyframes sparkle-1 {
+        0% { opacity: 0; transform: scale(0) rotate(0deg); }
+        50% { opacity: 1; transform: scale(1) rotate(180deg); }
+        100% { opacity: 0; transform: scale(0) rotate(360deg); }
+    }
+
+    @keyframes sparkle-2 {
+        0% { opacity: 0; transform: scale(0) rotate(0deg); }
+        50% { opacity: 1; transform: scale(1.2) rotate(-180deg); }
+        100% { opacity: 0; transform: scale(0) rotate(-360deg); }
+    }
+
+    @keyframes sparkle-3 {
+        0% { opacity: 0; transform: scale(0) rotate(0deg); }
+        60% { opacity: 1; transform: scale(0.8) rotate(90deg); }
+        100% { opacity: 0; transform: scale(0) rotate(180deg); }
+    }
+
+    .sparkle-icons {
+        position: relative;
+        display: inline-block;
+        width: 24px;
+        height: 24px;
+    }
+
+    .sparkle-1, .sparkle-2, .sparkle-3 {
+        position: absolute;
+        font-size: 12px;
+    }
+
+    .sparkle-1 {
+        animation: sparkle-1 2s infinite;
+        left: 0;
+        top: 0;
+    }
+
+    .sparkle-2 {
+        animation: sparkle-2 2.5s infinite;
+        left: 8px;
+        top: 4px;
+    }
+
+    .sparkle-3 {
+        animation: sparkle-3 1.8s infinite;
+        left: 4px;
+        top: 8px;
+    }
+
+    .promo-banner {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 999;
+        background: linear-gradient(
+            to right,
+            rgba(0,0,0,0.9),
+            rgba(0,0,0,0.8),
+            rgba(0,0,0,0.9)
+        );
+        box-shadow: 0 2px 15px rgba(0,0,0,0.2);
+        font-size: min(0.9rem, 4vw);
+        line-height: 1.2;
+        color: white;
+    }
+
+    body > .navbar ~ .promo-banner {
+        top: var(--navbar-height);
+    }
+
+    .promo-banner {
+        height: var(--promo-height, 52px);
+    }
+
+    body > .promo-banner {
+        position: absolute;
+    }
+
+    .countdown-timer {
+        background: rgba(255,255,255,0.1);
+        padding: 0.25em 0.75em;
+        border-radius: 999px;
+    }
+
+    @media (max-width: 576px) {
+        .promo-banner {
+            font-size: 0.8rem;
+        }
+        
+        .countdown-timer {
+            padding: 0.15rem 0.5rem;
+        }
+    }
+</style>
+
+<!-- Promo Banner Script -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Banner animation
+        const banner = document.querySelector('.promo-banner');
+        
+        function fadeInOut() {
+            banner.style.transition = 'opacity 1s';
+            banner.style.opacity = '0.8';
+            
+            setTimeout(() => {
+                banner.style.opacity = '1';
+            }, 2000);
+        }
+        
+        setInterval(fadeInOut, 4000);
+
+        // Countdown timer
+        const endDate = new Date('2025-02-28T23:59:59').getTime();
+        
+        function updateCountdown() {
+            const now = new Date().getTime();
+            const distance = endDate - now;
+            
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            
+            document.getElementById('countdown').innerHTML = 
+                `${days}d ${hours}h`;
+            
+            if (distance < 0) {
+                clearInterval(countdownInterval);
+                document.getElementById('countdown').innerHTML = "EXPIRED";
+            }
+        }
+        
+        updateCountdown();
+        const countdownInterval = setInterval(updateCountdown, 1000 * 60 * 60); // Update every hour
+
+        // Calculate and set actual banner height for spacing
+        if (banner) {
+            const height = banner.offsetHeight;
+            document.documentElement.style.setProperty('--promo-height', height + 'px');
+        }
+    });
+</script>
