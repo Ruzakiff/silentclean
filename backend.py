@@ -6,6 +6,8 @@ from directions import TravelTimeCalculator
 from flask_mail import Mail, Message
 import stripe
 import uuid
+from email.mime.base import MIMEBase
+from email import encoders
 
 # Initialize Flask app
 app = Flask(__name__, static_folder='static')
@@ -128,7 +130,8 @@ def book_appointment():
             send_booking_confirmation(
                 recipient=booking_data['email'],
                 booking_details=booking_data,
-                calendar_link=result['html_link']
+                calendar_link=result['html_link'],
+                ics_data=result['ics_data']  # Frontend can create downloadable .ics file
             )
 
             # Clean up temporary storage
@@ -301,9 +304,10 @@ def format_datetime(value):
     else:
         dt = value
     return dt.strftime('%B %d, %Y at %I:%M %p')  # Example: March 15, 2024 at 02:30 PM
-def send_booking_confirmation(recipient, booking_details, calendar_link):
-    """Send booking confirmation email to customer"""
+def send_booking_confirmation(recipient, booking_details, calendar_link, ics_data):
+    """Send booking confirmation email to customer with ICS attachment"""
     try:
+        print("\nDEBUG - Starting email send process")
         
         msg = Message(
             "We've Got You Covered—Your SilentWash Appointment Details",
@@ -312,7 +316,30 @@ def send_booking_confirmation(recipient, booking_details, calendar_link):
             reply_to='contact@silentwashev.com'
         )
         
-        # Plain text version
+        # Create attachment tuple with all required attributes
+        class AttachmentWithType:
+            def __init__(self, filename, content, content_type):
+                self.filename = filename
+                self.data = content
+                self.content_type = content_type
+                self.disposition = 'attachment'
+                self.headers = {
+                    'Content-Type': f'{content_type}; method=REQUEST',
+                    'Content-Class': 'urn:content-classes:calendarmessage'
+                }
+
+        attachment = AttachmentWithType(
+            filename='appointment.ics',
+            content=ics_data.encode('utf-8'),
+            content_type='text/calendar'
+        )
+        
+        # Add to message attachments
+        if not hasattr(msg, 'attachments'):
+            msg.attachments = []
+        msg.attachments.append(attachment)
+        
+        # Set message content
         msg.body = f"""
 Hi {booking_details.get('name', 'Valued Customer')},
 
@@ -324,25 +351,25 @@ Appointment Details:
 - Time: {booking_details['time']}
 - Location: {booking_details['address']}
 
+We've attached a calendar invite to this email for your convenience.
+
 Here's what to expect:
-1. **Before Your Service**: You'll receive a reminder the day before.
-2. **During the Service**: Our team will clean your vehicle while it stays parked—quietly and efficiently.
-3. **After the Service**: You'll receive a notification with before-and-after photos to review the results.
+1. Before Your Service: You'll receive a reminder the day before.
+2. During the Service: Our team will clean your vehicle while it stays parked—quietly and efficiently.
+3. After the Service: You'll receive a notification with before-and-after photos to review the results.
 
 Manage or update your booking here:
 {calendar_link}
 
-At SilentWash, we believe your time is priceless. That's why we handle every detail with care and precision, offering you the freedom to focus on what matters most.
-
-If you have any questions or need assistance, feel free to reply to this email.  
+If you have any questions or need assistance, feel free to reply to this email.
 We look forward to exceeding your expectations!
 
-Best regards,  
-The SilentWash Team  
+Best regards,
+The SilentWash Team
 "Your ride, always spotless. Always effortless."
 """
         
-        # HTML version using the template
+        # Set HTML body
         msg.html = render_template(
             'emailtemplate.html',
             customer_name=booking_details.get('name', 'Valued Customer'),
@@ -353,10 +380,17 @@ The SilentWash Team
             calendar_link=calendar_link
         )
         
+        # Send the email
+        print("\nDEBUG - Attempting to send email...")
         mail.send(msg)
-        print(f"Confirmation email sent to {recipient}")
+        print("✓ Email sent successfully")
+        
     except Exception as e:
-        print(f"Error sending confirmation email: {str(e)}")
+        print(f"✗ Error sending confirmation email: {str(e)}")
+        print(f"Error type: {type(e)}")
+        import traceback
+        print("Stack trace:")
+        print(traceback.format_exc())
 
 if __name__ == '__main__':
     # Ensure the static/images directory exists

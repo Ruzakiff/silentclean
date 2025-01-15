@@ -10,6 +10,7 @@ from requests.packages.urllib3.util.retry import Retry
 import ssl
 import time
 import os
+from icalendar import Calendar, Event
 
 class CalendarService:
     def __init__(self):
@@ -54,8 +55,8 @@ class CalendarService:
         
         # Define business hours (24-hour format)
         self.business_hours = {
-            'start': 9,  # 9 AM
-            'end': 17    # 5 PM
+            'start': 1,  # 9 AM
+            'end': 22    # 5 PM
         }
 
         # Add a dictionary to track pending bookings
@@ -452,10 +453,36 @@ Special Instructions: {booking_data.get('notes', 'None')}
                             ).execute()
                             print(f"✓ Created {total_travel_time} minute travel block to next booking")
 
+                # After creating the Google Calendar event, generate ICS data
+                def create_ics_data(booking_data, start_time, end_time):
+                    cal = Calendar()
+                    cal.add('prodid', '-//Silent Wash//Car Detail Booking//EN')
+                    cal.add('version', '2.0')
+                    
+                    event = Event()
+                    event.add('summary', f"Car Detail - {booking_data['service_type']}")
+                    event.add('dtstart', start_time)
+                    event.add('dtend', end_time)
+                    event.add('location', booking_data.get('address', 'TBD'))
+                    event.add('description', f"""
+Car Detail Appointment
+---------------------
+Service: {booking_data['service_type']}
+Vehicle: {booking_data.get('vehicle', 'Not specified')}
+Special Instructions: {booking_data.get('notes', 'None')}
+                    """.strip())
+                    
+                    cal.add_component(event)
+                    return cal.to_ical().decode('utf-8')
+
+                # Generate ICS data
+                ics_data = create_ics_data(booking_data, start_time, end_time)
+                
                 return {
                     'status': 'success',
                     'event_id': event['id'],
-                    'html_link': event['htmlLink']
+                    'html_link': event['htmlLink'],
+                    'ics_data': ics_data  # Frontend can create downloadable .ics file
                 }
 
             except ssl.SSLError as e:
@@ -706,4 +733,5 @@ def get_calendar_service():
 #     # Optional: Run Flask development server
 #     print("\nStarting Flask development server...")
 #     app.run(debug=True, port=5000)
+
 

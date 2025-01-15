@@ -1,7 +1,7 @@
 class PricingCalculator {
     constructor() {
         this.baseServicePrices = {
-            'Essential Clean': 50,
+            'Essential Clean': 35,
             'Premium Detail': 100
         };
         this.frequencyDiscounts = {
