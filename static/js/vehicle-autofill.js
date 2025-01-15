@@ -33,7 +33,22 @@ class VehicleAutofill {
             // Get all makes first
             const makesResponse = await fetch('https://vpic.nhtsa.dot.gov/api/vehicles/getallmakes?format=json');
             const makesData = await makesResponse.json();
-            this.makes = makesData.Results.map(make => make.Make_Name);
+            
+            // List of common/active manufacturers
+            const commonMakes = new Set([
+                'Acura', 'Alfa Romeo', 'Aston Martin', 'Audi', 'Bentley', 'BMW', 
+                'Bugatti', 'Buick', 'Cadillac', 'Chevrolet', 'Chrysler', 'Dodge', 
+                'Ferrari', 'Fiat', 'Ford', 'Genesis', 'GMC', 'Honda', 'Hyundai', 
+                'Infiniti', 'Jaguar', 'Jeep', 'Kia', 'Lamborghini', 'Land Rover', 
+                'Lexus', 'Lincoln', 'Lotus', 'Lucid','Maserati', 'Mazda', 'McLaren', 
+                'Mercedes-Benz', 'MINI', 'Mitsubishi', 'Nissan', 'Porsche','Polestar','Ram', 'Rivian',
+                'Rolls-Royce', 'Subaru', 'Tesla', 'Toyota', 'Volkswagen', 'Volvo'
+            ]);
+
+            // Filter to only include common makes
+            this.makes = makesData.Results
+                .map(make => make.Make_Name)
+                .filter(make => commonMakes.has(make));
 
             // Cache in localStorage
             localStorage.setItem('vehicleData', JSON.stringify({
